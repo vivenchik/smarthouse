@@ -1,0 +1,50 @@
+[tool.black]
+line-length = 120
+target-version = ['py311']
+
+[tool.isort]
+line_length = 120
+profile = "black"
+
+[tool.mypy]
+python_version = 3.11
+
+[[tool.mypy.overrides]]
+module = "astral.sun"
+follow_imports = "skip"
+
+[tool.flake8]
+max-line-length = 120
+ignore = ["E203", "W503"]
+
+[tool.pytest]
+asyncio_mode = "auto"
+
+[tool.pylint]
+py-version = "3.11.2"
+jobs = 0
+max-line-length = 120
+persistent = "yes"
+suggestion-mode = "yes"
+enable = [
+    "use-symbolic-message-instead",
+    "useless-suppression",
+    ]
+disable = [
+    "missing-docstring",
+    "R0903",
+    "R6003",
+]
+load-plugins = [
+    "pylint.extensions.check_elif",
+    "pylint.extensions.bad_builtin",
+    "pylint.extensions.docparams",
+    "pylint.extensions.for_any_all",
+    "pylint.extensions.set_membership",
+    "pylint.extensions.code_style",
+    "pylint.extensions.overlapping_exceptions",
+    "pylint.extensions.typing",
+    "pylint.extensions.redefined_variable_type",
+    "pylint.extensions.comparison_placement",
+    "pylint.extensions.mccabe"
+]

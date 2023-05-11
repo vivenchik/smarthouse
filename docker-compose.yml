@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  home:
+    build: .
+    entrypoint: ["python3", "/usr/src/home/server.py"]
+    restart: unless-stopped
+    volumes:
+      - ./storage/:/usr/src/home/storage
+    ports:
+      - "8080:8080"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2048m"
+    healthcheck:  # todo: this is dont work
+      test: [ "CMD", "curl", "-f", "http://0.0.0.0:8080/health" ]
+      interval: 30s
+      timeout: 1s
+      retries: 5
+      start_period: 10s
+
+  restarter:
+      image: docker
+      volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+      command: ["/bin/sh", "-c", "while true; do sleep 1209600; docker restart home-home-1; done"]  # 2 weeks
+      restart: unless-stopped

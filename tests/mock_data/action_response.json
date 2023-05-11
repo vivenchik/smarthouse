@@ -1,0 +1,20 @@
+{
+  "status": "ok",
+  "request_id": "4b2f2a2b-1fa6-4798-be4c-f0626c4b2a4e",
+  "devices": [
+    {
+      "id": "cd6b72c9-e8de-4b9e-b1cf-e641ba3840a0",
+      "capabilities": [
+        {
+          "type": "devices.capabilities.on_off",
+          "state": {
+            "instance": "on",
+            "action_result": {
+              "status": "DONE"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

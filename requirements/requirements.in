@@ -1,0 +1,8 @@
+aiohttp[speedups]
+aiofiles
+pyyaml
+python-telegram-bot[all,ext]
+telegram
+pydantic[dotenv]
+async_lru
+astral
