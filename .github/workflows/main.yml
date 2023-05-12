@@ -90,9 +90,9 @@ jobs:
 
       - name: Deploy
         run: |
-          if [[ -n "${github.head_ref+set}" ]]
+          if [[ -v GITHUB_HEAD_REF ]]
           then
-            ref=${github.head_ref}
+            ref=${GITHUB_HEAD_REF}
           else
             ref=${GITHUB_REF##*/}
           fi
