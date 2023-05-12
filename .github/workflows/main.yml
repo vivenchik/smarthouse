@@ -90,6 +90,5 @@ jobs:
 
       - name: Deploy
         run: |
-          echo ${GITHUB_REF}
-          echo ${GITHUB_REF##*/}
+          git branch -a
           ssh ivan@51.250.77.64 "cd /home/ivan/home && git fetch --all && git checkout $GITHUB_REF && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
