@@ -24,12 +24,12 @@ jobs:
       run: |
         pytest -n 4 --cov src tests
         coverage report --include "src/lib/*" --skip-empty --fail-under=50
-        coverage xml
+        coverage xml --include "src/lib/*" --skip-empty
 
     - name: Code Coverage Report
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
-        filename: coverage/**/coverage.cobertura.xml
+        filename: coverage.xml
         badge: true
         fail_below_min: true
         format: markdown
