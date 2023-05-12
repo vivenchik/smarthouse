@@ -97,4 +97,5 @@ async def not_prod():
     if not config.prod:
         await asyncio.sleep(20 * MIN)
         logger.error("This is not prod")
+        await Storage()._write_storage(force=True)
         sys.exit(0)

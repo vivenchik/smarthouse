@@ -20,6 +20,7 @@ async def restart_handler(tg_client: TGClient, update: Update):
         return
     logger.info("exited by user")
     await tg_client.write_tg("exited by user", replay_message_id=update.message.id)
+    await Storage()._write_storage(force=True)
     sys.exit(0)
 
 

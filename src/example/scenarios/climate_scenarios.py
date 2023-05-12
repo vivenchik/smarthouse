@@ -24,9 +24,10 @@ async def wc_hydro_actions():
     wc_term_humidity = await ds.wc_term.humidity()
     if (
         not wc_term_humidity.quarantine
-        and (last_hydro > HOUR + 30 * MIN or wc_term_humidity.result > 65)
-        and wc_term_humidity.result > 45
+        and (last_hydro > HOUR + 30 * MIN or wc_term_humidity.result > 75)
+        and wc_term_humidity.result > 55
         and not await ds.air.is_on(10)
+        and (await ds.wc_1.is_on() or await ds.wc_2.is_on())
     ):
         await run([ds.air.on(), ds.humidifier.on("high")])
         storage.put(SKeys.last_hydro, time.time())

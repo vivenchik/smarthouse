@@ -288,8 +288,6 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     ):
         if excl is None:
             excl = {}
-        if self._mutations is None:
-            excl = {}
 
         filtered_ids = await self.ask_permissions([(action.device_id, None) for action in actions_list])
         patched_actions_list: list = []
