@@ -92,9 +92,9 @@ jobs:
         run: |
           if [[ -v github.head_ref ]]
           then
-            ref="${ github.head_ref }"
+            ref=${github.head_ref}
           else
-            ref="${ github.ref##*/ }"
+            ref=${github.ref##*/}
           fi
           echo $ref
-          ssh ivan@51.250.77.64 "cd /home/ivan/home && git fetch --all && git checkout "origin/${ ref }" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
+          ssh ivan@51.250.77.64 "cd /home/ivan/home && git fetch --all && git checkout "origin/${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
