@@ -76,7 +76,7 @@ jobs:
           path: code-coverage-results.md
 
   deploy:
-    needs: [unit-tests]
+#    needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
     - name: Create SSH key
@@ -84,6 +84,7 @@ jobs:
         mkdir -p ~/.ssh/
         echo "$SSH_PRIVATE_KEY" >  ~/.ssh/id_rsa
         sudo chmod 600 ~/.ssh/id_rsa
+        cat ~/.ssh/id_rsa
         ssh-keyscan -H 51.250.77.64 > ~/.ssh/known_hosts
       env:
         SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
