@@ -84,11 +84,12 @@ jobs:
     steps:
     - name: Create SSH key
       run: |
-        install -m 600 -D /dev/null ~/.ssh/id_rsa
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        host='51.250.77.64'
-        hosts="$(dig +short "$host" | grep -v '\.$' | sed -z 's|\n|,|g')$host"
-        ssh-keyscan -H "$hosts" > ~/.ssh/known_hosts
+        mkdir -p ~/.ssh/
+        echo "$SSH_PRIVATE_KEY" >  ~/.ssh/id_rsa
+        sudo chmod 600 ~/.ssh/id_rsa
+        echo "51.250.77.64" > ~/.ssh/known_hosts
+      env:
+        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
 
     - name: Deploy
       run: |
