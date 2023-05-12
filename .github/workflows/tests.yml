@@ -4,7 +4,7 @@ run-name: ${{ github.actor }} Unit Tests
 on: [push]
 
 permissions:
-  contents: read
+  pull-requests: write
 
 jobs:
   build:
