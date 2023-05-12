@@ -76,7 +76,7 @@ class DeviceSet(metaclass=Singleton):
 
         self.cleaner = Cleaner(config.cleaner_id, "Пылесос")
 
-        self.humidifier = Humidifier(config.humidifier_id, "Увлажнитель")
+        self.humidifier = Humidifier(config.humidifier_id, "Увлажнитель", ping=False)
 
         self.button = Button(config.button_id, "Кнопка")
         self.button_2 = Button(config.button_2_id, "Кнопка спальня")
