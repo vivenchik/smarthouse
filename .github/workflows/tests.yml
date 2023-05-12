@@ -1,7 +1,7 @@
 name: Unit Tests
 run-name: ${{ github.actor }} Unit Tests
 
-on: [push]
+on: [pull_request]
 
 permissions:
   pull-requests: write
