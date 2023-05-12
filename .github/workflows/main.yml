@@ -94,7 +94,7 @@ jobs:
           then
             ref=${github.head_ref}
           else
-            ref=${github.ref##*/}
+            ref=${GITHUB_REF##*/}
           fi
           echo $ref
           ssh ivan@51.250.77.64 "cd /home/ivan/home && git fetch --all && git checkout "origin/${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
