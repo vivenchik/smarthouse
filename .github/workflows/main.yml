@@ -84,13 +84,10 @@ jobs:
           mkdir -p ~/.ssh/
           echo "$SSH_PRIVATE_KEY" >  ~/.ssh/id_rsa
           sudo chmod 600 ~/.ssh/id_rsa
-          echo "$SSH_PRIVATE_KEY"
-          cat ~/.ssh/id_rsa
           ssh-keyscan -H 51.250.77.64 > ~/.ssh/known_hosts
         env:
           SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
 
       - name: Deploy
         run: |
-          ssh ivan@51.250.77.64 "cd /home/ivan/home && git fetch --all && git checkout $GITHUB_SHA && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
-
+          ssh ivan@51.250.77.64 "cd /home/ivan/home && git fetch --all && git checkout $GITHUB_REF && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
