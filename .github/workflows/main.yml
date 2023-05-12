@@ -90,6 +90,7 @@ jobs:
 
       - name: Deploy
         run: |
+          echo $GITHUB_REF_NAME
           if [[ -v GITHUB_HEAD_REF ]]
           then
             ref=${GITHUB_HEAD_REF}
