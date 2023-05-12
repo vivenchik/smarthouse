@@ -1,21 +1,12 @@
 name: Unit Tests
 run-name: ${{ github.actor }} Unit Tests
 
-on:
-  push:
-    branches:
-    - master
-  pull_request:
-    branches:
-    - master
-
-concurrency: tests
-
 permissions:
   pull-requests: write
 
 jobs:
   linters:
+    concurrency: tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -40,6 +31,7 @@ jobs:
       run: |
         flake8 src tests server.py lambda/lambda.py
   unit-tests:
+    concurrency: tests
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
