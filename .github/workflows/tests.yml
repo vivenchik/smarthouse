@@ -1,10 +1,7 @@
 name: Unit Tests
+run-name: ${{ github.actor }} Unit Tests
 
-on:
-  push:
-    branches: [ $default-branch ]
-  pull_request:
-    branches: [ $default-branch ]
+on: [push]
 
 permissions:
   contents: read

@@ -1,10 +1,7 @@
 name: Linters
+run-name: ${{ github.actor }} Linters
 
-on:
-  push:
-    branches: [ $default-branch ]
-  pull_request:
-    branches: [ $default-branch ]
+on: [push]
 
 permissions:
   contents: read
