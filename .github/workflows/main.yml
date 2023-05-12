@@ -84,15 +84,11 @@ jobs:
     steps:
     - name: Create SSH key
       run: |
-        apk update -qq
-        apk add -qq git
-        'which ssh-agent || ( apk add -qq openssh-client )'
-        eval $(ssh-agent -s)
-        echo "$SSH_PRIVATE_KEY" | ssh-add -
-        mkdir -p ~/.ssh
-        '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-      env:
-        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        install -m 600 -D /dev/null ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        host='51.250.77.64'
+        hosts="$(dig +short "$host" | grep -v '\.$' | sed -z 's|\n|,|g')$host"
+        ssh-keyscan -H "$hosts" > ~/.ssh/known_hosts
 
     - name: Deploy
       run: |
