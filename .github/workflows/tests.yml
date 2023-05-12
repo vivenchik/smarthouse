@@ -1,7 +1,13 @@
 name: Unit Tests
 run-name: ${{ github.actor }} Unit Tests
 
-on: [pull_request, push]
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
 
 concurrency: tests
 

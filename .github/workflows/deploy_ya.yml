@@ -1,7 +1,13 @@
 name: Deploy Ya
 run-name: ${{ github.actor }} Deploy Ya
 
-on: [pull_request, push]
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
 
 concurrency: deploy
 
