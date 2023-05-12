@@ -90,6 +90,9 @@ jobs:
 
       - name: Deploy
         run: |
-          if [ -z ${github.head_ref+x} ]; ref="${ github.ref##*/ }"; else ref="${ github.head_ref }"; fi
+          if [ -z ${github.head_ref+x} ]
+          then ref="${ github.ref##*/ }"
+          else ref="${ github.head_ref }"
+          fi
           echo $ref
           ssh ivan@51.250.77.64 "cd /home/ivan/home && git fetch --all && git checkout "origin/${ ref }" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
