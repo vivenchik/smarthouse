@@ -1,6 +1,15 @@
 name: Unit Tests
 run-name: ${{ github.actor }} Unit Tests
 
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+
 permissions:
   pull-requests: write
 
