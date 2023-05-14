@@ -7,7 +7,7 @@ import pytest
 from src.home.base_client.exceptions import YandexCheckError
 from src.home.yandex_client.client import YandexClient
 from src.home.yandex_client.models import Action, Device, DeviceCapabilityAction, StateItem
-from tests.conftest import get_action_response, get_lamp_response
+from src.tests.conftest import get_action_response, get_lamp_response
 
 
 @pytest.mark.asyncio
