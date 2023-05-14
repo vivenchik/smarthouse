@@ -19,11 +19,11 @@ from src.example.scenarios.utils import (
     turn_off_all,
     turn_on_act,
 )
-from src.lib.action_decorators import looper
-from src.lib.device import HSVLamp, RGBLamp, TemperatureLamp, run
-from src.lib.storage import Storage
-from src.lib.utils import MIN, get_time, get_timedelta_now, hsv_to_rgb
-from src.lib.yandex_client.client import YandexClient
+from src.home.action_decorators import looper
+from src.home.device import HSVLamp, RGBLamp, TemperatureLamp, run
+from src.home.storage import Storage
+from src.home.utils import MIN, get_time, get_timedelta_now, hsv_to_rgb
+from src.home.yandex_client.client import YandexClient
 
 
 @looper(1)

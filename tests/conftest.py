@@ -12,11 +12,11 @@ import pytest_asyncio
 from pydantic import BaseModel
 
 from src.example.configuration.device_set import DeviceSet
-from src.lib.base_client.models import LockItem
-from src.lib.device import RunQueuesSet
-from src.lib.storage import Storage
-from src.lib.yandex_client.client import YandexClient
-from src.lib.yandex_client.models import (
+from src.home.base_client.models import LockItem
+from src.home.device import RunQueuesSet
+from src.home.storage import Storage
+from src.home.yandex_client.client import YandexClient
+from src.home.yandex_client.models import (
     Action,
     Device,
     DeviceActionResponse,
@@ -104,7 +104,7 @@ async def get_action_response():
 
 @pytest.fixture(scope="function")
 def base_client():
-    from src.lib.base_client.client import ActionRequestModelType, BaseClient, DeviceInfoResponseType
+    from src.home.base_client.client import ActionRequestModelType, BaseClient, DeviceInfoResponseType
 
     class TestClient(BaseClient[DeviceInfoResponseType, ActionRequestModelType]):
         def __init__(self):

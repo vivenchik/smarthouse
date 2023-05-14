@@ -4,11 +4,11 @@ import time
 from src.example.configuration.config import get_config
 from src.example.configuration.device_set import DeviceSet
 from src.example.configuration.storage_keys import SKeys
-from src.lib.action_decorators import looper
-from src.lib.device import run
-from src.lib.storage import Storage
-from src.lib.utils import HOUR, MIN
-from src.lib.yandex_client.client import YandexClient
+from src.home.action_decorators import looper
+from src.home.device import run
+from src.home.storage import Storage
+from src.home.utils import HOUR, MIN
+from src.home.yandex_client.client import YandexClient
 
 
 @looper(10)

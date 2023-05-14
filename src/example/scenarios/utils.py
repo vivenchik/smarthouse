@@ -7,10 +7,10 @@ from typing import Optional
 from src.example.configuration.config import get_config
 from src.example.configuration.device_set import DeviceSet
 from src.example.configuration.storage_keys import SKeys
-from src.lib.device import LuxSensor, check_and_run_async, run_async
-from src.lib.storage import Storage
-from src.lib.utils import MIN, get_time, get_timedelta_now
-from src.lib.yandex_client.client import YandexClient
+from src.home.device import LuxSensor, check_and_run_async, run_async
+from src.home.storage import Storage
+from src.home.utils import MIN, get_time, get_timedelta_now
+from src.home.yandex_client.client import YandexClient
 
 
 def get_act(clicks):

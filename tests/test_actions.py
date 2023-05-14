@@ -16,7 +16,7 @@ async def ya_client_response(*args, **kwargs):
 @pytest.mark.asyncio
 async def test_away_actions_away(mocker, ya_client_mock):
     mocker.patch("asyncio.sleep", new_callable=AsyncMock)
-    mocker.patch("src.lib.yandex_client.client.YandexClient._request", new=ya_client_response)
+    mocker.patch("src.home.yandex_client.client.YandexClient._request", new=ya_client_response)
     result = await away_actions._original()
 
     assert result == 1
@@ -31,7 +31,7 @@ async def test_away_actions_away(mocker, ya_client_mock):
 @pytest.mark.asyncio
 async def test_away_actions_return(mocker, ya_client_mock):
     # ya_client_mock.check_door_new.return_value = time.time()
-    mocker.patch("src.lib.yandex_client.client.YandexClient._request", new=ya_client_response)
+    mocker.patch("src.home.yandex_client.client.YandexClient._request", new=ya_client_response)
 
     result = await away_actions._original()
 

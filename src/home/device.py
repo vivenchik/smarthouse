@@ -6,10 +6,10 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
-from src.lib.base_client.exceptions import YandexCheckError
-from src.lib.utils import Singleton
-from src.lib.yandex_client.client import YandexClient
-from src.lib.yandex_client.models import DeviceCapabilityAction
+from src.home.base_client.exceptions import YandexCheckError
+from src.home.utils import Singleton
+from src.home.yandex_client.client import YandexClient
+from src.home.yandex_client.models import DeviceCapabilityAction
 
 
 class Action:

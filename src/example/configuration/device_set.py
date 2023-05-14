@@ -4,7 +4,7 @@ import time
 
 from src.example.configuration.config import get_config
 from src.example.scenarios.light_utils import calc_sunset, calc_sunset_datetime
-from src.lib.device import (
+from src.home.device import (
     AirCleaner,
     AirSensor,
     Button,
@@ -20,7 +20,7 @@ from src.lib.device import (
     SwitchLamp,
     YandexBigHSVLamp,
 )
-from src.lib.utils import Singleton, get_timedelta_now, hsv_to_rgb
+from src.home.utils import Singleton, get_timedelta_now, hsv_to_rgb
 
 
 def adaptive_human_time_func():

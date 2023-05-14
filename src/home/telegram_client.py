@@ -9,8 +9,8 @@ import telegram
 from telegram import Update
 
 from src.example.configuration.storage_keys import SKeys
-from src.lib.storage import Storage
-from src.lib.utils import Singleton
+from src.home.storage import Storage
+from src.home.utils import Singleton
 
 
 class TGException(Exception):

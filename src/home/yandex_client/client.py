@@ -5,11 +5,11 @@ from typing import Any, Optional
 import aiohttp
 from async_lru import alru_cache
 
-from src.lib.base_client.client import BaseClient
-from src.lib.base_client.exceptions import DeviceOffline, ProgrammingError, YandexCheckError, YandexServerError
-from src.lib.base_client.utils import retry
-from src.lib.logger import logger
-from src.lib.yandex_client.models import (
+from src.home.base_client.client import BaseClient
+from src.home.base_client.exceptions import DeviceOffline, ProgrammingError, YandexCheckError, YandexServerError
+from src.home.base_client.utils import retry
+from src.home.logger import logger
+from src.home.yandex_client.models import (
     Action,
     ActionRequestModel,
     Device,

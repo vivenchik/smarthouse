@@ -4,9 +4,9 @@ from typing import Awaitable
 
 from aiohttp import web
 
-from src.lib.device import RunQueuesSet
-from src.lib.logger import logger
-from src.lib.scenarios.light_scenarios import (
+from src.home.device import RunQueuesSet
+from src.home.logger import logger
+from src.home.scenarios.light_scenarios import (
     clear_retries,
     clear_tg,
     notifications_storage,
@@ -18,9 +18,9 @@ from src.lib.scenarios.light_scenarios import (
     worker_run,
     write_storage,
 )
-from src.lib.storage import Storage
-from src.lib.telegram_client import TGClient
-from src.lib.yandex_client.client import YandexClient
+from src.home.storage import Storage
+from src.home.telegram_client import TGClient
+from src.home.yandex_client.client import YandexClient
 
 
 class App:

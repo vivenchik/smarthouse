@@ -26,13 +26,13 @@ from src.example.scenarios.motion_light_scenarios import (
     lights_wc_on_actions,
 )
 from src.example.scenarios.utility_scenarios import not_prod, web_utils_actions, worker_for_web
-from src.lib.app import App
-from src.lib.logger import logger
-from src.lib.scenarios.storage_keys import SysSKeys
-from src.lib.scenarios.system_scenarios import clear_quarantine, detect_human
-from src.lib.storage import Storage
-from src.lib.telegram_client import TGClient
-from src.lib.yandex_client.client import YandexClient
+from src.home.app import App
+from src.home.logger import logger
+from src.home.scenarios.storage_keys import SysSKeys
+from src.home.scenarios.system_scenarios import clear_quarantine, detect_human
+from src.home.storage import Storage
+from src.home.telegram_client import TGClient
+from src.home.yandex_client.client import YandexClient
 
 
 def ignore_exc(func):

@@ -2,13 +2,13 @@ import asyncio
 import copy
 import time
 
-from src.lib.action_decorators import looper
-from src.lib.base_client.exceptions import YandexCheckError
-from src.lib.logger import logger
-from src.lib.scenarios.storage_keys import SysSKeys
-from src.lib.storage import Storage
-from src.lib.utils import MIN
-from src.lib.yandex_client.client import YandexClient
+from src.home.action_decorators import looper
+from src.home.base_client.exceptions import YandexCheckError
+from src.home.logger import logger
+from src.home.scenarios.storage_keys import SysSKeys
+from src.home.storage import Storage
+from src.home.utils import MIN
+from src.home.yandex_client.client import YandexClient
 
 
 @looper(10)

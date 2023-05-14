@@ -7,13 +7,13 @@ from typing import Any, Generic, Optional, TypeVar
 
 from pydantic import BaseModel
 
-from src.lib.base_client.exceptions import DeviceOffline, YandexCheckError, YandexServerError
-from src.lib.base_client.gap_stat import GapStat
-from src.lib.base_client.models import LockItem, QuarantineItem
-from src.lib.base_client.utils import retry
-from src.lib.logger import logger
-from src.lib.utils import Singleton
-from src.lib.yandex_client.models import DeviceCapabilityAction, StateItem
+from src.home.base_client.exceptions import DeviceOffline, YandexCheckError, YandexServerError
+from src.home.base_client.gap_stat import GapStat
+from src.home.base_client.models import LockItem, QuarantineItem
+from src.home.base_client.utils import retry
+from src.home.logger import logger
+from src.home.utils import Singleton
+from src.home.yandex_client.models import DeviceCapabilityAction, StateItem
 
 DeviceInfoResponseType = TypeVar("DeviceInfoResponseType", bound=BaseModel)
 ActionRequestModelType = TypeVar("ActionRequestModelType", bound=BaseModel)

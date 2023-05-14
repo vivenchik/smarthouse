@@ -6,7 +6,7 @@ from typing import Union
 import aiofiles
 import yaml
 
-from src.lib.utils import Singleton
+from src.home.utils import Singleton
 
 
 class StorageError(Exception):

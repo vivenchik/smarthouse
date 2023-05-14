@@ -1,14 +1,14 @@
 import asyncio
 import time
 
-from src.lib.action_decorators import looper
-from src.lib.device import RunQueuesSet, check_and_run, run
-from src.lib.logger import logger
-from src.lib.scenarios.storage_keys import SysSKeys
-from src.lib.storage import Storage
-from src.lib.telegram_client import TGClient
-from src.lib.utils import HOUR, MIN
-from src.lib.yandex_client.client import YandexClient
+from src.home.action_decorators import looper
+from src.home.device import RunQueuesSet, check_and_run, run
+from src.home.logger import logger
+from src.home.scenarios.storage_keys import SysSKeys
+from src.home.storage import Storage
+from src.home.telegram_client import TGClient
+from src.home.utils import HOUR, MIN
+from src.home.yandex_client.client import YandexClient
 
 
 @looper(0.1)

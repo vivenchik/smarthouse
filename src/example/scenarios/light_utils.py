@@ -3,7 +3,7 @@ import datetime
 import astral
 import astral.sun
 
-from src.lib.utils import add_tz, get_time, time_to_timedelta
+from src.home.utils import add_tz, get_time, time_to_timedelta
 
 
 def calc_sun(additional_time: datetime.timedelta = datetime.timedelta(minutes=0)):

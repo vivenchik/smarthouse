@@ -6,12 +6,12 @@ from src.example.configuration.device_set import DeviceSet
 from src.example.configuration.storage_keys import SKeys
 from src.example.scenarios.light_utils import calc_sunset
 from src.example.scenarios.utils import turn_off_all, turn_on_act
-from src.lib.action_decorators import looper
-from src.lib.device import run
-from src.lib.logger import logger
-from src.lib.storage import Storage
-from src.lib.utils import HOUR, MIN, get_time, get_timedelta_now
-from src.lib.yandex_client.client import YandexClient
+from src.home.action_decorators import looper
+from src.home.device import run
+from src.home.logger import logger
+from src.home.storage import Storage
+from src.home.utils import HOUR, MIN, get_time, get_timedelta_now
+from src.home.yandex_client.client import YandexClient
 
 
 @looper(5)

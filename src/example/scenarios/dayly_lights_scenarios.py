@@ -7,12 +7,12 @@ from src.example.configuration.device_set import DeviceSet
 from src.example.configuration.storage_keys import SKeys
 from src.example.scenarios.light_utils import calc_sunrise, calc_sunset
 from src.example.scenarios.utils import get_needed_b_t, turn_off_all, turn_on_act
-from src.lib.action_decorators import looper, scheduler
-from src.lib.device import check_and_run, run
-from src.lib.logger import logger
-from src.lib.storage import Storage
-from src.lib.utils import MIN, get_time, get_timedelta_now
-from src.lib.yandex_client.client import YandexClient
+from src.home.action_decorators import looper, scheduler
+from src.home.device import check_and_run, run
+from src.home.logger import logger
+from src.home.storage import Storage
+from src.home.utils import MIN, get_time, get_timedelta_now
+from src.home.yandex_client.client import YandexClient
 
 
 @scheduler((datetime.timedelta(hours=4),))

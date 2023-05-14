@@ -1,8 +1,8 @@
 import asyncio
 import functools
 
-from src.lib.base_client.exceptions import DeviceOffline, ProgrammingError, YandexError, YandexServerError
-from src.lib.logger import logger
+from src.home.base_client.exceptions import DeviceOffline, ProgrammingError, YandexError, YandexServerError
+from src.home.logger import logger
 
 
 def retry(func):

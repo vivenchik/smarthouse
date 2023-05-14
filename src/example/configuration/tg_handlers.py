@@ -8,11 +8,11 @@ from telegram import Update
 from src.example.configuration.config import get_config
 from src.example.configuration.device_set import get_device_name
 from src.example.configuration.storage_keys import SKeys
-from src.lib.logger import logger
-from src.lib.storage import Storage
-from src.lib.telegram_client import TGClient
-from src.lib.utils import get_time, get_timedelta_now
-from src.lib.yandex_client.client import YandexClient
+from src.home.logger import logger
+from src.home.storage import Storage
+from src.home.telegram_client import TGClient
+from src.home.utils import get_time, get_timedelta_now
+from src.home.yandex_client.client import YandexClient
 
 
 async def restart_handler(tg_client: TGClient, update: Update):

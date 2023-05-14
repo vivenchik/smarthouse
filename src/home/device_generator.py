@@ -1,4 +1,4 @@
-from src.lib.yandex_client.client import YandexClient
+from src.home.yandex_client.client import YandexClient
 
 
 async def generate():
