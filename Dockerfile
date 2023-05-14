@@ -11,6 +11,7 @@ RUN pip3 install --upgrade pip
 COPY requirements/requirements.txt .
 RUN pip install -r requirements.txt
 
+COPY home home
+COPY example example
 COPY server.py server.py
-COPY src src
 COPY .env .env
