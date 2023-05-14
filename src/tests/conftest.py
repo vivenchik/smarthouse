@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock
 import aiofiles
 import pytest
 import pytest_asyncio
+from dotenv import load_dotenv
 from pydantic import BaseModel
 
 from src.example.configuration.device_set import DeviceSet
@@ -26,6 +27,7 @@ from src.home.yandex_client.models import (
 
 
 def pytest_configure(config):
+    load_dotenv()
     YandexClient().init(prod=True)
     RunQueuesSet().init()
     DeviceSet().init()

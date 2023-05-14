@@ -7,9 +7,7 @@
 aiodns==3.0.0
     # via aiohttp
 aiofiles==23.1.0
-    # via
-    #   -r requirements/requirements-dev.in
-    #   -r requirements/requirements.in
+    # via -r requirements/requirements.in
 aiohttp[speedups]==3.8.4
     # via
     #   -r requirements/requirements.in
@@ -143,7 +141,9 @@ pytest-mock==3.10.0
 pytest-xdist==3.2.1
     # via -r requirements/requirements-dev.in
 python-dotenv==1.0.0
-    # via pydantic
+    # via
+    #   -r requirements/requirements-dev.in
+    #   pydantic
 python-telegram-bot[all,ext]==20.3
     # via -r requirements/requirements.in
 pytz==2023.3

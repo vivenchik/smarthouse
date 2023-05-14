@@ -8,10 +8,10 @@ types-aiofiles
 flake8
 flake8-pyproject
 pytest
-aiofiles
 pytest-mock
 pytest-asyncio
 pytest-aiohttp
 pytest-xdist
 pytest-cov
 no_implicit_optional
+python-dotenv
