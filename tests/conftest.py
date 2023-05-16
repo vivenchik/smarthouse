@@ -17,7 +17,13 @@ from smarthouse.base_client.models import LockItem
 from smarthouse.device import RunQueuesSet
 from smarthouse.storage import Storage
 from smarthouse.yandex_client.client import YandexClient
-from smarthouse.yandex_client.models import Action, Device, DeviceActionResponse, DeviceCapabilityAction, DeviceInfoResponse
+from smarthouse.yandex_client.models import (
+    Action,
+    Device,
+    DeviceActionResponse,
+    DeviceCapabilityAction,
+    DeviceInfoResponse,
+)
 
 
 def pytest_configure(config):
