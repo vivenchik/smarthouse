@@ -7,10 +7,10 @@ from typing import Optional
 from example.configuration.config import get_config
 from example.configuration.device_set import DeviceSet
 from example.configuration.storage_keys import SKeys
-from home.device import LuxSensor, check_and_run_async, run_async
-from home.storage import Storage
-from home.utils import MIN, get_time, get_timedelta_now
-from home.yandex_client.client import YandexClient
+from smarthouse.device import LuxSensor, check_and_run_async, run_async
+from smarthouse.storage import Storage
+from smarthouse.utils import MIN, get_time, get_timedelta_now
+from smarthouse.yandex_client.client import YandexClient
 
 
 def get_act(clicks):

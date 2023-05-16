@@ -2,7 +2,7 @@ from aiohttp import web
 
 from example.configuration.config import get_config
 from example.configuration.storage_keys import SKeys
-from home.storage import Storage
+from smarthouse.storage import Storage
 
 routes = web.RouteTableDef()
 

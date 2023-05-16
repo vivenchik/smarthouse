@@ -4,9 +4,9 @@ import functools
 import time
 from typing import Callable, Union
 
-from home.logger import logger
-from home.storage import Storage
-from home.utils import HOUR, MIN, get_timedelta_now
+from smarthouse.logger import logger
+from smarthouse.storage import Storage
+from smarthouse.utils import HOUR, MIN, get_timedelta_now
 
 
 def calc_sleep(

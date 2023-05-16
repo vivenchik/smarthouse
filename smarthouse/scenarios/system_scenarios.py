@@ -2,13 +2,13 @@ import asyncio
 import copy
 import time
 
-from home.action_decorators import looper
-from home.base_client.exceptions import YandexCheckError
-from home.logger import logger
-from home.scenarios.storage_keys import SysSKeys
-from home.storage import Storage
-from home.utils import MIN
-from home.yandex_client.client import YandexClient
+from smarthouse.action_decorators import looper
+from smarthouse.base_client.exceptions import YandexCheckError
+from smarthouse.logger import logger
+from smarthouse.scenarios.storage_keys import SysSKeys
+from smarthouse.storage import Storage
+from smarthouse.utils import MIN
+from smarthouse.yandex_client.client import YandexClient
 
 
 @looper(10)

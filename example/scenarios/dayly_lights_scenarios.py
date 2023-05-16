@@ -7,12 +7,12 @@ from example.configuration.device_set import DeviceSet
 from example.configuration.storage_keys import SKeys
 from example.scenarios.light_utils import calc_sunrise, calc_sunset
 from example.scenarios.utils import get_needed_b_t, turn_off_all, turn_on_act
-from home.action_decorators import looper, scheduler
-from home.device import check_and_run, run
-from home.logger import logger
-from home.storage import Storage
-from home.utils import MIN, get_time, get_timedelta_now
-from home.yandex_client.client import YandexClient
+from smarthouse.action_decorators import looper, scheduler
+from smarthouse.device import check_and_run, run
+from smarthouse.logger import logger
+from smarthouse.storage import Storage
+from smarthouse.utils import MIN, get_time, get_timedelta_now
+from smarthouse.yandex_client.client import YandexClient
 
 
 @scheduler((datetime.timedelta(hours=4),))

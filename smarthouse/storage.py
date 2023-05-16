@@ -6,7 +6,7 @@ from typing import Union
 import aiofiles
 import yaml
 
-from home.utils import Singleton
+from smarthouse.utils import Singleton
 
 
 class StorageError(Exception):

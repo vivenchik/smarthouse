@@ -1,14 +1,14 @@
 import asyncio
 import time
 
-from home.action_decorators import looper
-from home.device import RunQueuesSet, check_and_run, run
-from home.logger import logger
-from home.scenarios.storage_keys import SysSKeys
-from home.storage import Storage
-from home.telegram_client import TGClient
-from home.utils import HOUR, MIN
-from home.yandex_client.client import YandexClient
+from smarthouse.action_decorators import looper
+from smarthouse.device import RunQueuesSet, check_and_run, run
+from smarthouse.logger import logger
+from smarthouse.scenarios.storage_keys import SysSKeys
+from smarthouse.storage import Storage
+from smarthouse.telegram_client import TGClient
+from smarthouse.utils import HOUR, MIN
+from smarthouse.yandex_client.client import YandexClient
 
 
 @looper(0.1)

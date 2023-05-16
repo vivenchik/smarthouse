@@ -1,8 +1,8 @@
 import asyncio
 import functools
 
-from home.base_client.exceptions import DeviceOffline, ProgrammingError, YandexError, YandexServerError
-from home.logger import logger
+from smarthouse.base_client.exceptions import DeviceOffline, ProgrammingError, YandexError, YandexServerError
+from smarthouse.logger import logger
 
 
 def retry(func):

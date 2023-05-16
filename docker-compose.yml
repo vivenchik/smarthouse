@@ -1,11 +1,11 @@
 version: '3.8'
 services:
-  home:
+  smarthouse:
     build: .
-    entrypoint: ["python3", "/usr/src/home/server.py"]
+    entrypoint: ["python3", "/usr/src/smarthouse/server.py"]
     restart: unless-stopped
     volumes:
-      - ./storage/:/usr/src/home/storage
+      - ./storage/:/usr/src/smarthouse/storage
     ports:
       - "8080:8080"
     logging:
@@ -22,5 +22,5 @@ services:
   restarter:
       image: docker
       volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
-      command: ["/bin/sh", "-c", "while true; do sleep 1209600; docker restart home-home-1; done"]  # 2 weeks
+      command: ["/bin/sh", "-c", "while true; do sleep 1209600; docker restart smarthouse-smarthouse-1; done"]  # 2 weeks
       restart: unless-stopped

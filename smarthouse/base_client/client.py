@@ -7,13 +7,13 @@ from typing import Any, Generic, Optional, TypeVar
 
 from pydantic import BaseModel
 
-from home.base_client.exceptions import DeviceOffline, YandexCheckError, YandexServerError
-from home.base_client.gap_stat import GapStat
-from home.base_client.models import LockItem, QuarantineItem
-from home.base_client.utils import retry
-from home.logger import logger
-from home.utils import Singleton
-from home.yandex_client.models import DeviceCapabilityAction, StateItem
+from smarthouse.base_client.exceptions import DeviceOffline, YandexCheckError, YandexServerError
+from smarthouse.base_client.gap_stat import GapStat
+from smarthouse.base_client.models import LockItem, QuarantineItem
+from smarthouse.base_client.utils import retry
+from smarthouse.logger import logger
+from smarthouse.utils import Singleton
+from smarthouse.yandex_client.models import DeviceCapabilityAction, StateItem
 
 DeviceInfoResponseType = TypeVar("DeviceInfoResponseType", bound=BaseModel)
 ActionRequestModelType = TypeVar("ActionRequestModelType", bound=BaseModel)

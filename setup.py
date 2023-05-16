@@ -30,12 +30,12 @@ extras = {
 
 
 setup(
-    name="smart-home",
+    name="smarthouse",
     version="0.1.0",
-    description="Smart Home Scenarios",
+    description="Smart House Scenarios",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    # url="https://home.readthedocs.io/",
+    # url="https://smarthouse.readthedocs.io/",
     author="Ivan Kriuchkov",
     author_email="vivenchik@gmail.com",
     license="MIT",
@@ -47,7 +47,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Operating System :: OS Independent",
     ],
-    packages=["home"],
+    packages=["smarthouse"],
     include_package_data=True,
     install_requires=[
         "aiohttp[speedups]",

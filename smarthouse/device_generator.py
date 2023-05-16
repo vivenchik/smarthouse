@@ -1,4 +1,4 @@
-from home.yandex_client.client import YandexClient
+from smarthouse.yandex_client.client import YandexClient
 
 
 async def generate():
