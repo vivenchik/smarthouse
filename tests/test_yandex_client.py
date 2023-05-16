@@ -4,9 +4,9 @@ from unittest import mock
 import aiohttp
 import pytest
 
-from home.base_client.exceptions import YandexCheckError
-from home.yandex_client.client import YandexClient
-from home.yandex_client.models import Action, Device, DeviceCapabilityAction, StateItem
+from smarthouse.base_client.exceptions import YandexCheckError
+from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.models import Action, Device, DeviceCapabilityAction, StateItem
 from tests.conftest import get_action_response, get_lamp_response
 
 

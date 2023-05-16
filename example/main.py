@@ -26,13 +26,13 @@ from example.scenarios.motion_light_scenarios import (
     lights_wc_on_actions,
 )
 from example.scenarios.utility_scenarios import not_prod, web_utils_actions, worker_for_web
-from home.app import App
-from home.logger import logger
-from home.scenarios.storage_keys import SysSKeys
-from home.scenarios.system_scenarios import clear_quarantine, detect_human
-from home.storage import Storage
-from home.telegram_client import TGClient
-from home.yandex_client.client import YandexClient
+from smarthouse.app import App
+from smarthouse.logger import logger
+from smarthouse.scenarios.storage_keys import SysSKeys
+from smarthouse.scenarios.system_scenarios import clear_quarantine, detect_human
+from smarthouse.storage import Storage
+from smarthouse.telegram_client import TGClient
+from smarthouse.yandex_client.client import YandexClient
 
 
 def ignore_exc(func):

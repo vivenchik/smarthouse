@@ -1,5 +1,5 @@
 FROM python:3.11.2-slim
-WORKDIR /usr/src/home
+WORKDIR /usr/src/smarthouse
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -11,7 +11,7 @@ RUN pip3 install --upgrade pip
 COPY requirements/requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY home home
+COPY smarthouse smarthouse
 COPY example example
 COPY server.py server.py
 COPY .env .env

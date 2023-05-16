@@ -13,11 +13,17 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 
 from example.configuration.device_set import DeviceSet
-from home.base_client.models import LockItem
-from home.device import RunQueuesSet
-from home.storage import Storage
-from home.yandex_client.client import YandexClient
-from home.yandex_client.models import Action, Device, DeviceActionResponse, DeviceCapabilityAction, DeviceInfoResponse
+from smarthouse.base_client.models import LockItem
+from smarthouse.device import RunQueuesSet
+from smarthouse.storage import Storage
+from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.models import (
+    Action,
+    Device,
+    DeviceActionResponse,
+    DeviceCapabilityAction,
+    DeviceInfoResponse,
+)
 
 
 def pytest_configure(config):
@@ -100,7 +106,7 @@ async def get_action_response():
 
 @pytest.fixture(scope="function")
 def base_client():
-    from home.base_client.client import ActionRequestModelType, BaseClient, DeviceInfoResponseType
+    from smarthouse.base_client.client import ActionRequestModelType, BaseClient, DeviceInfoResponseType
 
     class TestClient(BaseClient[DeviceInfoResponseType, ActionRequestModelType]):
         def __init__(self):

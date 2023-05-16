@@ -6,12 +6,12 @@ from example.configuration.device_set import DeviceSet
 from example.configuration.storage_keys import SKeys
 from example.scenarios.light_utils import calc_sunset
 from example.scenarios.utils import turn_off_all, turn_on_act
-from home.action_decorators import looper
-from home.device import run
-from home.logger import logger
-from home.storage import Storage
-from home.utils import HOUR, MIN, get_time, get_timedelta_now
-from home.yandex_client.client import YandexClient
+from smarthouse.action_decorators import looper
+from smarthouse.device import run
+from smarthouse.logger import logger
+from smarthouse.storage import Storage
+from smarthouse.utils import HOUR, MIN, get_time, get_timedelta_now
+from smarthouse.yandex_client.client import YandexClient
 
 
 @looper(5)

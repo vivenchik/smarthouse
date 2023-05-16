@@ -7,9 +7,9 @@
 aiodns==3.0.0
     # via aiohttp
 aiofiles==23.1.0
-    # via smart-home (setup.py)
+    # via smarthouse (setup.py)
 aiohttp[speedups]==3.8.4
-    # via smart-home (setup.py)
+    # via smarthouse (setup.py)
 aiolimiter==1.0.0
     # via python-telegram-bot
 aiosignal==1.3.1
@@ -19,9 +19,9 @@ anyio==3.6.2
 apscheduler==3.10.1
     # via python-telegram-bot
 astral==3.2
-    # via smart-home (setup.py)
+    # via smarthouse (setup.py)
 async-lru==2.0.2
-    # via smart-home (setup.py)
+    # via smarthouse (setup.py)
 async-timeout==4.0.2
     # via aiohttp
 attrs==23.1.0
@@ -72,17 +72,17 @@ pycares==4.3.0
 pycparser==2.21
     # via cffi
 pydantic[dotenv]==1.10.7
-    # via smart-home (setup.py)
+    # via smarthouse (setup.py)
 python-dotenv==1.0.0
     # via pydantic
 python-telegram-bot[all,ext]==20.3
-    # via smart-home (setup.py)
+    # via smarthouse (setup.py)
 pytz==2023.3
     # via
     #   apscheduler
     #   python-telegram-bot
 pyyaml==6.0
-    # via smart-home (setup.py)
+    # via smarthouse (setup.py)
 six==1.16.0
     # via apscheduler
 sniffio==1.3.0
@@ -93,7 +93,7 @@ sniffio==1.3.0
 socksio==1.0.0
     # via httpx
 telegram==0.0.1
-    # via smart-home (setup.py)
+    # via smarthouse (setup.py)
 tornado==6.3.2
     # via python-telegram-bot
 typing-extensions==4.5.0

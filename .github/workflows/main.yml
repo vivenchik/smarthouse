@@ -33,10 +33,10 @@ jobs:
           isort --check .
       - name: Lint with mypy
         run: |
-          mypy home example server.py lambda/lambda.py
+          mypy smarthouse example server.py lambda/lambda.py
       - name: Lint with flake8
         run: |
-          flake8 home example server.py lambda/lambda.py
+          flake8 smarthouse example server.py lambda/lambda.py
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -53,9 +53,9 @@ jobs:
           cp "./tests/.env" "./.env"
       - name: Test with pytest
         run: |
-          pytest -n 4 --cov home tests
-          coverage report --include "home/*" --skip-empty --fail-under=30
-          coverage xml --include "home/*" --skip-empty
+          pytest -n 4 --cov smarthouse tests
+          coverage report --include "smarthouse/*" --skip-empty --fail-under=30
+          coverage xml --include "smarthouse/*" --skip-empty
 
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
@@ -98,4 +98,4 @@ jobs:
           fi
           echo $ref
 
-          ssh ivan@51.250.77.64 "cd /home/ivan/home && git fetch --all && git checkout "${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
+          ssh ivan@51.250.77.64 "cd /home/ivan/smarthouse && git fetch --all && git checkout "${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"

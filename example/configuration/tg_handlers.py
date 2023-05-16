@@ -8,11 +8,11 @@ from telegram import Update
 from example.configuration.config import get_config
 from example.configuration.device_set import get_device_name
 from example.configuration.storage_keys import SKeys
-from home.logger import logger
-from home.storage import Storage
-from home.telegram_client import TGClient
-from home.utils import get_time, get_timedelta_now
-from home.yandex_client.client import YandexClient
+from smarthouse.logger import logger
+from smarthouse.storage import Storage
+from smarthouse.telegram_client import TGClient
+from smarthouse.utils import get_time, get_timedelta_now
+from smarthouse.yandex_client.client import YandexClient
 
 
 async def restart_handler(tg_client: TGClient, update: Update):

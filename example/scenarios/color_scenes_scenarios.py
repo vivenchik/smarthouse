@@ -19,11 +19,11 @@ from example.scenarios.utils import (
     turn_off_all,
     turn_on_act,
 )
-from home.action_decorators import looper
-from home.device import HSVLamp, RGBLamp, TemperatureLamp, run
-from home.storage import Storage
-from home.utils import MIN, get_time, get_timedelta_now, hsv_to_rgb
-from home.yandex_client.client import YandexClient
+from smarthouse.action_decorators import looper
+from smarthouse.device import HSVLamp, RGBLamp, TemperatureLamp, run
+from smarthouse.storage import Storage
+from smarthouse.utils import MIN, get_time, get_timedelta_now, hsv_to_rgb
+from smarthouse.yandex_client.client import YandexClient
 
 
 @looper(1)
