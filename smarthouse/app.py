@@ -1,8 +1,9 @@
 import asyncio
 from collections.abc import Coroutine
-from typing import Awaitable
+from typing import Awaitable, Iterable
 
 from aiohttp import web
+from aiohttp.web_routedef import AbstractRouteDef
 
 from smarthouse.device import RunQueuesSet
 from smarthouse.logger import logger
@@ -34,7 +35,7 @@ class App:
         tg_commands: list[tuple[str, str]] | None = None,
         tg_handlers: list[tuple[str, Awaitable]] | None = None,
         prod: bool = False,
-        aiohttp_routes: list | None = None,
+        aiohttp_routes: Iterable[AbstractRouteDef] | None = None,
     ):
         self.storage_name = storage_name
         self.yandex_token = yandex_token
