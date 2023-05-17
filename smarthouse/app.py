@@ -1,8 +1,9 @@
 import asyncio
 from collections.abc import Coroutine
-from typing import Awaitable
+from typing import Awaitable, Iterable
 
 from aiohttp import web
+from aiohttp.web_routedef import AbstractRouteDef
 
 from smarthouse.device import RunQueuesSet
 from smarthouse.logger import logger
@@ -18,6 +19,7 @@ from smarthouse.scenarios.light_scenarios import (
     worker_run,
     write_storage,
 )
+from smarthouse.scenarios.system_scenarios import clear_quarantine, detect_human
 from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 from smarthouse.yandex_client.client import YandexClient
@@ -33,7 +35,7 @@ class App:
         tg_commands: list[tuple[str, str]] | None = None,
         tg_handlers: list[tuple[str, Awaitable]] | None = None,
         prod: bool = False,
-        aiohttp_routes: list | None = None,
+        aiohttp_routes: Iterable[AbstractRouteDef] | None = None,
     ):
         self.storage_name = storage_name
         self.yandex_token = yandex_token
@@ -53,6 +55,8 @@ class App:
                 ping_devices(),
                 clear_tg(),
                 write_storage(),
+                clear_quarantine(),
+                detect_human(),
             ]
             + [worker_run()] * 10
             + [worker_check_and_run()] * 3

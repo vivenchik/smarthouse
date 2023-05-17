@@ -29,7 +29,6 @@ from example.scenarios.utility_scenarios import not_prod, web_utils_actions, wor
 from smarthouse.app import App
 from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
-from smarthouse.scenarios.system_scenarios import clear_quarantine, detect_human
 from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 from smarthouse.yandex_client.client import YandexClient
@@ -95,8 +94,6 @@ async def main():
             random_colors_actions((lamp_groups[3],), (30, 50)),
             random_colors_actions(lamp_groups, (60, 60), (60, 180), True),
             not_prod(),
-            clear_quarantine(),
-            detect_human(),
             # reload_hub(),
             # refresh_storage(storage),
             alarm(),
