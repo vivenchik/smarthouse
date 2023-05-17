@@ -60,6 +60,8 @@ jobs:
           coverage report --include "smarthouse/*" --skip-empty --fail-under=30
           coverage xml --include "smarthouse/*" --skip-empty
           coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
