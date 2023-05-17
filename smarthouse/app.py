@@ -18,6 +18,7 @@ from smarthouse.scenarios.light_scenarios import (
     worker_run,
     write_storage,
 )
+from smarthouse.scenarios.system_scenarios import clear_quarantine, detect_human
 from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 from smarthouse.yandex_client.client import YandexClient
@@ -53,6 +54,8 @@ class App:
                 ping_devices(),
                 clear_tg(),
                 write_storage(),
+                clear_quarantine(),
+                detect_human(),
             ]
             + [worker_run()] * 10
             + [worker_check_and_run()] * 3
