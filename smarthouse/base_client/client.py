@@ -51,7 +51,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self.names[device_id] = name
         if ping:
             self._ping.add(device_id)
-        self._human_time_funcs[device_id] = human_time_func
+        self._human_time_funcs[device_id] = self._human_time_funcs.get(device_id) or human_time_func
 
     def register_mutation(self, device_id, mutation):
         self._mutations[device_id] = mutation

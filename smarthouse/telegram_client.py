@@ -125,9 +125,7 @@ class TGClient(metaclass=Singleton):
                         else:
                             await asyncio.sleep(1)
 
-                    except telegram.error.TimedOut as exc:
-                        _exc = exc
-                    except telegram.error.NetworkError:
+                    except (telegram.error.NetworkError, telegram.error.TimedOut):
                         pass
                     except Exception as exc:
                         _exc = exc
@@ -164,9 +162,9 @@ class TGClient(metaclass=Singleton):
                             read_timeout=10,
                         )
                         return
-                    except (httpx.ReadError, telegram.error.BadRequest, telegram.error.TimedOut) as exc:
+                    except (httpx.ReadError, telegram.error.BadRequest) as exc:
                         _exc = exc
-                    except telegram.error.NetworkError:
+                    except (telegram.error.NetworkError, telegram.error.TimedOut):
                         pass
                     except Exception as exc:
                         _exc = exc
@@ -186,12 +184,12 @@ class TGClient(metaclass=Singleton):
                     try:
                         await self._bot.delete_message(chat_id=self._chat_id, message_id=message_id, read_timeout=10)
                         return
-                    except (httpx.ReadError, telegram.error.TimedOut) as exc:
+                    except httpx.ReadError as exc:
                         _exc = exc
                     except telegram.error.BadRequest as exc:
                         if exc.message == "Message to delete not found":
                             pass
-                    except telegram.error.NetworkError:
+                    except (telegram.error.NetworkError, telegram.error.TimedOut):
                         pass
                     except Exception as exc:
                         _exc = exc
@@ -211,9 +209,9 @@ class TGClient(metaclass=Singleton):
                     updates = await self._bot.get_updates(
                         offset=storage.get(SKeys.offset_tg), timeout=10, read_timeout=10
                     )
-                except (httpx.ReadError, telegram.error.BadRequest, telegram.error.TimedOut) as exc:
+                except (httpx.ReadError, telegram.error.BadRequest) as exc:
                     raise exc
-                except telegram.error.NetworkError:
+                except (telegram.error.NetworkError, telegram.error.TimedOut):
                     pass
                 except Exception as exc:
                     raise exc
