@@ -6,7 +6,7 @@ from aiohttp import web
 
 from smarthouse.action_decorators import looper, scheduler
 from smarthouse.app import App
-from smarthouse.device import HSVLamp, LuxSensor, run
+from smarthouse.device import HSVLamp, LuxSensor, run_async
 from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 
@@ -34,7 +34,7 @@ async def adaptive_lights_actions(lux_sensor, lamp_g_1, lamp_g_2):
 
     needed_b = 1 - min(state_lux.result, 200) / 200
 
-    await run([lamp.on_temp(4500, needed_b) for lamp in (lamp_g_1, lamp_g_2)])
+    await run_async([lamp.on_temp(4500, needed_b) for lamp in (lamp_g_1, lamp_g_2)])
 
 
 async def tg_pause_handler(tg_client: TGClient, update):
