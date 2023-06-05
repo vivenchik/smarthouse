@@ -2,6 +2,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/vivenchik/smarthouse/badge.svg?branch=master)](https://coveralls.io/github/vivenchik/smarthouse?branch=master)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Documentation Status](https://readthedocs.org/projects/smarthouselib/badge/?version=latest)](https://smarthouselib.readthedocs.io/en/latest/?badge=latest)
 
 SmartHouse - библиотека для управления умным домом. На текущий момент реализована интеграция с экосистемой [Яндекса](https://yandex.ru/dev/dialogs/smart-home/doc/concepts/platform-protocol.html).
 
