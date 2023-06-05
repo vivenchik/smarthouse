@@ -180,7 +180,7 @@ async def lights_off_actions():
             or storage.get(SKeys.evening)
         )
     ):
-        if time.time() - storage.get(SKeys.balcony_lights) < 8 * MIN:
+        if time.time() - storage.get(SKeys.balcony_lights) < 16 * MIN:
             balcony_sensor_motion_time = await ds.balcony_sensor.motion_time()
             balcony_sensor_2_motion_time = await ds.balcony_sensor_2.motion_time()
             balcony_sensor_state = (
@@ -204,7 +204,7 @@ async def lights_off_actions():
                 and balcony_sensor_state_long
                 or balcony_sensor_state is None
                 and balcony_sensor_2_state is None
-                and 12 * MIN > time.time() - storage.get(SKeys.balcony_lights) > 10 * MIN
+                and time.time() - storage.get(SKeys.balcony_lights) > 12 * MIN
             ):
                 if ds.balcony_lamp not in get_act(storage.get(SKeys.clicks)):
                     await ds.balcony_lamp.off().run()

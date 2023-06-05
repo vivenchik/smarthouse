@@ -32,7 +32,7 @@ async def adaptive_lights_actions(lux_sensor, lamp_g_1, lamp_g_2):
     if lux_sensor.in_quarantine() and lux_sensor.quarantine().timestamp + 5 * 60 > time.time():
         state_lux = await lux_sensor.illumination(proceeded_last=True)
 
-    needed_b = 1 - min(state_lux.result, 200) / 200
+    needed_b = int((1 - min(state_lux.result, 200) / 200) * 100)
 
     await run_async([lamp.on_temp(4500, needed_b) for lamp in (lamp_g_1, lamp_g_2)])
 
