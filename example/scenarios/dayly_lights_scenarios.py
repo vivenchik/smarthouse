@@ -98,6 +98,11 @@ async def adaptive_lights_actions():
         if timestamp + 2 * MIN > time.time() and [previous_b, previous_t] == [needed_b, needed_t]:
             return
 
+        if timestamp + 2 * MIN > time.time() and (
+            previous_b == 0 and needed_b < 10 or previous_b < 10 and needed_b == 0
+        ):
+            return
+
         storage.put(SKeys.previous_b_t, [needed_b, needed_t, time.time()])
 
         await run([lamp.on_temp(needed_t, needed_b) for lamp in ds.adaptive_lamps])
