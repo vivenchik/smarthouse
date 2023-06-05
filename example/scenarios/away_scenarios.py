@@ -104,7 +104,7 @@ async def away_actions():
             if after_last_silence < after_last_on:
                 logger.info("welcome home")
                 if storage.get(SKeys.cleanups, 0) >= 6:
-                    await storage.messages_queue.put("insert water in cleaner")
+                    await storage.messages_queue.put("insert water in cleaner /water_done")
                 after_sunset = get_timedelta_now() >= calc_sunset()
                 if after_sunset or get_time().hour < 6 or storage.get(SKeys.evening):
                     logger.info("turning on lights (welcome)")
