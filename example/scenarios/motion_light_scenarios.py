@@ -180,7 +180,7 @@ async def lights_off_actions():
             or storage.get(SKeys.evening)
         )
     ):
-        if time.time() - storage.get(SKeys.balcony_lights) < 16 * MIN:
+        if time.time() - storage.get(SKeys.balcony_lights) < 20 * MIN:
             balcony_sensor_motion_time = await ds.balcony_sensor.motion_time()
             balcony_sensor_2_motion_time = await ds.balcony_sensor_2.motion_time()
             balcony_sensor_state = (
