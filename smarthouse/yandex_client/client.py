@@ -94,6 +94,13 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 debug_str=f"{method} {path} {data}",
             ) from exc
         except aiohttp.ClientResponseError as exc:
+            if exc.status == 404:
+                raise DeviceOffline(
+                    f"404 error: response: {response_data_json}, exception: {exc}",
+                    self.prod,
+                    device_ids=[],
+                    debug_str=f"{method} {path} {data}",
+                ) from exc
             if exc.status // 100 == 4:
                 raise ProgrammingError(
                     f"Client response error: response: {response_data_json}, exception: {exc}",
