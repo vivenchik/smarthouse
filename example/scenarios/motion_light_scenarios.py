@@ -204,7 +204,7 @@ async def lights_off_actions():
                 and balcony_sensor_state_long
                 or balcony_sensor_state is None
                 and balcony_sensor_2_state is None
-                and 12 * MIN > time.time() - storage.get(SKeys.balcony_lights) > 10 * MIN
+                and 13 * MIN > time.time() - storage.get(SKeys.balcony_lights) > 10 * MIN
             ):
                 if ds.balcony_lamp not in get_act(storage.get(SKeys.clicks)):
                     await ds.balcony_lamp.off().run()
