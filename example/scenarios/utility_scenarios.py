@@ -45,6 +45,7 @@ async def worker_for_web():
         storage.put(SKeys.exit_lock, not storage.get(SKeys.exit_lock, False))
 
     if task == "evening":
+        storage.put(SKeys.evening, True)
         await turn_on_act(storage.get(SKeys.clicks))
 
     if task == "paint":
