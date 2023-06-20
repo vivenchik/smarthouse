@@ -113,7 +113,6 @@ async def alarm():
     config = get_config()
     if config.pause:
         return 1 * MIN
-    ya_client = YandexClient()
     storage = Storage()
     ds = DeviceSet()
 
@@ -147,12 +146,18 @@ async def alarm():
                         feature_checkable=True,
                     )
                     await asyncio.sleep(1)
+                    if storage.get(SKeys.stop_alarm):
+                        return
 
                 await check_and_run([lamp.on_temp(temperature_k=4500, brightness=last_b) for lamp in ds.alarm_lamps])
                 await asyncio.sleep(10)
+                if storage.get(SKeys.stop_alarm):
+                    return
                 await ds.curtain.open().run()
 
                 await asyncio.sleep(10 * MIN)
+                if storage.get(SKeys.stop_alarm):
+                    return
                 while current_b <= 50 - step_b:
                     current_b += step_b
                     last_b = current_b
@@ -162,13 +167,11 @@ async def alarm():
                         feature_checkable=True,
                     )
                     await asyncio.sleep(1)
+                    if storage.get(SKeys.stop_alarm):
+                        return
                 await check_and_run([lamp.on_temp(temperature_k=4500, brightness=last_b) for lamp in ds.alarm_lamps])
-                await asyncio.sleep(2 * MIN)
-                if not storage.get(SKeys.stop_alarm):
-                    await ya_client.run_scenario(config.morning_scenario_id)
             else:
                 await asyncio.sleep(10)
+                if storage.get(SKeys.stop_alarm):
+                    return
                 await ds.curtain.open().run()
-                await asyncio.sleep(12 * MIN)
-                if not storage.get(SKeys.stop_alarm):
-                    await ya_client.run_scenario(config.morning_scenario_id)
