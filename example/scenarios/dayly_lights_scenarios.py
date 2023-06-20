@@ -117,7 +117,11 @@ async def alarm():
     storage = Storage()
     ds = DeviceSet()
 
-    alarm_datetime = datetime.datetime.fromisoformat(storage.get(SKeys.alarm, "2022-11-27T00:00:00+03:00"))
+    alarm = storage.get(SKeys.alarm, None)
+    if alarm is None:
+        return
+    alarm_datetime = datetime.datetime.fromisoformat(alarm)
+
     if abs((alarm_datetime - get_time()).total_seconds()) < 15:
         storage.put(SKeys.stop_alarm, False)
         storage.put(SKeys.alarmed, get_time().isoformat())

@@ -177,7 +177,26 @@ async def alarm_handler(tg_client: TGClient, update: Update):
 
     storage.put(SKeys.alarm, needed_alarm_datetime.isoformat())
     await tg_client.write_tg(
-        "done",
+        f"{needed_alarm_datetime.isoformat()}"[: -len(":00+03:00")],
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + datetime.timedelta(minutes=10).total_seconds(),
+    )
+
+
+async def skip_alarm_handler(tg_client: TGClient, update: Update):
+    if update.message is None or update.message.text is None:
+        return
+    storage = Storage()
+    alarm = storage.get(SKeys.alarm, None)
+    if alarm is None:
+        return
+    alarm_datetime = datetime.datetime.fromisoformat(alarm)
+    new_alarm_datetime = alarm_datetime + datetime.timedelta(days=1)
+
+    storage.put(SKeys.alarm, new_alarm_datetime.isoformat())
+    await tg_client.write_tg(
+        f"{new_alarm_datetime.isoformat()}"[: -len(":00+03:00")],
         replay_message_id=update.message.id,
         to_delete=True,
         to_delete_timestamp=time.time() + datetime.timedelta(minutes=10).total_seconds(),
@@ -212,17 +231,18 @@ async def log_lines_handler(tg_client: TGClient, update: Update):
 def get_commands():
     return [
         ("b1", "Button one click"),
+        ("b3", "Button long press"),
         ("quarantine", "Get quarantine"),
+        ("skip_alarm", "Skip alarm"),
         ("stats", "Quarantine stats"),
         ("water_done", "Water in cleaner"),
+        ("minimize_lights", "Set max brightness"),
         ("restart", "Restart"),
         ("20", "20 lines of logs"),
         ("b2", "Button double click"),
-        ("b3", "Button long press"),
         ("pause", "Pause"),
         ("start", "Start"),
         ("remove_alarm", "Remove alarm"),
-        ("minimize_lights", "Set max brightness"),
         ("50d", "50 lines of logs with debug"),
         ("log", "log file"),
         ("storage", "storage file"),
@@ -244,6 +264,7 @@ def get_handlers():
         (r"/water_done", water_done_handler),
         (r"/log", log_file_handler),
         (r"/storage", storage_file_handler),
+        (r"/skip_alarm", skip_alarm_handler),
         (r"\d\d:\d\d", alarm_handler),
         (r"\d*d?", log_lines_handler),
     ]
