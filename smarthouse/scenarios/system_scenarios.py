@@ -18,15 +18,13 @@ async def clear_quarantine():
     quarantine_notifications = storage.get(SysSKeys.quarantine_notifications, {})
     quarantine_keys = ya_client.quarantine_ids()
     for device_id in quarantine_keys:
-        if (info := ya_client.quarantine_get(device_id)) is not None:
+        if device_id in ya_client._ping and (info := ya_client.quarantine_get(device_id)) is not None:
             if await ya_client.device_info(device_id, True) is not None:
                 quarantine_notifications[device_id] = 0
                 ya_client._quarantine_remove(device_id)
                 if info.data is not None and time.time() - info.timestamp < 10 * MIN:
                     await ya_client.change_devices_capabilities(info.data["actions"])
-            elif device_id in ya_client._ping and time.time() - info.timestamp > 3600 * (
-                2 ** quarantine_notifications.get(device_id, 0)
-            ):
+            elif time.time() - info.timestamp > 3600 * (2 ** quarantine_notifications.get(device_id, 0)):
                 await storage.messages_queue.put(
                     f"{ya_client.names.get(device_id, device_id)}: {int(time.time() - info.timestamp) // 3600}h"
                 )

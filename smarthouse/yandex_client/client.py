@@ -51,7 +51,6 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             headers={"Authorization": f"Bearer {yandex_token}"},
             connector=aiohttp.TCPConnector(
                 ssl=False,
-                limit_per_host=10,
                 force_close=True,
                 enable_cleanup_closed=True,
             ),

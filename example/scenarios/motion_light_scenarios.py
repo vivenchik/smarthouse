@@ -24,7 +24,7 @@ async def lights_corridor_on_actions():
     if not storage.get(SKeys.exit_lock):
         if (
             not storage.get(SKeys.lights_locked)
-            and await ds.exit_sensor.motion_time() < 60
+            and await ds.exit_sensor.motion_time(None) < 60
             or storage.get(SKeys.lights_locked)
             and await ds.exit_door.open_time() < 60
         ):
@@ -49,7 +49,7 @@ async def lights_wc_on_actions():
         not storage.get(SKeys.lights_locked)
         and not storage.get(SKeys.wc_lock)
         and not storage.get(SKeys.night)
-        and (await ds.exit_sensor.motion_time() < 60 or await ds.wc_sensor.motion_time() < 60)
+        and (await ds.exit_sensor.motion_time(None) < 60 or await ds.wc_sensor.motion_time(None) < 60)
     ):
         if datetime.timedelta(hours=8) < get_timedelta_now() < calc_sunset() and not storage.get(SKeys.evening):
             await ds.wc_1.on().run()
