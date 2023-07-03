@@ -9,16 +9,6 @@ from smarthouse.utils import MIN, get_time
 from smarthouse.yandex_client.client import YandexClient
 
 
-async def detect_darkness():
-    ds = DeviceSet()
-    all_lamps = list(ds.all_lamps) + [ds.wc_1, ds.wc_2, ds.lamp_e_1, ds.lamp_e_2, ds.lamp_e_3]
-
-    for lamp in all_lamps:
-        if await lamp.is_on() and not lamp.in_quarantine():
-            return False
-    return True
-
-
 @looper(1)
 async def rat_darkness():
     config = get_config()
@@ -31,16 +21,22 @@ async def rat_darkness():
     if not storage.get(SKeys.rat_game):
         return
 
-    if not await detect_darkness():
-        return
+    all_lamps = list(ds.all_lamps) + [ds.wc_1, ds.wc_2, ds.lamp_e_1, ds.lamp_e_2, ds.lamp_e_3]
+
+    for lamp in all_lamps:
+        if await lamp.is_on() and not lamp.in_quarantine():
+            return
+
     await ds.table_lamp.on().run(lock_level=15)
-    if not await detect_darkness():
+    if await ds.table_lamp.is_on() and not ds.table_lamp.in_quarantine():
         return
+
     await ds.bed_lamp.on().run(lock_level=15)
-    if not await detect_darkness():
+    if await ds.bed_lamp.is_on() and not ds.bed_lamp.in_quarantine():
         return
+
     await ds.balcony_lamp.on().run(lock_level=15)
-    if not await detect_darkness():
+    if await ds.balcony_lamp.is_on() and not ds.balcony_lamp.in_quarantine():
         return
 
     await ya_client.run_scenario(config.rat_final_scenario_id)

@@ -122,7 +122,7 @@ async def paint(request: web.Request):
 
 
 @routes.post("/game")
-async def paint(request: web.Request):
+async def game(request: web.Request):
     config = get_config()
     if config.auth != request.headers.get("Authorization"):
         raise web.HTTPForbidden()
