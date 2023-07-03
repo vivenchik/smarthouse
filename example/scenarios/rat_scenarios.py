@@ -33,13 +33,13 @@ async def rat_darkness():
 
     if not await detect_darkness():
         return
-    await ds.table_lamp.on()
+    await ds.table_lamp.on().run(lock_level=15)
     if not await detect_darkness():
         return
-    await ds.bed_lamp.on()
+    await ds.bed_lamp.on().run(lock_level=15)
     if not await detect_darkness():
         return
-    await ds.balcony_lamp.on()
+    await ds.balcony_lamp.on().run(lock_level=15)
     if not await detect_darkness():
         return
 
