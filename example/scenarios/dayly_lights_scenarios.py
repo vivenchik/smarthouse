@@ -95,6 +95,9 @@ async def adaptive_lights_actions():
         needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor)
         needed_b = min(needed_b * 100, 70)
 
+        if storage.get(SKeys.rat_game):
+            needed_b = max(needed_b, 10)
+
         if timestamp + 2 * MIN > time.time() and [previous_b, previous_t] == [needed_b, needed_t]:
             return
 

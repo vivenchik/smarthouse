@@ -61,6 +61,13 @@ class Config(BaseSettings):
     button_2_id: str = "289f3efa-4ede-46ac-bdd2-9cd6a7f2d4b7"
     morning_scenario_id: str = "ed351b91-3bfa-44c0-9c09-b5b2d84fdd2f"
 
+    rat_1_scenario_id: str = "77a4f2e9-e202-41d8-93f0-8ff2198e23d0"
+    rat_2_scenario_id: str = "24f6c804-01c2-4b4f-b243-d4ff45ab9523"
+    rat_3_scenario_id: str = "48ef0e50-2c14-415b-84b9-8f6018de97d9"
+    rat_4_scenario_id: str = "df46cca0-d771-413e-978f-50734599bbe3"
+    rat_5_scenario_id: str = "4f714344-2072-42f4-98df-c808eb8f99ec"
+    rat_final_scenario_id: str = "25eec971-2267-4c75-8c34-471ebedd4ede"
+
     adaptive_interval: tuple[int, int] = (10, 18)
     adaptive_temps: tuple[int, ...] = (6500, 5600, 4500, 3400)
 

@@ -11,7 +11,7 @@ from smarthouse.action_decorators import looper
 from smarthouse.device import run_async
 from smarthouse.logger import logger
 from smarthouse.storage import Storage
-from smarthouse.utils import HOUR, MIN
+from smarthouse.utils import HOUR, MIN, get_time
 from smarthouse.yandex_client.client import YandexClient
 
 
@@ -51,6 +51,10 @@ async def worker_for_web():
     if task == "paint":
         storage.put(SKeys.paint, not storage.get(SKeys.paint, False))
         await run_async(get_mode_with_off(ds.paint))
+
+    if task == "game":
+        storage.put(SKeys.rat_game, True)
+        storage.put(SKeys.rat_game_start, get_time().isoformat())
 
     storage.tasks.task_done()
 
