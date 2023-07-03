@@ -67,6 +67,7 @@ class Config(BaseSettings):
     rat_4_scenario_id: str = "df46cca0-d771-413e-978f-50734599bbe3"
     rat_5_scenario_id: str = "4f714344-2072-42f4-98df-c808eb8f99ec"
     rat_final_scenario_id: str = "25eec971-2267-4c75-8c34-471ebedd4ede"
+    rat_time_scenario_id: str = "fa63549c-4503-4465-a665-4a84d7691e31"
 
     adaptive_interval: tuple[int, int] = (10, 18)
     adaptive_temps: tuple[int, ...] = (6500, 5600, 4500, 3400)

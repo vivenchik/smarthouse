@@ -72,4 +72,5 @@ async def rat_support():
             return 2 * MIN
 
     if abs((rat_game_start_datetime + datetime.timedelta(minutes=60) - get_time()).total_seconds()) < MIN:
+        await ya_client.run_scenario(config.rat_time_scenario_id)
         storage.put(SKeys.rat_game, False)
