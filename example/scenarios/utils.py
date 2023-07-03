@@ -192,6 +192,7 @@ async def sleep():
     ya_client.locks_reset()
     await ds.curtain.close().run_async(check=False, feature_checkable=True)
     await turn_off_all()
+    await run_async([ds.wc_1.off(), ds.wc_2.off(), ds.lamp_e_1.off(), ds.lamp_e_2.off(), ds.lamp_e_3.off()])
     await run_async([ds.humidifier.off(), ds.air.off()])
     await ya_client.run_scenario(config.clocks_off_scenario_id)
     await asyncio.sleep(3)
