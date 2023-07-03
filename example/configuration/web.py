@@ -119,3 +119,15 @@ async def paint(request: web.Request):
     await storage.tasks.put("paint")
 
     return web.Response()
+
+
+@routes.post("/game")
+async def paint(request: web.Request):
+    config = get_config()
+    if config.auth != request.headers.get("Authorization"):
+        raise web.HTTPForbidden()
+
+    storage = Storage()
+    await storage.tasks.put("game")
+
+    return web.Response()
