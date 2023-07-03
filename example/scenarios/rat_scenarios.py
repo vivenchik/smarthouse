@@ -4,6 +4,7 @@ from example.configuration.config import get_config
 from example.configuration.device_set import DeviceSet
 from example.configuration.storage_keys import SKeys
 from smarthouse.action_decorators import looper
+from smarthouse.device import run
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN, get_time
 from smarthouse.yandex_client.client import YandexClient
@@ -38,16 +39,8 @@ async def rat_darkness():
         if await lamp.is_on() and not lamp.in_quarantine():
             return
 
-    await ds.table_lamp.on().run(lock_level=15)
-    if await ds.table_lamp.is_on() and not ds.table_lamp.in_quarantine():
-        return
-
-    await ds.bed_lamp.on().run(lock_level=15)
-    if await ds.bed_lamp.is_on() and not ds.bed_lamp.in_quarantine():
-        return
-
-    await ds.balcony_lamp.on().run(lock_level=15)
-    if await ds.balcony_lamp.is_on() and not ds.balcony_lamp.in_quarantine():
+    await run([ds.table_lamp.on(), ds.bed_lamp.on()], lock_level=15)
+    if not ds.table_lamp.in_quarantine() or not ds.bed_lamp.in_quarantine():
         return
 
     await ya_client.run_scenario(config.rat_final_scenario_id)
