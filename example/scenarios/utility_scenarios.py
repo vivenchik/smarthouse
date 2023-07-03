@@ -54,6 +54,7 @@ async def worker_for_web():
 
     if task == "game":
         storage.put(SKeys.rat_game, True)
+        storage.put(SKeys.rat_game_finalized, False)
         storage.put(SKeys.rat_game_start, get_time().isoformat())
 
     storage.tasks.task_done()

@@ -21,6 +21,9 @@ async def rat_darkness():
     if not storage.get(SKeys.rat_game):
         return
 
+    if storage.get(SKeys.rat_game_finalized):
+        return
+
     rat_game_start = storage.get(SKeys.rat_game_start, None)
     if rat_game_start is None:
         return
@@ -48,6 +51,7 @@ async def rat_darkness():
         return
 
     await ya_client.run_scenario(config.rat_final_scenario_id)
+    storage.put(SKeys.rat_game_finalized, True)
 
 
 @looper(1)

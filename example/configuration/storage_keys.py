@@ -38,4 +38,5 @@ class SKeys(Enum):
     evening = "evening"
     paint = "paint"
     rat_game = "__rat_game"
+    rat_game_finalized = "__rat_game_finalized"
     rat_game_start = "__rat_game_start"
