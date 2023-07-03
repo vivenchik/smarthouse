@@ -21,6 +21,14 @@ async def rat_darkness():
     if not storage.get(SKeys.rat_game):
         return
 
+    rat_game_start = storage.get(SKeys.rat_game_start, None)
+    if rat_game_start is None:
+        return
+    rat_game_start_datetime = datetime.datetime.fromisoformat(rat_game_start)
+
+    if abs((rat_game_start_datetime - get_time()).total_seconds()) < MIN:
+        return
+
     all_lamps = list(ds.all_lamps) + [ds.wc_1, ds.wc_2, ds.lamp_e_1, ds.lamp_e_2, ds.lamp_e_3]
 
     for lamp in all_lamps:
