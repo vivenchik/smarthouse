@@ -24,7 +24,7 @@ async def lights_corridor_on_actions():
     if not storage.get(SKeys.exit_lock):
         if (
             not storage.get(SKeys.lights_locked)
-            and await ds.exit_sensor.motion_time() < 60
+            and await ds.exit_sensor.motion_time(None) < 60
             or storage.get(SKeys.lights_locked)
             and await ds.exit_door.open_time() < 60
         ):
@@ -49,7 +49,7 @@ async def lights_wc_on_actions():
         not storage.get(SKeys.lights_locked)
         and not storage.get(SKeys.wc_lock)
         and not storage.get(SKeys.night)
-        and (await ds.exit_sensor.motion_time() < 60 or await ds.wc_sensor.motion_time() < 60)
+        and (await ds.exit_sensor.motion_time(None) < 60 or await ds.wc_sensor.motion_time(None) < 60)
     ):
         if datetime.timedelta(hours=8) < get_timedelta_now() < calc_sunset() and not storage.get(SKeys.evening):
             await ds.wc_1.on().run()
@@ -180,7 +180,7 @@ async def lights_off_actions():
             or storage.get(SKeys.evening)
         )
     ):
-        if time.time() - storage.get(SKeys.balcony_lights) < 8 * MIN:
+        if time.time() - storage.get(SKeys.balcony_lights) < 20 * MIN:
             balcony_sensor_motion_time = await ds.balcony_sensor.motion_time()
             balcony_sensor_2_motion_time = await ds.balcony_sensor_2.motion_time()
             balcony_sensor_state = (
@@ -204,7 +204,7 @@ async def lights_off_actions():
                 and balcony_sensor_state_long
                 or balcony_sensor_state is None
                 and balcony_sensor_2_state is None
-                and 13 * MIN > time.time() - storage.get(SKeys.balcony_lights) > 10 * MIN
+                and time.time() - storage.get(SKeys.balcony_lights) > 12 * MIN
             ):
                 if ds.balcony_lamp not in get_act(storage.get(SKeys.clicks)):
                     await ds.balcony_lamp.off().run()
