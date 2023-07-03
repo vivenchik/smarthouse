@@ -44,7 +44,6 @@ async def rat_darkness():
         return
 
     await ya_client.run_scenario(config.rat_final_scenario_id)
-    storage.put(SKeys.rat_game, False)
 
 
 @looper(1)
@@ -72,6 +71,9 @@ async def rat_support():
     ]
 
     for offset, scenario_id in offsets:
-        if abs((rat_game_start_datetime - get_time()).total_seconds()) < MIN:
+        if abs((rat_game_start_datetime + offset - get_time()).total_seconds()) < MIN:
             await ya_client.run_scenario(scenario_id)
             return 2 * MIN
+
+    if abs((rat_game_start_datetime + datetime.timedelta(minutes=60) - get_time()).total_seconds()) < MIN:
+        storage.put(SKeys.rat_game, False)
