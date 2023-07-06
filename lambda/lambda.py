@@ -54,6 +54,9 @@ def handler(event, context):
         if event["request"]["original_utterance"] == "рисование":
             resp = "жги"
             result = request("paint")
+        if event["request"]["original_utterance"] == "игра":
+            resp = "Да начнется крысиный бал!"
+            result = request("game")
 
     if result != 0:
         logger.error(event["request"]["original_utterance"])

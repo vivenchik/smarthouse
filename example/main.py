@@ -25,6 +25,7 @@ from example.scenarios.motion_light_scenarios import (
     lights_off_actions,
     lights_wc_on_actions,
 )
+from example.scenarios.rat_scenarios import rat_darkness, rat_support
 from example.scenarios.utility_scenarios import not_prod, web_utils_actions, worker_for_web
 from smarthouse.app import App
 from smarthouse.logger import logger
@@ -101,6 +102,8 @@ async def main():
             balcony_lights_on_actions(),
             water_level_checker(),
             button_sleep_actions(),
+            rat_darkness(),
+            rat_support(),
         ]
         app.add_tasks(tasks)
 
