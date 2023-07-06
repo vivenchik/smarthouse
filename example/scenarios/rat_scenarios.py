@@ -55,6 +55,7 @@ async def rat_darkness():
     await ya_client.run_scenario(config.rat_final_scenario_id)
     await asyncio.sleep(30)
     ya_client.locks_reset()
+    await run([ds.table_lamp.off(), ds.bed_lamp.off()])
     if get_timedelta_now() >= calc_sunset() or storage.get(SKeys.evening):
         await turn_on_act(storage.get(SKeys.clicks))
     storage.put(SKeys.rat_game_finalized, True)
