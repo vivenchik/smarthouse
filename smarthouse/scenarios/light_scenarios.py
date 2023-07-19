@@ -2,13 +2,13 @@ import asyncio
 import time
 
 from smarthouse.action_decorators import looper
-from smarthouse.device import RunQueuesSet, check_and_run, run
 from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.device import RunQueuesSet, check_and_run, run
 
 
 @looper(0)

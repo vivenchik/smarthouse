@@ -34,12 +34,15 @@ certifi==2023.5.7
     # via
     #   httpcore
     #   httpx
+    #   requests
 cffi==1.15.1
     # via
     #   cryptography
     #   pycares
 charset-normalizer==3.1.0
-    # via aiohttp
+    # via
+    #   aiohttp
+    #   requests
 cryptography==40.0.2
     # via python-telegram-bot
 frozenlist==1.3.3
@@ -50,6 +53,8 @@ h11==0.14.0
     # via httpcore
 h2==4.1.0
     # via httpx
+homeassistant-api==2.4.0.post2
+    # via smarthouse (setup.py)
 hpack==4.0.0
     # via h2
 httpcore==0.17.0
@@ -62,6 +67,7 @@ idna==3.4
     # via
     #   anyio
     #   httpx
+    #   requests
     #   yarl
 multidict==6.0.4
     # via
@@ -83,6 +89,10 @@ pytz==2023.3
     #   python-telegram-bot
 pyyaml==6.0
     # via smarthouse (setup.py)
+requests==2.31.0
+    # via homeassistant-api
+simplejson==3.19.1
+    # via homeassistant-api
 six==1.16.0
     # via apscheduler
 sniffio==1.3.0
@@ -102,6 +112,8 @@ typing-extensions==4.5.0
     #   pydantic
 tzlocal==5.0
     # via apscheduler
+urllib3==2.0.3
+    # via requests
 yarl==1.9.2
     # via aiohttp
 

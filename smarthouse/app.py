@@ -5,7 +5,7 @@ from typing import Awaitable, Iterable
 from aiohttp import web
 from aiohttp.web_routedef import AbstractRouteDef
 
-from smarthouse.device import RunQueuesSet
+from smarthouse.ha_client.client import HAClient
 from smarthouse.logger import logger
 from smarthouse.scenarios.light_scenarios import (
     clear_retries,
@@ -23,6 +23,7 @@ from smarthouse.scenarios.system_scenarios import clear_quarantine, detect_human
 from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.device import RunQueuesSet
 
 
 class App:
@@ -32,6 +33,8 @@ class App:
         yandex_token: str = "",
         telegram_token: str | None = None,
         telegram_chat_id: str = "",
+        ha_url: str = "",
+        ha_token: str = "",
         tg_commands: list[tuple[str, str]] | None = None,
         tg_handlers: list[tuple[str, Awaitable]] | None = None,
         prod: bool = False,
@@ -41,6 +44,8 @@ class App:
         self.yandex_token = yandex_token
         self.telegram_token = telegram_token
         self.telegram_chat_id = telegram_chat_id
+        self.ha_url = ha_url
+        self.ha_token = ha_token
         self.tg_commands = tg_commands
         self.tg_handlers = tg_handlers
         self.prod = prod
@@ -74,6 +79,8 @@ class App:
         await Storage().init(storage_name=self.storage_name)
 
         YandexClient().init(yandex_token=self.yandex_token, prod=self.prod)
+
+        await HAClient().init(ha_url=self.ha_url, ha_token=self.ha_token, prod=self.prod)
 
         TGClient().init(telegram_token=self.telegram_token, telegram_chat_id=self.telegram_chat_id, prod=self.prod)
         tg_client = TGClient()

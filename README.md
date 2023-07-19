@@ -29,6 +29,7 @@ pip install smarthouse
 ```
 
 Usage example:
+
 ```python
 import asyncio
 import datetime
@@ -38,7 +39,7 @@ from aiohttp import web
 
 from smarthouse.action_decorators import looper, scheduler
 from smarthouse.app import App
-from smarthouse.device import HSVLamp, LuxSensor, run_async
+from smarthouse.yandex_client.device import HSVLamp, LuxSensor, run_async
 from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 

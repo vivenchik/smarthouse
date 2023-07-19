@@ -53,6 +53,8 @@ async def main():
         yandex_token=config.yandex_token,
         telegram_token=config.telegram_token,
         telegram_chat_id=config.telegram_chat_id,
+        ha_url=config.ha_url,
+        ha_token=config.ha_token,
         tg_commands=get_commands(),
         tg_handlers=get_handlers(),
         prod=config.prod,

@@ -5,14 +5,19 @@ from pydantic import BaseSettings
 
 
 class Config(BaseSettings):
-    yandex_token: str
-    telegram_token: str
-    telegram_chat_id: str
     prod: bool
     pause: bool = False
+    storage_name: str = "./storage/storage.yaml"
+
+    yandex_token: str
+
+    telegram_token: str
+    telegram_chat_id: str
+
     auth: str
 
-    storage_name: str = "./storage/storage.yaml"
+    ha_url: str = ""  # todo: remove default
+    ha_token: str = ""  # todo: remove default
 
     exit_door_id: str = "cb7f8d6e-fe2f-4f27-956c-6119e95d8922"
     exit_sensor_id: str = "bcf42ffa-bc5a-434d-8952-83b247e20da7"

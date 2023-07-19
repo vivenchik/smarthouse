@@ -8,9 +8,9 @@ from example.configuration.storage_keys import SKeys
 from example.scenarios.light_utils import calc_sunrise, calc_sunset
 from example.scenarios.utils import get_act, get_needed_b_t
 from smarthouse.action_decorators import looper
-from smarthouse.device import run
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN, get_timedelta_now
+from smarthouse.yandex_client.device import run
 
 
 @looper(0.5)

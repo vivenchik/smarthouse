@@ -5,10 +5,10 @@ from example.configuration.config import get_config
 from example.configuration.device_set import DeviceSet
 from example.configuration.storage_keys import SKeys
 from smarthouse.action_decorators import looper
-from smarthouse.device import run
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.device import run
 
 
 @looper(10)

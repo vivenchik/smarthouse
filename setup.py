@@ -31,7 +31,7 @@ extras = {
 
 setup(
     name="smarthouse",
-    version="0.1.5",
+    version="2.0.0b1",
     description="Smart House Scenarios",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -58,6 +58,7 @@ setup(
         "pydantic[dotenv]",
         "async_lru",
         "astral",
+        "homeassistant_api",
     ],
     extras_require=extras,
     setup_requires=["pytest-runner"],
