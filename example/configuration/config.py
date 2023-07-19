@@ -16,7 +16,7 @@ class Config(BaseSettings):
 
     auth: str
 
-    ha_url: str = ""  # todo: remove default
+    ha_url: str = "http://homeassistant:8123"
     ha_token: str = ""  # todo: remove default
 
     exit_door_id: str = "cb7f8d6e-fe2f-4f27-956c-6119e95d8922"

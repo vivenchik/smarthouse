@@ -58,7 +58,7 @@ setup(
         "pydantic[dotenv]",
         "async_lru",
         "astral",
-        "homeassistant_api",
+        "homeassistant_api>=4",
     ],
     extras_require=extras,
     setup_requires=["pytest-runner"],

@@ -10,30 +10,42 @@ aiofiles==23.1.0
     # via smarthouse (setup.py)
 aiohttp[speedups]==3.8.4
     # via
+    #   aiohttp-client-cache
+    #   homeassistant-api
     #   pytest-aiohttp
     #   smarthouse (setup.py)
-aiolimiter==1.0.0
+aiohttp-client-cache==0.6.1
+    # via homeassistant-api
+aiolimiter==1.1.0
     # via python-telegram-bot
 aiosignal==1.3.1
     # via aiohttp
-anyio==3.6.2
+anyio==3.7.1
     # via httpcore
+appdirs==1.4.4
+    # via requests-cache
 apscheduler==3.10.1
     # via python-telegram-bot
 astral==3.2
     # via smarthouse (setup.py)
-async-lru==2.0.2
+async-lru==2.0.3
     # via smarthouse (setup.py)
 async-timeout==4.0.2
     # via aiohttp
-attrs==23.1.0
-    # via aiohttp
-black==23.3.0
+attrs==21.4.0
+    # via
+    #   aiohttp
+    #   aiohttp-client-cache
+    #   cattrs
+    #   requests-cache
+black==23.7.0
     # via smarthouse (setup.py)
 brotli==1.0.9
     # via aiohttp
-cachetools==5.3.0
+cachetools==5.3.1
     # via python-telegram-bot
+cattrs==23.1.2
+    # via requests-cache
 certifi==2023.5.7
     # via
     #   httpcore
@@ -43,17 +55,17 @@ cffi==1.15.1
     # via
     #   cryptography
     #   pycares
-charset-normalizer==3.1.0
+charset-normalizer==3.2.0
     # via
     #   aiohttp
     #   requests
-click==8.1.3
+click==8.1.6
     # via black
-coverage[toml]==7.2.5
+coverage[toml]==7.2.7
     # via pytest-cov
-cryptography==40.0.2
+cryptography==41.0.2
     # via python-telegram-bot
-execnet==1.9.0
+execnet==2.0.2
     # via pytest-xdist
 flake8==6.0.0
     # via
@@ -61,7 +73,7 @@ flake8==6.0.0
     #   smarthouse (setup.py)
 flake8-pyproject==1.2.3
     # via smarthouse (setup.py)
-frozenlist==1.3.3
+frozenlist==1.4.0
     # via
     #   aiohttp
     #   aiosignal
@@ -69,13 +81,13 @@ h11==0.14.0
     # via httpcore
 h2==4.1.0
     # via httpx
-homeassistant-api==2.4.0.post2
+homeassistant-api==4.1.1.post2
     # via smarthouse (setup.py)
 hpack==4.0.0
     # via h2
-httpcore==0.17.0
+httpcore==0.17.3
     # via httpx
-httpx[http2,socks]==0.24.0
+httpx[http2,socks]==0.24.1
     # via python-telegram-bot
 hyperframe==6.0.1
     # via h2
@@ -89,7 +101,9 @@ iniconfig==2.0.0
     # via pytest
 isort==5.12.0
     # via smarthouse (setup.py)
-libcst==0.4.9
+itsdangerous==2.1.2
+    # via aiohttp-client-cache
+libcst==1.0.1
     # via no-implicit-optional
 mccabe==0.7.0
     # via flake8
@@ -97,14 +111,14 @@ multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
-mypy==1.3.0
+mypy==1.4.1
     # via smarthouse (setup.py)
 mypy-extensions==1.0.0
     # via
     #   black
     #   mypy
     #   typing-inspect
-no-implicit-optional==1.3
+no-implicit-optional==1.4
     # via smarthouse (setup.py)
 packaging==23.1
     # via
@@ -112,9 +126,9 @@ packaging==23.1
     #   pytest
 pathspec==0.11.1
     # via black
-platformdirs==3.5.1
+platformdirs==3.9.1
     # via black
-pluggy==1.0.0
+pluggy==1.2.0
     # via pytest
 pycares==4.3.0
     # via aiodns
@@ -122,11 +136,13 @@ pycodestyle==2.10.0
     # via flake8
 pycparser==2.21
     # via cffi
-pydantic[dotenv]==1.10.7
-    # via smarthouse (setup.py)
+pydantic[dotenv]==1.9.0
+    # via
+    #   homeassistant-api
+    #   smarthouse (setup.py)
 pyflakes==3.0.1
     # via flake8
-pytest==7.3.1
+pytest==7.4.0
     # via
     #   pytest-aiohttp
     #   pytest-asyncio
@@ -136,36 +152,44 @@ pytest==7.3.1
     #   smarthouse (setup.py)
 pytest-aiohttp==1.0.4
     # via smarthouse (setup.py)
-pytest-asyncio==0.21.0
+pytest-asyncio==0.21.1
     # via
     #   pytest-aiohttp
     #   smarthouse (setup.py)
-pytest-cov==4.0.0
+pytest-cov==4.1.0
     # via smarthouse (setup.py)
-pytest-mock==3.10.0
+pytest-mock==3.11.1
     # via smarthouse (setup.py)
-pytest-xdist==3.3.0
+pytest-xdist==3.3.1
     # via smarthouse (setup.py)
 python-dotenv==1.0.0
     # via
     #   pydantic
     #   smarthouse (setup.py)
-python-telegram-bot[all,ext]==20.3
+python-forge==18.6.0
+    # via aiohttp-client-cache
+python-telegram-bot[all,ext]==20.4
     # via smarthouse (setup.py)
 pytz==2023.3
     # via
     #   apscheduler
     #   python-telegram-bot
-pyyaml==6.0
+pyyaml==6.0.1
     # via
     #   libcst
     #   smarthouse (setup.py)
 requests==2.31.0
+    # via
+    #   homeassistant-api
+    #   requests-cache
+requests-cache==0.9.8
     # via homeassistant-api
 simplejson==3.19.1
     # via homeassistant-api
 six==1.16.0
-    # via apscheduler
+    # via
+    #   apscheduler
+    #   url-normalize
 sniffio==1.3.0
     # via
     #   anyio
@@ -177,23 +201,28 @@ telegram==0.0.1
     # via smarthouse (setup.py)
 tornado==6.3.2
     # via python-telegram-bot
-types-aiofiles==23.1.0.2
+types-aiofiles==23.1.0.4
     # via smarthouse (setup.py)
-types-pyyaml==6.0.12.9
+types-pyyaml==6.0.12.10
     # via smarthouse (setup.py)
-typing-extensions==4.5.0
+typing-extensions==4.7.1
     # via
-    #   async-lru
     #   libcst
     #   mypy
     #   pydantic
     #   typing-inspect
-typing-inspect==0.8.0
+typing-inspect==0.9.0
     # via libcst
-tzlocal==5.0
+tzlocal==5.0.1
     # via apscheduler
+url-normalize==1.4.3
+    # via
+    #   aiohttp-client-cache
+    #   requests-cache
 urllib3==2.0.3
-    # via requests
+    # via
+    #   requests
+    #   requests-cache
 yarl==1.9.2
     # via aiohttp
 
