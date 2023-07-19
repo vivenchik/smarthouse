@@ -13,6 +13,10 @@ python_version = 3.11
 module = "astral.sun"
 follow_imports = "skip"
 
+[[tool.mypy.overrides]]
+module = "homeassistant_api"
+follow_imports = "skip"
+
 [tool.flake8]
 max-line-length = 120
 ignore = ["E203", "W503"]
