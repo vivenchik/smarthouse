@@ -18,23 +18,23 @@ services:
       timeout: 1s
       retries: 5
       start_period: 10s
-#    depends_on:
-#      - homeassistant
-#
-#  homeassistant:
-#    container_name: homeassistant
-#    image: "ghcr.io/home-assistant/home-assistant:2023.7.2"
-#    restart: unless-stopped
-#    volumes:
-#      - /Users/ivan/homeassistant_condig:/config
-#      - /etc/localtime:/etc/localtime:ro
-#    logging:
-#      driver: "json-file"
-#      options:
-#        max-size: "2048m"
-#    privileged: true
-#    ports:
-#      - "8123:8123"
+    depends_on:
+      - homeassistant
+
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:2023.7.2"
+    restart: unless-stopped
+    volumes:
+      - /home/ivan/homeassistant_condig:/config
+      - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2048m"
+    privileged: true
+    ports:
+      - "8123:8123"
 
 #  restarter:
 #      image: docker
