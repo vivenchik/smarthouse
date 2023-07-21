@@ -48,7 +48,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: 'pip'
-      - name: Install dependencies and env
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements/requirements-dev.txt
@@ -69,11 +69,10 @@ jobs:
     steps:
       - name: Create SSH key
         run: |
-          echo "$SSH_HOST"
           mkdir -p ~/.ssh/
           echo "$SSH_PRIVATE_KEY" >  ~/.ssh/id_rsa
           sudo chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$SSH_HOST" > ~/.ssh/known_hosts
+          ssh-keyscan -H $SSH_HOST > ~/.ssh/known_hosts
         env:
           SSH_HOST: ${{secrets.SSH_HOST}}
           SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
