@@ -17,7 +17,7 @@ class Config(BaseSettings):
     auth: str
 
     ha_url: str = "http://homeassistant:8123"
-    ha_token: str = ""  # todo: remove default
+    ha_token: str
 
     exit_door_id: str = "cb7f8d6e-fe2f-4f27-956c-6119e95d8922"
     exit_sensor_id: str = "bcf42ffa-bc5a-434d-8952-83b247e20da7"
@@ -65,6 +65,8 @@ class Config(BaseSettings):
     bluetooth_off_scenario_id: str = "c4422669-90ea-4a7c-9755-43a4ac4d71cd"
     button_2_id: str = "289f3efa-4ede-46ac-bdd2-9cd6a7f2d4b7"
     morning_scenario_id: str = "ed351b91-3bfa-44c0-9c09-b5b2d84fdd2f"
+
+    table_lamp_entity_id: str = "light.xiaomi_yeelink_1"
 
     adaptive_interval: tuple[int, int] = (10, 18)
     adaptive_temps: tuple[int, ...] = (6500, 5600, 4500, 3400)

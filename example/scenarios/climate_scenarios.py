@@ -60,7 +60,8 @@ async def dry_actions():
     ds = DeviceSet()
 
     air_cleaner_humidity = await ds.air_cleaner.humidity()
-    if not air_cleaner_humidity.quarantine and air_cleaner_humidity.result < 25:
+    # if not air_cleaner_humidity.quarantine and air_cleaner_humidity.result < 25: todo
+    if air_cleaner_humidity < 25:
         await ds.humidifier.on().run()
         if await ds.humidifier.is_on():
             await asyncio.sleep(HOUR)
