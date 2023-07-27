@@ -25,7 +25,7 @@ async def wc_hydro_actions():
     if (
         not wc_term_humidity.quarantine
         and (last_hydro > HOUR + 30 * MIN or wc_term_humidity.result > 75)
-        and wc_term_humidity.result > 55
+        and wc_term_humidity.result > 60
         and not await ds.air.is_on(10)
         and (await ds.wc_1.is_on() or await ds.wc_2.is_on())
     ):
