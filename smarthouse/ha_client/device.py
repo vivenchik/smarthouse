@@ -61,4 +61,7 @@ class YeelinkLamp(Device):
 
 class YeelinkAirCleaner(Device):
     async def humidity(self):
-        return int((await self.get_state("sensor.xiaomi_smart_air_purifier_4_humidity")).state)  # todo
+        state = await self.get_state("sensor.xiaomi_smart_air_purifier_4_humidity")
+        if state.state == "unavailable":
+            return 35
+        return int(state.state)  # todo
