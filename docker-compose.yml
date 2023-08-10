@@ -40,7 +40,7 @@ services:
     image: "ghcr.io/home-assistant/home-assistant:2023.7.2"
     restart: unless-stopped
     volumes:
-      - /home/ivan/homeassistant_condig:/config
+      - /home/ivan/homeassistant_config:/config
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "8123:8123"
