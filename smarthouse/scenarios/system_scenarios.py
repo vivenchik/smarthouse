@@ -3,7 +3,7 @@ import copy
 import time
 
 from smarthouse.action_decorators import looper
-from smarthouse.base_client.exceptions import YandexCheckError
+from smarthouse.base_client.exceptions import InfraCheckError
 from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
@@ -47,7 +47,7 @@ async def detect_human():
                     await ya_client._check_devices_capabilities(
                         state.actions_list, {device_id: state.excl}, err_retry=False, real_action=False
                     )
-                except YandexCheckError:
+                except InfraCheckError:
                     await asyncio.sleep(12)
 
                     if ya_client.states_in(device_id):
@@ -59,7 +59,7 @@ async def detect_human():
                             await ya_client._check_devices_capabilities(
                                 state.actions_list, {device_id: state.excl}, err_retry=False, real_action=False
                             )
-                        except YandexCheckError as exc:
+                        except InfraCheckError as exc:
                             time_ = ya_client._human_time_funcs.get(device_id, lambda: time.time() + 15 * 60)()
                             ya_client.locks_set(device_id, time_, level=10)
                             ya_client.states_remove(device_id)

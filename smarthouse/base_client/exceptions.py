@@ -1,4 +1,4 @@
-class YandexError(Exception):
+class InfraError(Exception):
     def __init__(self, message, prod: bool, err_retry: bool = True, debug_str: str = "", dont_log: bool = False):
         self.message = message
         self.prod = prod
@@ -8,7 +8,7 @@ class YandexError(Exception):
         super().__init__(self.message)
 
 
-class ProgrammingError(YandexError):
+class ProgrammingError(InfraError):
     def __init__(
         self,
         message,
@@ -23,7 +23,7 @@ class ProgrammingError(YandexError):
         super().__init__(message, prod, err_retry, debug_str, dont_log)
 
 
-class YandexServerError(YandexError):
+class InfraServerError(InfraError):
     def __init__(
         self,
         message,
@@ -38,7 +38,7 @@ class YandexServerError(YandexError):
         super().__init__(message, prod, err_retry, debug_str, dont_log)
 
 
-class YandexCheckError(YandexError):
+class InfraCheckError(InfraError):
     def __init__(
         self,
         message,
@@ -52,7 +52,7 @@ class YandexCheckError(YandexError):
         super().__init__(message, prod, err_retry, debug_str, dont_log)
 
 
-class DeviceOffline(YandexError):
+class DeviceOffline(InfraError):
     def __init__(
         self,
         message,

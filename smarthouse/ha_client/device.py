@@ -9,19 +9,30 @@ class Device:
         self.name = name
         self.ha_client = HAClient()
 
-    async def get_state(self, entity_id=None):
-        return (await self.ha_client.client.async_get_entity(entity_id=entity_id or self.entity_id)).state
+    async def info(self, hash_seconds=1):
+        return await self.ha_client.device_info(self.entity_id, hash_seconds=hash_seconds)
+
+    async def check_property(self, property_name, proceeded_last=False, hash_seconds=1):
+        return await self.ha_client.check_property(
+            self.entity_id, property_name, proceeded_last=proceeded_last, hash_seconds=hash_seconds
+        )
+
+    def in_quarantine(self):
+        return self.ha_client.quarantine_in(self.entity_id)
+
+    def quarantine(self):
+        return self.ha_client.quarantine_get(self.entity_id)
 
 
 class YeelinkLamp(Device):
     async def is_on(self):
-        return (await self.get_state()).state == "on"
+        return await self.ha_client.get_state(self.entity_id) == "on"
 
     async def on(self):
-        return await self.ha_client.light.turn_on(entity_id=self.entity_id)
+        return await self.ha_client.domains["light"].turn_on(entity_id=self.entity_id)  # todo
 
     async def off(self):
-        return await self.ha_client.light.turn_off(entity_id=self.entity_id)
+        return await self.ha_client.domains["light"].turn_off(entity_id=self.entity_id)  # todo
 
     def _fix_temperature_k(self, temperature_k):
         return min(6500, max(1500, int(temperature_k))) if temperature_k is not None else None
@@ -38,7 +49,7 @@ class YeelinkLamp(Device):
         if brightness == 0:
             return await self.off()
 
-        return await self.ha_client.light.turn_on(entity_id=self.entity_id, brightness=brightness)
+        return await self.ha_client.domains["light"].turn_on(entity_id=self.entity_id, brightness=brightness)  # todo
 
     async def on_temp(self, temperature_k=4500, brightness=100):
         brightness = self._fix_brightness(brightness)
@@ -48,7 +59,9 @@ class YeelinkLamp(Device):
 
         temperature_k = self._fix_temperature_k(temperature_k)
 
-        return await self.ha_client.light.turn_on(entity_id=self.entity_id, brightness=brightness, kelvin=temperature_k)
+        return await self.ha_client.domains["light"].turn_on(
+            entity_id=self.entity_id, brightness=brightness, kelvin=temperature_k
+        )  # todo
 
     # async def on_rgb(self, rgb, brightness=100):
     #     brightness = self._fix_brightness(brightness)
@@ -61,7 +74,5 @@ class YeelinkLamp(Device):
 
 class YeelinkAirCleaner(Device):
     async def humidity(self):
-        state = await self.get_state("sensor.xiaomi_smart_air_purifier_4_humidity")
-        if state.state == "unavailable":
-            return 35
-        return int(state.state)  # todo
+        state = await self.ha_client.get_state("sensor.xiaomi_smart_air_purifier_4_humidity")  # todo
+        return int(state)  # todo

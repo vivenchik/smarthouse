@@ -80,7 +80,7 @@ class App:
 
         YandexClient().init(yandex_token=self.yandex_token, prod=self.prod)
 
-        await HAClient().init(ha_url=self.ha_url, ha_token=self.ha_token, prod=self.prod)
+        await HAClient().init(base_url=self.ha_url, ha_token=self.ha_token, prod=self.prod)
 
         TGClient().init(telegram_token=self.telegram_token, telegram_chat_id=self.telegram_chat_id, prod=self.prod)
         tg_client = TGClient()

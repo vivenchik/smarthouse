@@ -6,7 +6,7 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
-from smarthouse.base_client.exceptions import YandexCheckError
+from smarthouse.base_client.exceptions import InfraCheckError
 from smarthouse.utils import Singleton
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.models import DeviceCapabilityAction
@@ -102,7 +102,7 @@ async def check_and_run(
             excl={action.device_id: action.excl for action in actions},
             err_retry=False,
         )
-    except YandexCheckError:
+    except InfraCheckError:
         return await run(actions, lock_level=lock_level, lock=lock)
 
 

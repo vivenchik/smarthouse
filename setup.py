@@ -68,6 +68,7 @@ setup(
         "pytest-asyncio",
         "pytest-aiohttp",
         "python-dotenv",
+        "pytest-runner",
     ],
     test_suite="tests",
 )
