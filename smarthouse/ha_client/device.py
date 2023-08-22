@@ -12,10 +12,12 @@ class Device:
     async def info(self, hash_seconds=1):
         return await self.ha_client.device_info(self.entity_id, hash_seconds=hash_seconds)
 
-    async def check_property(self, property_name, proceeded_last=False, hash_seconds=1):
-        return await self.ha_client.check_property(
-            self.entity_id, property_name, proceeded_last=proceeded_last, hash_seconds=hash_seconds
-        )
+    async def check_property(self, entity_id, property_name, proceeded_last=False, hash_seconds=1):
+        return (
+            await self.ha_client.check_property(
+                entity_id or self.entity_id, property_name, proceeded_last=proceeded_last, hash_seconds=hash_seconds
+            )
+        )[0]
 
     def in_quarantine(self):
         return self.ha_client.quarantine_in(self.entity_id)
@@ -26,7 +28,7 @@ class Device:
 
 class YeelinkLamp(Device):
     async def is_on(self):
-        return await self.ha_client.get_state(self.entity_id) == "on"
+        return await self.ha_client.check_property() == "on"
 
     async def on(self):
         return await self.ha_client.domains["light"].turn_on(entity_id=self.entity_id)  # todo
@@ -74,5 +76,5 @@ class YeelinkLamp(Device):
 
 class YeelinkAirCleaner(Device):
     async def humidity(self):
-        state = await self.ha_client.get_state("sensor.xiaomi_smart_air_purifier_4_humidity")  # todo
+        state = await self.check_property("sensor.xiaomi_smart_air_purifier_4_humidity", "humidity")  # todo
         return int(state)  # todo

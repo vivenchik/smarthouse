@@ -32,6 +32,8 @@ class HAClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     domains: dict[str, Domain]
 
     async def init(self, base_url: str, ha_token: str, prod: bool = False) -> None:
+        super().base_init()
+
         self.base_url = base_url
         self.prod = prod
         self.client = Client(f"{base_url}/api/", ha_token, use_async=True)
@@ -40,7 +42,7 @@ class HAClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             "light": await self.client.async_get_domain("light"),  # type: ignore[assignment]
         }
 
-    async def get_state(self, entity_id):
+    async def _get_state(self, entity_id):
         return (await self.client.async_get_entity(entity_id=entity_id)).state.state
 
     @retry
@@ -48,7 +50,7 @@ class HAClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
     ) -> DeviceInfoResponse:
         try:
-            state = await self.get_state(device_id)
+            state = await self._get_state(device_id)
         except Exception as exc:
             raise ProgrammingError(
                 f"Device {self.names.get(device_id, device_id)} is unexpected {exc}",
