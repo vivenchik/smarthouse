@@ -25,7 +25,7 @@ ignore = ["E203", "W503"]
 asyncio_mode = "auto"
 
 [tool.pylint]
-py-version = "3.11.2"
+py-version = "3.11"
 jobs = 0
 max-line-length = 120
 persistent = "yes"

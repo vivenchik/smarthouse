@@ -1,4 +1,4 @@
-FROM python:3.11.2-slim
+FROM python:3.11-slim
 WORKDIR /usr/src/smarthouse
 
 ENV PYTHONDONTWRITEBYTECODE 1
