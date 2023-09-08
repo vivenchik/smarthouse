@@ -26,7 +26,9 @@ async def clear_quarantine():
                     await ya_client.change_devices_capabilities(info.data["actions"])
             elif time.time() - info.timestamp > 3600 * (2 ** quarantine_notifications.get(device_id, 0)):
                 await storage.messages_queue.put(
-                    f"{ya_client.names.get(device_id, device_id)}: {int(time.time() - info.timestamp) // 3600}h"
+                    {
+                        "message": f"{ya_client.names.get(device_id, device_id)}: {int(time.time() - info.timestamp) // 3600}h"
+                    }
                 )
                 quarantine_notifications[device_id] = quarantine_notifications.get(device_id, 0) + 1
 
@@ -65,5 +67,9 @@ async def detect_human():
                             ya_client.states_remove(device_id)
                             logger.info(f"detected human: {ya_client.names.get(device_id, device_id)} {exc}")
                             await storage.messages_queue.put(
-                                f"detected human: {ya_client.names.get(device_id, device_id)} {exc}"
+                                {
+                                    "message": f"detected human: {ya_client.names.get(device_id, device_id)} {exc}",
+                                    "to_delete": True,
+                                    "to_delete_timestamp": time_,
+                                }
                             )

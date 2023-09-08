@@ -37,7 +37,7 @@ async def notifications_ya_client():
     tg_client = TGClient()
 
     message = await ya_client.messages_queue.get()
-    await tg_client.write_tg(message)
+    await tg_client.write_tg(**message)
     ya_client.messages_queue.task_done()
 
 
@@ -47,7 +47,7 @@ async def notifications_storage():
     tg_client = TGClient()
 
     message = await storage.messages_queue.get()
-    await tg_client.write_tg(message)
+    await tg_client.write_tg(**message)
     storage.messages_queue.task_done()
 
 

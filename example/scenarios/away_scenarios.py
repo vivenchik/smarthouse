@@ -45,7 +45,7 @@ async def away_actions():
     )
 
     if 5 * 24 * HOUR < after_last_cleanup:
-        await storage.messages_queue.put("go away")
+        await storage.messages_queue.put({"message": "go away"})
         storage.put(SKeys.last_cleanup, time.time() - 10 * HOUR)
 
     if state_i_am_away:
@@ -82,7 +82,7 @@ async def away_actions():
                 cleaner_battery_level = await ds.cleaner.battery_level()
                 if not 50 < cleaner_battery_level < 95:  # because we cant check on_off state
                     logger.info(f"strange cleaner battery_level {cleaner_battery_level}")
-                    await storage.messages_queue.put("looks like cleaner is offed")
+                    await storage.messages_queue.put({"message": "looks like cleaner is offed"})
                     storage.put(SKeys.last_cleanup, time.time() - 10 * HOUR)
 
         if 5 * HOUR < door and await ds.humidifier.is_on(MIN):
@@ -104,7 +104,7 @@ async def away_actions():
             if after_last_silence < after_last_on:
                 logger.info("welcome home")
                 if storage.get(SKeys.cleanups, 0) >= 6:
-                    await storage.messages_queue.put("insert water in cleaner /water_done")
+                    await storage.messages_queue.put({"message": "insert water in cleaner /water_done"})
                 after_sunset = get_timedelta_now() >= calc_sunset()
                 if after_sunset or get_time().hour < 6 or storage.get(SKeys.evening):
                     logger.info("turning on lights (welcome)")

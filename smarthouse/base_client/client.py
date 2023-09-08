@@ -167,7 +167,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             self.states_remove(device_id)
             self._quarantine_set(device_id)
             if not ignore_quarantine and exc.send:
-                await self.messages_queue.put(str(exc))
+                await self.messages_queue.put({"message": str(exc)})
             return None
 
     async def _devices_action(self, actions_list: list[DeviceCapabilityAction]) -> Any:
@@ -213,7 +213,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
                 self._quarantine_set(device_id, {"actions": [actions_dict[device_id]]})
 
             if exc.send:
-                await self.messages_queue.put(str(exc))
+                await self.messages_queue.put({"message": str(exc)})
             return None
 
     async def _check_devices_capabilities(
@@ -256,4 +256,4 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         except InfraCheckError as exc:
             for device_id in exc.device_ids:
                 self.states_remove(device_id)
-            await self.messages_queue.put(str(exc))
+            await self.messages_queue.put({"message": str(exc)})

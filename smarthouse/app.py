@@ -92,6 +92,6 @@ class App:
 
     async def run(self):
         logger.info("started")
-        await Storage().messages_queue.put("started")
+        await Storage().messages_queue.put({"message": "started"})
 
         return await asyncio.gather(*self.tasks)
