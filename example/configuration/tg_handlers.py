@@ -228,6 +228,110 @@ async def log_lines_handler(tg_client: TGClient, update: Update):
     )
 
 
+async def sleep_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    storage = Storage()
+    await storage.tasks.put("sleep")
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+    )
+
+
+async def humidifier_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    storage = Storage()
+    await storage.tasks.put("humidifier")
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+    )
+
+
+async def good_mo_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    storage = Storage()
+    await storage.tasks.put("good_mo")
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+    )
+
+
+async def wc_off_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    storage = Storage()
+    await storage.tasks.put("wc_off")
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+    )
+
+
+async def balcony_off_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    storage = Storage()
+    await storage.tasks.put("balcony_off")
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+    )
+
+
+async def exit_off_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    storage = Storage()
+    await storage.tasks.put("exit_off")
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+    )
+
+
+async def evening_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    storage = Storage()
+    await storage.tasks.put("evening")
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+    )
+
+
+async def paint_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    storage = Storage()
+    await storage.tasks.put("paint")
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+    )
+
+
 def get_commands():
     return [
         ("b1", "Button one click"),
@@ -246,6 +350,14 @@ def get_commands():
         ("50d", "50 lines of logs with debug"),
         ("log", "log file"),
         ("storage", "storage file"),
+        ("sleep", "sleep"),
+        ("humidifier", "humidifier"),
+        ("good_mo", "good_mo"),
+        ("wc_off", "wc_off"),
+        ("balcony_off", "balcony_off"),
+        ("exit_off", "exit_off"),
+        ("evening", "evening"),
+        ("paint", "paint"),
     ]
 
 
@@ -267,4 +379,12 @@ def get_handlers():
         (r"/skip_alarm", skip_alarm_handler),
         (r"\d\d:\d\d", alarm_handler),
         (r"\d*d?", log_lines_handler),
+        (r"/sleep", sleep_handler),
+        (r"/humidifier", humidifier_handler),
+        (r"/good_mo", good_mo_handler),
+        (r"/wc_off", wc_off_handler),
+        (r"/balcony_off", balcony_off_handler),
+        (r"/exit_off", exit_off_handler),
+        (r"/evening", evening_handler),
+        (r"/paint", paint_handler),
     ]
