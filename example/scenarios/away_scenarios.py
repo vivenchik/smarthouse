@@ -15,7 +15,7 @@ from smarthouse.yandex_client.device import run
 
 
 @looper(5)
-async def away_actions():
+async def away_actions_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
