@@ -16,7 +16,7 @@ from smarthouse.yandex_client.device import check_and_run, run
 
 
 @scheduler((datetime.timedelta(hours=4),))
-async def night_reset():
+async def night_reset_scenario():
     config = get_config()
     ya_client = YandexClient()
     storage = Storage()
@@ -40,7 +40,7 @@ async def night_reset():
 
 
 @scheduler((datetime.timedelta(hours=8),))
-async def scheduled_morning_lights():
+async def scheduled_morning_lights_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -56,7 +56,7 @@ async def scheduled_morning_lights():
 
 
 @scheduler((datetime.timedelta(hours=10),))
-async def scheduled_morning_lights_off():
+async def scheduled_morning_lights_off_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -66,7 +66,7 @@ async def scheduled_morning_lights_off():
 
 
 @scheduler((calc_sunset,))
-async def scheduled_lights():
+async def scheduled_lights_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -79,7 +79,7 @@ async def scheduled_lights():
 
 
 @looper(3, (datetime.timedelta(hours=10), calc_sunset))
-async def adaptive_lights_actions():
+async def adaptive_lights_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -109,7 +109,7 @@ async def adaptive_lights_actions():
 
 
 @looper(10)
-async def alarm():
+async def alarm_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN

@@ -16,7 +16,7 @@ from smarthouse.yandex_client.device import run_async
 
 
 @looper(1)
-async def worker_for_web():
+async def worker_for_web_scenario():
     storage = Storage()
     ds = DeviceSet()
 
@@ -56,7 +56,7 @@ async def worker_for_web():
 
 
 @looper(MIN)
-async def web_utils_actions():
+async def web_utils_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -92,7 +92,7 @@ async def reload_hub():
         return 60 * MIN
 
 
-async def not_prod():
+async def not_prod_scenario():
     config = get_config()
 
     if not config.prod:

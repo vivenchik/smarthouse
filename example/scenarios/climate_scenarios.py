@@ -12,7 +12,7 @@ from smarthouse.yandex_client.device import run
 
 
 @looper(10)
-async def wc_hydro_actions():
+async def wc_hydro_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -53,7 +53,7 @@ async def wc_hydro_actions():
 
 
 @looper(MIN)
-async def dry_actions():
+async def dry_actions_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -69,7 +69,7 @@ async def dry_actions():
 
 
 @looper(MIN)
-async def water_level_checker():
+async def water_level_checker_scenario():
     storage = Storage()
     ds = DeviceSet()
 
