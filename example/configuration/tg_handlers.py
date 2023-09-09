@@ -386,5 +386,5 @@ def get_handlers():
         (r"^/exit_off$", exit_off_handler),
         (r"^/evening$", evening_handler),
         (r"^/paint$", paint_handler),
-        (r"^\d*d?$", log_lines_handler),
+        (r"^\/?\d*d?$", log_lines_handler),
     ]
