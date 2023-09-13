@@ -66,8 +66,6 @@ class Config(BaseSettings):
     button_2_id: str = "289f3efa-4ede-46ac-bdd2-9cd6a7f2d4b7"
     morning_scenario_id: str = "ed351b91-3bfa-44c0-9c09-b5b2d84fdd2f"
 
-    table_lamp_entity_id: str = "light.xiaomi_yeelink_1"
-
     adaptive_interval: tuple[int, int] = (10, 18)
     adaptive_temps: tuple[int, ...] = (6500, 5600, 4500, 3400)
 

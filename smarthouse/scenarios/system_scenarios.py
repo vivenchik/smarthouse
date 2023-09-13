@@ -27,7 +27,8 @@ async def clear_quarantine():
             elif time.time() - info.timestamp > 3600 * (2 ** quarantine_notifications.get(device_id, 0)):
                 await storage.messages_queue.put(
                     {
-                        "message": f"{ya_client.names.get(device_id, device_id)}: {int(time.time() - info.timestamp) // 3600}h",
+                        "message": f"{ya_client.names.get(device_id, device_id)}: "
+                        f"{int(time.time() - info.timestamp) // 3600}h",
                         "to_delete": True,
                         "to_delete_timestamp": time.time() + 10 * MIN,
                     }
