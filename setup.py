@@ -31,7 +31,7 @@ extras = {
 
 setup(
     name="smarthouse",
-    version="0.1.5",
+    version="2.0.0b1",
     description="Smart House Scenarios",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -55,9 +55,10 @@ setup(
         "pyyaml",
         "python-telegram-bot[all,ext]",
         "telegram",
-        "pydantic[dotenv]",
+        "pydantic[dotenv]<2",
         "async_lru",
         "astral",
+        "homeassistant_api>=4",
     ],
     extras_require=extras,
     setup_requires=["pytest-runner"],
@@ -67,6 +68,7 @@ setup(
         "pytest-asyncio",
         "pytest-aiohttp",
         "python-dotenv",
+        "pytest-runner",
     ],
     test_suite="tests",
 )

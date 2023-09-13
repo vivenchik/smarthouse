@@ -8,13 +8,13 @@ from example.configuration.storage_keys import SKeys
 from example.scenarios.light_utils import calc_sunrise, calc_sunset
 from example.scenarios.utils import get_act, get_needed_b_t
 from smarthouse.action_decorators import looper
-from smarthouse.device import run
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN, get_timedelta_now
+from smarthouse.yandex_client.device import run
 
 
 @looper(0.5)
-async def lights_corridor_on_actions():
+async def lights_corridor_on_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -38,7 +38,7 @@ async def lights_corridor_on_actions():
 
 
 @looper(0.5)
-async def lights_wc_on_actions():
+async def lights_wc_on_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -52,8 +52,10 @@ async def lights_wc_on_actions():
         and (await ds.exit_sensor.motion_time(None) < 60 or await ds.wc_sensor.motion_time(None) < 60)
     ):
         if datetime.timedelta(hours=8) < get_timedelta_now() < calc_sunset() and not storage.get(SKeys.evening):
-            await ds.wc_1.on().run()
-            device = ds.wc_1
+            # await ds.wc_1.on().run()
+            # device = ds.wc_1
+            await ds.wc_2.on().run()
+            device = ds.wc_2
         else:
             await ds.wc_2.on().run()
             device = ds.wc_2
@@ -77,7 +79,7 @@ async def lights_wc_on_actions():
 
 
 @looper(1)
-async def balcony_lights_on_actions():
+async def balcony_lights_on_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -108,7 +110,7 @@ async def balcony_lights_on_actions():
 
 
 @looper(MIN)
-async def lights_off_actions():
+async def lights_off_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN

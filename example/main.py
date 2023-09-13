@@ -8,24 +8,28 @@ from example.configuration.device_set import DeviceSet
 from example.configuration.storage_keys import SKeys
 from example.configuration.tg_handlers import get_commands, get_handlers
 from example.configuration.web import routes
-from example.scenarios.away_scenarios import away_actions
-from example.scenarios.climate_scenarios import dry_actions, water_level_checker, wc_hydro_actions
-from example.scenarios.color_scenes_scenarios import button_actions, button_sleep_actions, random_colors_actions
+from example.scenarios.away_scenarios import away_actions_scenario
+from example.scenarios.climate_scenarios import dry_actions_scenario, water_level_checker_scenario, wc_hydro_scenario
+from example.scenarios.color_scenes_scenarios import (
+    button_scenario,
+    button_sleep_actions_scenario,
+    random_colors_scenario,
+)
 from example.scenarios.dayly_lights_scenarios import (
-    adaptive_lights_actions,
-    alarm,
-    night_reset,
-    scheduled_lights,
-    scheduled_morning_lights,
-    scheduled_morning_lights_off,
+    adaptive_lights_scenario,
+    alarm_scenario,
+    night_reset_scenario,
+    scheduled_lights_scenario,
+    scheduled_morning_lights_off_scenario,
+    scheduled_morning_lights_scenario,
 )
 from example.scenarios.motion_light_scenarios import (
-    balcony_lights_on_actions,
-    lights_corridor_on_actions,
-    lights_off_actions,
-    lights_wc_on_actions,
+    balcony_lights_on_scenario,
+    lights_corridor_on_scenario,
+    lights_off_scenario,
+    lights_wc_on_scenario,
 )
-from example.scenarios.utility_scenarios import not_prod, web_utils_actions, worker_for_web
+from example.scenarios.utility_scenarios import not_prod_scenario, web_utils_scenario, worker_for_web_scenario
 from smarthouse.app import App
 from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
@@ -53,6 +57,8 @@ async def main():
         yandex_token=config.yandex_token,
         telegram_token=config.telegram_token,
         telegram_chat_id=config.telegram_chat_id,
+        ha_url=config.ha_url,
+        ha_token=config.ha_token,
         tg_commands=get_commands(),
         tg_handlers=get_handlers(),
         prod=config.prod,
@@ -74,33 +80,33 @@ async def main():
 
         lamp_groups = ds.lamp_groups
         tasks = [
-            night_reset(),
-            away_actions(),
-            scheduled_morning_lights(),
-            scheduled_morning_lights_off(),
-            scheduled_lights(),
-            wc_hydro_actions(),
-            lights_corridor_on_actions(),
-            lights_wc_on_actions(),
-            lights_off_actions(),
-            dry_actions(),
-            web_utils_actions(),
-            button_actions(),
-            adaptive_lights_actions(),
+            night_reset_scenario(),
+            away_actions_scenario(),
+            scheduled_morning_lights_scenario(),
+            scheduled_morning_lights_off_scenario(),
+            scheduled_lights_scenario(),
+            wc_hydro_scenario(),
+            lights_corridor_on_scenario(),
+            lights_wc_on_scenario(),
+            lights_off_scenario(),
+            dry_actions_scenario(),
+            web_utils_scenario(),
+            button_scenario(),
+            adaptive_lights_scenario(),
             # motion_lights_actions(),
-            random_colors_actions((lamp_groups[0],), (0, 10)),
-            random_colors_actions((lamp_groups[1],), (20, 30)),
-            random_colors_actions((lamp_groups[2],), (40, 50)),
-            random_colors_actions((lamp_groups[3],), (30, 50)),
-            random_colors_actions(lamp_groups, (60, 60), (60, 180), True),
-            not_prod(),
+            random_colors_scenario((lamp_groups[0],), (0, 10)),
+            random_colors_scenario((lamp_groups[1],), (20, 30)),
+            random_colors_scenario((lamp_groups[2],), (40, 50)),
+            random_colors_scenario((lamp_groups[3],), (30, 50)),
+            random_colors_scenario(lamp_groups, (60, 60), (60, 180), True),
+            not_prod_scenario(),
             # reload_hub(),
             # refresh_storage(storage),
-            alarm(),
-            worker_for_web(),
-            balcony_lights_on_actions(),
-            water_level_checker(),
-            button_sleep_actions(),
+            alarm_scenario(),
+            worker_for_web_scenario(),
+            balcony_lights_on_scenario(),
+            water_level_checker_scenario(),
+            button_sleep_actions_scenario(),
         ]
         app.add_tasks(tasks)
 

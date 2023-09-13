@@ -6,7 +6,7 @@ import aiohttp
 from async_lru import alru_cache
 
 from smarthouse.base_client.client import BaseClient
-from smarthouse.base_client.exceptions import DeviceOffline, ProgrammingError, YandexCheckError, YandexServerError
+from smarthouse.base_client.exceptions import DeviceOffline, InfraCheckError, InfraServerError, ProgrammingError
 from smarthouse.base_client.utils import retry
 from smarthouse.logger import logger
 from smarthouse.yandex_client.models import (
@@ -77,7 +77,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 else:
                     response_data_text = await response.text()
                     response.raise_for_status()
-                    raise YandexServerError(
+                    raise InfraServerError(
                         f"Response content type: "
                         f"content_type: '{response.content_type}' is not 'application/json'\n"
                         f" response: {response_data_text}",
@@ -87,7 +87,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 response.raise_for_status()
 
         except json.JSONDecodeError as exc:
-            raise YandexServerError(
+            raise InfraServerError(
                 f"Response decode error: response: {response_data_text}, exception: {exc}",
                 self.prod,
                 debug_str=f"{method} {path} {data}",
@@ -106,19 +106,19 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                     self.prod,
                     debug_str=f"{method} {path} {data}",
                 ) from exc
-            raise YandexServerError(
+            raise InfraServerError(
                 f"Client response error: response: {response_data_json}, exception: {exc}",
                 self.prod,
                 debug_str=f"{method} {path} {data}",
             ) from exc
         except aiohttp.ClientError as exc:
-            raise YandexServerError(
+            raise InfraServerError(
                 f"Client error: response: {response_data_json}, exception: {exc}",
                 self.prod,
                 debug_str=f"{method} {path} {data}",
             ) from exc
         except TimeoutError as exc:
-            raise YandexServerError(
+            raise InfraServerError(
                 f"Timeout Error: {exc}",
                 self.prod,
                 debug_str=f"{method} {path} {data}",
@@ -158,7 +158,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             exc.err_retry = err_retry
             exc.device_ids = [device_id]
             raise exc
-        except YandexServerError as exc:
+        except InfraServerError as exc:
             exc.dont_log = dont_log
             exc.err_retry = err_retry
             exc.device_ids = [device_id]
@@ -180,7 +180,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         try:
             device = DeviceInfoResponse(**response)
         except ValueError as exc:
-            raise YandexServerError(
+            raise InfraServerError(
                 f"Incorrect response format {self.names.get(device_id, device_id)} {exc}",
                 self.prod,
                 device_ids=[device_id],
@@ -234,7 +234,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         except ProgrammingError as exc:
             exc.device_ids = [device.id for device in data.devices]
             raise exc
-        except YandexServerError as exc:
+        except InfraServerError as exc:
             exc.device_ids = [device.id for device in data.devices]
             raise exc
         except DeviceOffline as exc:
@@ -253,7 +253,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             response_struct = DeviceActionResponse(**response)
         except ValueError as exc:
             cleaned_devices = [self.names.get(device.id, device.id) for device in data.devices]
-            raise YandexServerError(
+            raise InfraServerError(
                 f"Incorrect response ({cleaned_devices}) {exc}",
                 self.prod,
                 device_ids=[device.id for device in data.devices],
@@ -363,7 +363,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 self.states_set(device_id, state)
 
         if len(errors) > 0:
-            raise YandexCheckError(
+            raise InfraCheckError(
                 f"Device state check error ({[self.names.get(error[1], error[1]) for error in errors]}): "
                 f"{' '.join([error[0] for error in errors])}",
                 self.prod,
@@ -386,7 +386,6 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
 
     async def check_property(self, device_id: str, property_name: str, proceeded_last=False, hash_seconds=1):
         default = DEFAULTS["property"][property_name]
-        [0], default[1]()
         device = await self.device_info(device_id, proceeded_last=proceeded_last, hash_seconds=hash_seconds)
         if device is None:
             return default[0], default[1]()

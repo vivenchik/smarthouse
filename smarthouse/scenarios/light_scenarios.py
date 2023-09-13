@@ -2,16 +2,16 @@ import asyncio
 import time
 
 from smarthouse.action_decorators import looper
-from smarthouse.device import RunQueuesSet, check_and_run, run
 from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.device import RunQueuesSet, check_and_run, run
 
 
-@looper(0.1)
+@looper(0)
 async def worker_run():
     run_queue = RunQueuesSet().run
 
@@ -21,7 +21,7 @@ async def worker_run():
     run_queue.task_done()
 
 
-@looper(0.1)
+@looper(0)
 async def worker_check_and_run():
     run_queue = RunQueuesSet().check_and_run
 
@@ -31,23 +31,23 @@ async def worker_check_and_run():
     run_queue.task_done()
 
 
-@looper(0.1)
+@looper(0)
 async def notifications_ya_client():
     ya_client = YandexClient()
     tg_client = TGClient()
 
     message = await ya_client.messages_queue.get()
-    await tg_client.write_tg(message)
+    await tg_client.write_tg(**message)
     ya_client.messages_queue.task_done()
 
 
-@looper(0.1)
+@looper(0)
 async def notifications_storage():
     storage = Storage()
     tg_client = TGClient()
 
     message = await storage.messages_queue.get()
-    await tg_client.write_tg(message)
+    await tg_client.write_tg(**message)
     storage.messages_queue.task_done()
 
 
@@ -57,7 +57,7 @@ async def tg_actions():
     await tg_client.update_tg()
 
 
-@looper(0.1)
+@looper(0)
 async def clear_tg():
     tg_client = TGClient()
 

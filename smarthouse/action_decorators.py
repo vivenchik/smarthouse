@@ -87,7 +87,7 @@ def looper(
                     sleep = 1
 
                     storage = Storage()
-                    await storage.messages_queue.put(f"{func.__name__} {exc}")
+                    await storage.messages_queue.put({"message": f"{func.__name__} {exc}"})
 
                     await asyncio.sleep(10)
 

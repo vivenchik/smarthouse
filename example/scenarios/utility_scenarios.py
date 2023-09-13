@@ -8,15 +8,15 @@ from example.configuration.device_set import DeviceSet
 from example.configuration.storage_keys import SKeys
 from example.scenarios.utils import get_mode_with_off, good_mo, sleep, turn_on_act
 from smarthouse.action_decorators import looper
-from smarthouse.device import run_async
 from smarthouse.logger import logger
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.device import run_async
 
 
 @looper(1)
-async def worker_for_web():
+async def worker_for_web_scenario():
     storage = Storage()
     ds = DeviceSet()
 
@@ -56,7 +56,7 @@ async def worker_for_web():
 
 
 @looper(MIN)
-async def web_utils_actions():
+async def web_utils_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -92,7 +92,7 @@ async def reload_hub():
         return 60 * MIN
 
 
-async def not_prod():
+async def not_prod_scenario():
     config = get_config()
 
     if not config.prod:

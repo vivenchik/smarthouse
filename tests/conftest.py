@@ -14,9 +14,9 @@ from pydantic import BaseModel
 
 from example.configuration.device_set import DeviceSet
 from smarthouse.base_client.models import LockItem
-from smarthouse.device import RunQueuesSet
 from smarthouse.storage import Storage
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.device import RunQueuesSet
 from smarthouse.yandex_client.models import (
     Action,
     Device,

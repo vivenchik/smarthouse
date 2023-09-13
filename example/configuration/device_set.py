@@ -4,8 +4,9 @@ import time
 
 from example.configuration.config import get_config
 from example.scenarios.light_utils import calc_sunset, calc_sunset_datetime
-from smarthouse.device import (
-    AirCleaner,
+from smarthouse.ha_client.device import YeelinkAirCleaner
+from smarthouse.utils import Singleton, get_timedelta_now, hsv_to_rgb
+from smarthouse.yandex_client.device import (
     AirSensor,
     Button,
     Cleaner,
@@ -20,7 +21,6 @@ from smarthouse.device import (
     SwitchLamp,
     YandexBigHSVLamp,
 )
-from smarthouse.utils import Singleton, get_timedelta_now, hsv_to_rgb
 
 
 def adaptive_human_time_func():
@@ -54,7 +54,7 @@ class DeviceSet(metaclass=Singleton):
         self.hub_power = Switch(config.hub_power_id, "Хаб", ping=False)
 
         self.wc_term = AirSensor(config.term_id, "Датчик воздуха туалет")
-        self.air_cleaner = AirCleaner(config.air_cleaner_id, "Очиститель воздуха")
+        self.air_cleaner = YeelinkAirCleaner(config.air_cleaner_id, "Очиститель воздуха")
 
         self.lamp_e_1 = HSVLamp(config.lamp_e_1_id, "Лампа выход 1")
         self.lamp_e_2 = HSVLamp(config.lamp_e_2_id, "Лампа выход 2")
@@ -71,6 +71,7 @@ class DeviceSet(metaclass=Singleton):
         self.right_lamp = YandexBigHSVLamp(config.right_lamp_id, "Правая лампа")
 
         self.table_lamp = RGBLamp(config.table_lamp_id, "Настольная лампа")
+        # self.table_lamp = YeelinkLamp(config.table_lamp_entity_id, "Настольная лампа")
         self.piano_lamp = RGBLamp(config.piano_lamp_id, "Лампа у пианино")
         self.bed_lamp = RGBLamp(config.bed_lamp_id, "Прикроватная лампа")
 
@@ -104,7 +105,7 @@ class DeviceSet(metaclass=Singleton):
             self.bed_lamp,
             self.piano_lamp,
             self.lux_sensor,
-            self.air_cleaner,
+            # self.air_cleaner,
             self.humidifier,
             self.button,
             self.air,

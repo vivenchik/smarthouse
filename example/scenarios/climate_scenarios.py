@@ -5,14 +5,14 @@ from example.configuration.config import get_config
 from example.configuration.device_set import DeviceSet
 from example.configuration.storage_keys import SKeys
 from smarthouse.action_decorators import looper
-from smarthouse.device import run
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.device import run
 
 
 @looper(10)
-async def wc_hydro_actions():
+async def wc_hydro_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -25,7 +25,7 @@ async def wc_hydro_actions():
     if (
         not wc_term_humidity.quarantine
         and (last_hydro > HOUR + 30 * MIN or wc_term_humidity.result > 75)
-        and wc_term_humidity.result > 55
+        and wc_term_humidity.result > 60
         and not await ds.air.is_on(10)
         and (await ds.wc_1.is_on() or await ds.wc_2.is_on())
     ):
@@ -53,14 +53,15 @@ async def wc_hydro_actions():
 
 
 @looper(MIN)
-async def dry_actions():
+async def dry_actions_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
     ds = DeviceSet()
 
     air_cleaner_humidity = await ds.air_cleaner.humidity()
-    if not air_cleaner_humidity.quarantine and air_cleaner_humidity.result < 25:
+    # if not air_cleaner_humidity.quarantine and air_cleaner_humidity.result < 25: todo
+    if air_cleaner_humidity < 25:
         await ds.humidifier.on().run()
         if await ds.humidifier.is_on():
             await asyncio.sleep(HOUR)
@@ -68,14 +69,14 @@ async def dry_actions():
 
 
 @looper(MIN)
-async def water_level_checker():
+async def water_level_checker_scenario():
     storage = Storage()
     ds = DeviceSet()
 
     water_level = await ds.humidifier.water_level()
 
     if water_level <= 30 and not storage.get(SKeys.water_notified):
-        await storage.messages_queue.put("please insert water")
+        await storage.messages_queue.put({"message": "please insert water"})
         storage.put(SKeys.water_notified, True)
 
     if water_level > 50 and storage.get(SKeys.water_notified):

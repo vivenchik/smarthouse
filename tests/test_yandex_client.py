@@ -4,7 +4,7 @@ from unittest import mock
 import aiohttp
 import pytest
 
-from smarthouse.base_client.exceptions import YandexCheckError
+from smarthouse.base_client.exceptions import InfraCheckError
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.models import Action, Device, DeviceCapabilityAction, StateItem
 from tests.conftest import get_action_response, get_lamp_response
@@ -251,7 +251,7 @@ async def test_check_error(mocker, device):
     mocker.patch("aiohttp.ClientSession.request", return_value=resp)
 
     ya_client.states_set(ITEM_UUID, StateItem(actions_list=ACTIONS_LIST, excl=()))  # action emulate
-    with pytest.raises(YandexCheckError) as e_info:
+    with pytest.raises(InfraCheckError) as e_info:
         await ya_client._check_devices_capabilities(ACTIONS_LIST)
         assert e_info.device_ids == [ITEM_UUID]
 

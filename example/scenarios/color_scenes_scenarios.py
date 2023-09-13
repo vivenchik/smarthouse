@@ -20,14 +20,14 @@ from example.scenarios.utils import (
     turn_on_act,
 )
 from smarthouse.action_decorators import looper
-from smarthouse.device import HSVLamp, RGBLamp, TemperatureLamp, run
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN, get_time, get_timedelta_now, hsv_to_rgb
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.device import HSVLamp, RGBLamp, TemperatureLamp, run
 
 
 @looper(1)
-async def random_colors_actions(
+async def random_colors_scenario(
     lamp_groups: tuple[tuple[Union[HSVLamp, RGBLamp, TemperatureLamp], ...], ...], jump_time, rand=(15, 60), sync=False
 ):
     config = get_config()
@@ -93,7 +93,7 @@ async def random_colors_actions(
 
 
 @looper(1)
-async def button_actions():
+async def button_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
@@ -196,7 +196,7 @@ async def button_actions():
 
 
 @looper(1)
-async def button_sleep_actions():
+async def button_sleep_actions_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN

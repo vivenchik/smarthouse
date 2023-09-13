@@ -3,7 +3,7 @@ import copy
 import time
 
 from smarthouse.action_decorators import looper
-from smarthouse.base_client.exceptions import YandexCheckError
+from smarthouse.base_client.exceptions import InfraCheckError
 from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
@@ -26,7 +26,12 @@ async def clear_quarantine():
                     await ya_client.change_devices_capabilities(info.data["actions"])
             elif time.time() - info.timestamp > 3600 * (2 ** quarantine_notifications.get(device_id, 0)):
                 await storage.messages_queue.put(
-                    f"{ya_client.names.get(device_id, device_id)}: {int(time.time() - info.timestamp) // 3600}h"
+                    {
+                        "message": f"{ya_client.names.get(device_id, device_id)}: "
+                        f"{int(time.time() - info.timestamp) // 3600}h",
+                        "to_delete": True,
+                        "to_delete_timestamp": time.time() + 10 * MIN,
+                    }
                 )
                 quarantine_notifications[device_id] = quarantine_notifications.get(device_id, 0) + 1
 
@@ -47,7 +52,7 @@ async def detect_human():
                     await ya_client._check_devices_capabilities(
                         state.actions_list, {device_id: state.excl}, err_retry=False, real_action=False
                     )
-                except YandexCheckError:
+                except InfraCheckError:
                     await asyncio.sleep(12)
 
                     if ya_client.states_in(device_id):
@@ -59,11 +64,15 @@ async def detect_human():
                             await ya_client._check_devices_capabilities(
                                 state.actions_list, {device_id: state.excl}, err_retry=False, real_action=False
                             )
-                        except YandexCheckError as exc:
+                        except InfraCheckError as exc:
                             time_ = ya_client._human_time_funcs.get(device_id, lambda: time.time() + 15 * 60)()
                             ya_client.locks_set(device_id, time_, level=10)
                             ya_client.states_remove(device_id)
                             logger.info(f"detected human: {ya_client.names.get(device_id, device_id)} {exc}")
                             await storage.messages_queue.put(
-                                f"detected human: {ya_client.names.get(device_id, device_id)} {exc}"
+                                {
+                                    "message": f"detected human: {ya_client.names.get(device_id, device_id)} {exc}",
+                                    "to_delete": True,
+                                    "to_delete_timestamp": time_,
+                                }
                             )

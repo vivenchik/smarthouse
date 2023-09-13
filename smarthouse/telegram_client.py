@@ -9,6 +9,7 @@ import telegram
 from telegram import Update
 
 from example.configuration.storage_keys import SKeys
+from smarthouse.logger import logger
 from smarthouse.storage import Storage
 from smarthouse.utils import Singleton
 
@@ -57,8 +58,11 @@ class TGClient(metaclass=Singleton):
 
     def get_handler(self, message: str):
         for pattern, handler in self.handlers.items():
-            if pattern.match(message):
-                return handler
+            try:
+                if pattern.match(message):
+                    return handler
+            except Exception as exc:
+                logger.exception(exc)
         return self.default_handler
 
     async def write_tg(
