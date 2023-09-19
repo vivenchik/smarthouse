@@ -14,7 +14,7 @@ aiohttp[speedups]==3.8.5
     #   homeassistant-api
     #   pytest-aiohttp
     #   smarthouse (setup.py)
-aiohttp-client-cache==0.6.1
+aiohttp-client-cache==0.8.2
     # via homeassistant-api
 aiolimiter==1.1.0
     # via python-telegram-bot
