@@ -19,7 +19,7 @@ aiolimiter==1.1.0
     # via python-telegram-bot
 aiosignal==1.3.1
     # via aiohttp
-anyio==3.7.1
+anyio==4.0.0
     # via httpcore
 appdirs==1.4.4
     # via requests-cache
