@@ -136,7 +136,7 @@ pycodestyle==2.11.0
     # via flake8
 pycparser==2.21
     # via cffi
-pydantic[dotenv]==1.9.0
+pydantic[dotenv]==2.3.0
     # via
     #   homeassistant-api
     #   smarthouse (setup.py)
