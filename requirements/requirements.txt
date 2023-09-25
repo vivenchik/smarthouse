@@ -37,7 +37,7 @@ attrs==21.4.0
     #   aiohttp-client-cache
     #   cattrs
     #   requests-cache
-brotli==1.0.9
+brotli==1.1.0
     # via aiohttp
 cachetools==5.3.1
     # via python-telegram-bot
@@ -100,9 +100,9 @@ python-dotenv==1.0.0
     # via pydantic
 python-forge==18.6.0
     # via aiohttp-client-cache
-python-telegram-bot[all,ext]==20.4
+python-telegram-bot[all,ext]==20.5
     # via smarthouse (setup.py)
-pytz==2023.3
+pytz==2023.3.post1
     # via
     #   apscheduler
     #   python-telegram-bot
@@ -131,7 +131,7 @@ telegram==0.0.1
     # via smarthouse (setup.py)
 tornado==6.3.3
     # via python-telegram-bot
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via pydantic
 tzlocal==5.0.1
     # via apscheduler
@@ -139,7 +139,7 @@ url-normalize==1.4.3
     # via
     #   aiohttp-client-cache
     #   requests-cache
-urllib3==2.0.4
+urllib3==2.0.5
     # via
     #   requests
     #   requests-cache
