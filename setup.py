@@ -55,7 +55,7 @@ setup(
         "pyyaml",
         "python-telegram-bot[all,ext]",
         "telegram",
-        "pydantic[dotenv]<2",
+        "pydantic[dotenv]<3",
         "async_lru",
         "astral",
         "homeassistant_api>=4",
