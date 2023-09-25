@@ -1,7 +1,7 @@
 SmartHouse
 ==========
 
-|Coverage Status| |Checked with mypy| |Code style: black| |Documentation
+|github| |Coverage Status| |Checked with mypy| |Code style: black| |Documentation
 Status|
 
 SmartHouse - библиотека для управления умным домом. На текущий момент
@@ -121,6 +121,8 @@ Usage example:
    if __name__ == "__main__":
        asyncio.run(main())
 
+.. |github| image:: https://github.com/vivenchik/smarthouse/actions/workflows/main.yml/badge.svg
+   :target: https://github.com/vivenchik/smarthouse/actions
 .. |Coverage Status| image:: https://coveralls.io/repos/github/vivenchik/smarthouse/badge.svg?branch=master
    :target: https://coveralls.io/github/vivenchik/smarthouse?branch=master
 .. |Checked with mypy| image:: https://www.mypy-lang.org/static/mypy_badge.svg

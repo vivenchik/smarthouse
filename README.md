@@ -1,4 +1,5 @@
 # SmartHouse
+[![github](https://github.com/vivenchik/smarthouse/actions/workflows/main.yml/badge.svg)](https://github.com/vivenchik/smarthouse/actions)
 [![Coverage Status](https://coveralls.io/repos/github/vivenchik/smarthouse/badge.svg?branch=master)](https://coveralls.io/github/vivenchik/smarthouse?branch=master)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)

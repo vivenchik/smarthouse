@@ -4,7 +4,7 @@ WORKDIR /usr/src/smarthouse
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV TZ=Europe/Moscow
-RUN apt-get install -y tzdata
+RUN apt-get update -q -y && apt-get install -q -y tzdata
 RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN pip3 install --upgrade pip
