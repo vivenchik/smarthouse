@@ -112,7 +112,7 @@ requests==2.31.0
     # via
     #   homeassistant-api
     #   requests-cache
-requests-cache==0.9.8
+requests-cache==1.1.0
     # via homeassistant-api
 simplejson==3.19.1
     # via homeassistant-api
