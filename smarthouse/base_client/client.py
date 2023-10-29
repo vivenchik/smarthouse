@@ -254,4 +254,4 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         except InfraCheckError as exc:
             for device_id in exc.device_ids:
                 self.states_remove(device_id)
-            await self.messages_queue.put({"message": str(exc)})
+            await self.messages_queue.put({"message": f"Device state check error:\n{exc}"})

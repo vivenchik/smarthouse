@@ -79,7 +79,7 @@ async def detect_human():
                                 ),
                             )
                             storage.put("last_human_detected", time.time())
-                            logger.info(f"detected human: {ya_client.names.get(device_id, device_id)} {exc}")
+                            logger.info(f"Detected human:\n{exc}")
                             await storage.messages_queue.put(
                                 {
                                     "message": f"detected human: {ya_client.names.get(device_id, device_id)} {exc}",

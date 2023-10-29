@@ -346,7 +346,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                         )
                         if capability.state["instance"] != needed_capability[1]:
                             errors.append(
-                                (f'diff: {needed_capability[1]} != {capability.state["instance"]}', device_id)
+                                (f'{needed_capability[0]} {needed_capability[1]} -> {capability.state["instance"]}', device_id)
                             )
                             continue
                         current_capability_value = capability.state["value"]
@@ -357,8 +357,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                         ):
                             errors.append(
                                 (
-                                    f"capability: {(needed_capability[0], needed_capability[1])} "
-                                    f'diff: {needed_capability[2]} != {capability.state["value"]}',
+                                    f'{needed_capability[0]} {needed_capability[1]} {needed_capability[2]} -> {capability.state["value"]}',
                                     device_id,
                                 )
                             )
@@ -376,8 +375,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
 
         if len(errors) > 0:
             raise InfraCheckError(
-                f"Device state check error ({[self.names.get(error[1], error[1]) for error in errors]}): "
-                f"{' '.join([error[0] for error in errors])}",
+                "\n".join([f"{self.names.get(error[1], error[1])}: {error[0]}" for error in errors]),
                 self.prod,
                 [error[1] for error in errors],
                 wished_actions_list=wished_actions_list,
