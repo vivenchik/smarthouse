@@ -368,7 +368,7 @@ def get_handlers():
         (r"^/start$", start_handler),
         (r"^/quarantine$", get_quarantine_handler),
         (r"^/stats$", get_stats_handler),
-        (r"^/minimize_lights_handler$", minimize_lights_handler),
+        (r"^/minimize_lights$", minimize_lights_handler),
         (r"^/b1$", b1_lights_handler),
         (r"^/b2$", b2_lights_handler),
         (r"^/b3$", b3_lights_handler),
