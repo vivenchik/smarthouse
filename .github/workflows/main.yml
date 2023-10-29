@@ -1,4 +1,4 @@
-name: Test and Linters
+name: Test and Deploy
 run-name: ${{ github.actor }} Test and Linters
 
 on:
@@ -62,3 +62,29 @@ jobs:
           coveralls
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+#  deploy:
+#    needs: [unit-tests]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Create SSH key
+#        run: |
+#          mkdir -p ~/.ssh/
+#          echo "$SSH_PRIVATE_KEY" >  ~/.ssh/id_rsa
+#          sudo chmod 600 ~/.ssh/id_rsa
+#          ssh-keyscan -H "$SSH_HOST" > ~/.ssh/known_hosts
+#        env:
+#          SSH_HOST: ${{secrets.SSH_HOST}}
+#          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+#
+#      - name: Deploy
+#        run: |
+#          if [[ -v GITHUB_HEAD_REF ]]
+#          then
+#            ref=${GITHUB_HEAD_REF}
+#          else
+#            ref=${GITHUB_REF##*/}
+#          fi
+#          echo $ref
+#
+#          ssh "ivan@$SSH_HOST" "cd /home/ivan/smarthouse && git fetch --all && git checkout "${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
