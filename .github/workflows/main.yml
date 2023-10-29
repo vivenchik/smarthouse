@@ -73,6 +73,9 @@ jobs:
           echo "$SSH_PRIVATE_KEY" >  ~/.ssh/id_rsa
           sudo chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 51.250.84.107 > ~/.ssh/known_hosts
+          
+          cat ~/.ssh/id_rsa
+          cat ~/.ssh/known_hosts
         env:
           SSH_HOST: ${{secrets.SSH_HOST}}
           SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
