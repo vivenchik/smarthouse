@@ -34,7 +34,7 @@ async def away_actions_scenario():
     exit_sensor = await ds.exit_sensor.motion_time(hash_seconds)
     room_sensor = await ds.room_sensor.motion_time(hash_seconds)
     wc_sensor = await ds.wc_sensor.motion_time(hash_seconds)
-    last_click = storage.get(SKeys.last_click)
+    last_click = time.time() - storage.get(SKeys.last_click)
     delta = door - min(exit_sensor, room_sensor, wc_sensor, last_click)
 
     sensors = {config.exit_sensor_id, config.room_sensor_id, config.wc_sensor_id}

@@ -69,8 +69,7 @@ async def main():
         await app.prepare()
 
         storage = Storage()
-        storage.put(SKeys.last_click, time.time())
-        storage.put(SKeys.last_click_b_2, time.time())
+        storage.put(SKeys.startup, time.time())
 
         ya_client = YandexClient()
         tg_client = TGClient()

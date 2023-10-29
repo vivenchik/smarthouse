@@ -37,3 +37,4 @@ class SKeys(Enum):
     cleanups = "cleanups"
     evening = "evening"
     paint = "paint"
+    startup = "startup"
