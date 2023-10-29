@@ -79,10 +79,10 @@ async def detect_human():
                                 ),
                             )
                             storage.put("last_human_detected", time.time())
-                            logger.info(f"Detected human:\n{exc}")
+                            logger.info(f"detected human:\n{exc}")
                             await storage.messages_queue.put(
                                 {
-                                    "message": f"detected human: {ya_client.names.get(device_id, device_id)} {exc}",
+                                    "message": f"Detected human:\n{exc}",
                                     "to_delete": True,
                                     "to_delete_timestamp": time_,
                                 }
