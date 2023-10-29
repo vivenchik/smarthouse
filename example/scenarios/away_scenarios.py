@@ -28,24 +28,21 @@ async def away_actions_scenario():
     after_last_silence = time.time() - storage.get(SKeys.last_silence)
     after_last_on = time.time() - storage.get(SKeys.last_on)
     after_last_quieting = time.time() - storage.get(SKeys.last_quieting)
-    after_last_click = time.time() - storage.get(SKeys.last_click)
 
     door = await ds.exit_door.open_time()
     hash_seconds = MIN if door > 20 * MIN else 1
     exit_sensor = await ds.exit_sensor.motion_time(hash_seconds)
     room_sensor = await ds.room_sensor.motion_time(hash_seconds)
-    room_sensor_ext = await ds.wc_sensor.motion_time(hash_seconds)
-    delta = door - min(exit_sensor, room_sensor, room_sensor_ext)
+    wc_sensor = await ds.wc_sensor.motion_time(hash_seconds)
+    last_click = storage.get(SKeys.last_click)
+    delta = door - min(exit_sensor, room_sensor, wc_sensor, last_click)
 
     sensors = {config.exit_sensor_id, config.room_sensor_id, config.wc_sensor_id}
     if len(sensors & ya_client.quarantine_ids()) == len(sensors) or ds.exit_door.in_quarantine():
         delta = 100
 
     state_i_am_away = (
-        door > 3 * MIN
-        and (delta < 0 or 5 * MIN < after_last_cleanup < 18 * MIN)
-        and not storage.get(SKeys.sleep)
-        and after_last_click > 3 * MIN
+        door > 3 * MIN and (delta < 0 or 5 * MIN < after_last_cleanup < 18 * MIN) and not storage.get(SKeys.sleep)
     )
 
     if 5 * 24 * HOUR < after_last_cleanup:
