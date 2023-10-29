@@ -346,7 +346,10 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                         )
                         if capability.state["instance"] != needed_capability[1]:
                             errors.append(
-                                (f'{needed_capability[0]} {needed_capability[1]} -> {capability.state["instance"]}', device_id)
+                                (
+                                    f'{needed_capability[0]} {needed_capability[1]} -> {capability.state["instance"]}',
+                                    device_id,
+                                )
                             )
                             continue
                         current_capability_value = capability.state["value"]
@@ -357,7 +360,8 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                         ):
                             errors.append(
                                 (
-                                    f'{needed_capability[0]} {needed_capability[1]} {needed_capability[2]} -> {capability.state["value"]}',
+                                    f"{needed_capability[0]} {needed_capability[1]} {needed_capability[2]} "
+                                    f'-> {capability.state["value"]}',
                                     device_id,
                                 )
                             )
