@@ -1,3 +1,4 @@
+import copy
 import json
 import time
 from typing import Any, Optional
@@ -291,18 +292,21 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         excl: dict[str, tuple[tuple[str, str], ...]] | None = None,
         err_retry: bool = True,
         real_action=True,
+        mutated=False,
     ):
         if excl is None:
             excl = {}
 
         filtered_ids = await self.ask_permissions([(action.device_id, None) for action in actions_list])
         patched_actions_list: list = []
+        wished_actions_list: list = []
         for action in actions_list:
+            wished_actions_list.append(copy.deepcopy(action))
             if action.device_id not in filtered_ids:
                 patched_actions_list.append(None)
                 continue
 
-            if self._mutations.get(action.device_id) is not None:
+            if self._mutations.get(action.device_id) is not None and not mutated:
                 patched_action = self._mutations[action.device_id](action)
                 patched_actions_list.append(patched_action)
             else:
@@ -329,9 +333,14 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                     )
                 continue
 
-            for needed_capability in action.capabilities:
+            for j, needed_capability in enumerate(action.capabilities):
                 for capability in device.capabilities:
                     if capability.type == f"devices.capabilities.{needed_capability[0]}":
+                        wished_actions_list[i].capabilities[j] = (
+                            needed_capability[0],
+                            capability.state["instance"],
+                            capability.state["value"],
+                        )
                         if capability.state["instance"] != needed_capability[1]:
                             errors.append(
                                 (f'diff: {needed_capability[1]} != {capability.state["instance"]}', device_id)
@@ -368,6 +377,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 f"{' '.join([error[0] for error in errors])}",
                 self.prod,
                 [error[1] for error in errors],
+                wished_actions_list=wished_actions_list,
                 err_retry=err_retry,
             )
 
