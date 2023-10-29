@@ -297,7 +297,10 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         if excl is None:
             excl = {}
 
-        filtered_ids = await self.ask_permissions([(action.device_id, None) for action in actions_list])
+        if real_action:
+            filtered_ids = await self.ask_permissions([(action.device_id, None) for action in actions_list])
+        else:
+            filtered_ids = [action.device_id for action in actions_list]
         patched_actions_list: list = []
         wished_actions_list: list = []
         for action in actions_list:
