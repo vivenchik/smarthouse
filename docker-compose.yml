@@ -18,8 +18,8 @@ services:
       timeout: 1s
       retries: 5
       start_period: 10s
-    depends_on:
-      - homeassistant
+#    depends_on:
+#      - homeassistant
 
   nginx:
     image: nginx:1.25.1
