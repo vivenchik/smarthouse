@@ -87,4 +87,4 @@ jobs:
           fi
           echo $ref
 
-          ssh "ivan@$SSH_HOST" "cd /home/ivan/smarthouse && git fetch --all && git checkout "${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
+          ssh ivan@$SSH_HOST "cd /home/ivan/smarthouse && git fetch --all && git checkout "${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
