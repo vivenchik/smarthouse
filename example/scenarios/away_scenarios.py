@@ -28,6 +28,7 @@ async def away_actions_scenario():
     after_last_silence = time.time() - storage.get(SKeys.last_silence)
     after_last_on = time.time() - storage.get(SKeys.last_on)
     after_last_quieting = time.time() - storage.get(SKeys.last_quieting)
+    after_last_click = time.time() - storage.get(SKeys.last_click)
 
     door = await ds.exit_door.open_time()
     hash_seconds = MIN if door > 20 * MIN else 1
@@ -41,7 +42,10 @@ async def away_actions_scenario():
         delta = 100
 
     state_i_am_away = (
-        door > 3 * MIN and (delta < 0 or 5 * MIN < after_last_cleanup < 18 * MIN) and not storage.get(SKeys.sleep)
+        door > 3 * MIN
+        and (delta < 0 or 5 * MIN < after_last_cleanup < 18 * MIN)
+        and not storage.get(SKeys.sleep)
+        and after_last_click > 3 * MIN
     )
 
     if 5 * 24 * HOUR < after_last_cleanup:

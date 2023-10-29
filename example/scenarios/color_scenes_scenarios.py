@@ -108,17 +108,19 @@ async def button_scenario():
         [(key[len("__click_") :], value) for key, value in storage.items() if key.startswith("__click")],
         key=lambda x: x[1],
     )
+    button_clicked = button_time - last_click > 0.01
+    storage_button_clicked = storage_commands and storage_commands[0][1] - last_click > 0.01
 
-    if button_time - last_click > 0.01 or storage_commands:
+    if button_clicked or storage_button_clicked:
         storage.put(SKeys.last_click, max(button_time, time.time()))
         storage.put(SKeys.lights_locked, False)
         storage.put(SKeys.paint, False)
 
-        if not button_time - last_click > 0.01 and storage_commands:
+        if not button_clicked and storage_button_clicked:
             state_button = storage_commands[0][0]
             button_time = storage_commands[0][1]
-            storage.delete(f"__click_{storage_commands[0][0]}")
-            storage.put(SKeys.last_click, max(storage_commands[0][1], time.time()))
+
+        storage.put(SKeys.last_click, max(button_time, time.time()))
 
         if state_button == "double_click":
             lamps_to_off = set(ds.all_lamps) - set(lamp for mode in ds.lamp_groups for lamp in mode)
