@@ -74,7 +74,9 @@ async def detect_human():
                             ya_client.locks_set(device_id, time_, level=10)
                             ya_client.states_set(
                                 device_id,
-                                StateItem(actions_list=exc.wished_actions_list, excl=state.excl, mutated=True),
+                                StateItem(
+                                    actions_list=exc.wished_actions_list, excl=state.excl, checked=True, mutated=True
+                                ),
                             )
                             storage.put("last_human_detected", time.time())
                             logger.info(f"detected human: {ya_client.names.get(device_id, device_id)} {exc}")
