@@ -34,20 +34,20 @@ services:
       options:
         max-size: "2048m"
 
-  homeassistant:
-    container_name: homeassistant
-    privileged: true
-    image: "ghcr.io/home-assistant/home-assistant:2023.7.2"
-    restart: unless-stopped
-    volumes:
-      - /home/ivan/homeassistant_config:/config
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "8123:8123"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "2048m"
+#  homeassistant:
+#    container_name: homeassistant
+#    privileged: true
+#    image: "ghcr.io/home-assistant/home-assistant:2023.7.2"
+#    restart: unless-stopped
+#    volumes:
+#      - /home/ivan/homeassistant_config:/config
+#      - /etc/localtime:/etc/localtime:ro
+#    ports:
+#      - "8123:8123"
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-size: "2048m"
 
 #  restarter:
 #      image: docker
