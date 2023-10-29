@@ -72,7 +72,7 @@ jobs:
           mkdir -p ~/.ssh/
           echo "$SSH_PRIVATE_KEY" >  ~/.ssh/id_rsa
           sudo chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$SSH_HOST" > ~/.ssh/known_hosts
+          ssh-keyscan -H 51.250.84.107 > ~/.ssh/known_hosts
         env:
           SSH_HOST: ${{secrets.SSH_HOST}}
           SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
@@ -87,4 +87,4 @@ jobs:
           fi
           echo $ref
 
-          ssh ivan@$SSH_HOST "cd /home/ivan/smarthouse && git fetch --all && git checkout "${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
+          ssh ivan@51.250.84.107 "cd /home/ivan/smarthouse && git fetch --all && git checkout "${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
