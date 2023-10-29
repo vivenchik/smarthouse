@@ -68,6 +68,7 @@ async def detect_human():
                             time_ = ya_client._human_time_funcs.get(device_id, lambda: time.time() + 15 * 60)()
                             ya_client.locks_set(device_id, time_, level=10)
                             ya_client.states_remove(device_id)
+                            storage.put("last_human_detected", time.time())
                             logger.info(f"detected human: {ya_client.names.get(device_id, device_id)} {exc}")
                             await storage.messages_queue.put(
                                 {

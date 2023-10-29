@@ -23,19 +23,25 @@ async def away_actions_scenario():
     storage = Storage()
     ds = DeviceSet()
 
+    door = await ds.exit_door.open_time()
+    hash_seconds = MIN if door > 20 * MIN else 1
+    exit_sensor = await ds.exit_sensor.motion_time(hash_seconds)
+    room_sensor = await ds.room_sensor.motion_time(hash_seconds)
+    wc_sensor = await ds.wc_sensor.motion_time(hash_seconds)
+
+    after_last_click = time.time() - storage.get(SKeys.last_click)
+    after_last_click_b_2 = time.time() - storage.get(SKeys.last_click_b_2)
+    after_last_human_detected = time.time() - storage.get(SKeys.last_human_detected)
+
     after_last_cleanup = time.time() - storage.get(SKeys.last_cleanup)
     after_last_notify = time.time() - storage.get(SKeys.last_notify)
     after_last_silence = time.time() - storage.get(SKeys.last_silence)
     after_last_on = time.time() - storage.get(SKeys.last_on)
     after_last_quieting = time.time() - storage.get(SKeys.last_quieting)
 
-    door = await ds.exit_door.open_time()
-    hash_seconds = MIN if door > 20 * MIN else 1
-    exit_sensor = await ds.exit_sensor.motion_time(hash_seconds)
-    room_sensor = await ds.room_sensor.motion_time(hash_seconds)
-    wc_sensor = await ds.wc_sensor.motion_time(hash_seconds)
-    last_click = time.time() - storage.get(SKeys.last_click)
-    delta = door - min(exit_sensor, room_sensor, wc_sensor, last_click)
+    delta = door - min(
+        exit_sensor, room_sensor, wc_sensor, after_last_click, after_last_click_b_2, after_last_human_detected
+    )
 
     sensors = {config.exit_sensor_id, config.room_sensor_id, config.wc_sensor_id}
     if len(sensors & ya_client.quarantine_ids()) == len(sensors) or ds.exit_door.in_quarantine():
