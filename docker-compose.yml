@@ -22,7 +22,7 @@ services:
 #      - homeassistant
 
   nginx:
-    image: nginx:1.25.1
+    image: nginx:1.25
     restart: unless-stopped
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
