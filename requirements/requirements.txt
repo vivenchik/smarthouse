@@ -4,11 +4,11 @@
 #
 #    pip-compile --index-url=https://pypi.org/simple --output-file=requirements/requirements.txt setup.py
 #
-aiodns==3.0.0
+aiodns==3.1.1
     # via aiohttp
 aiofiles==23.2.1
     # via smarthouse (setup.py)
-aiohttp[speedups]==3.8.5
+aiohttp[speedups]==3.8.6
     # via
     #   aiohttp-client-cache
     #   homeassistant-api
@@ -39,7 +39,7 @@ attrs==21.4.0
     #   requests-cache
 brotli==1.1.0
     # via aiohttp
-cachetools==5.3.1
+cachetools==5.3.2
     # via python-telegram-bot
 cattrs==23.1.2
     # via requests-cache
@@ -48,15 +48,15 @@ certifi==2023.7.22
     #   httpcore
     #   httpx
     #   requests
-cffi==1.15.1
+cffi==1.16.0
     # via
     #   cryptography
     #   pycares
-charset-normalizer==3.2.0
+charset-normalizer==3.3.1
     # via
     #   aiohttp
     #   requests
-cryptography==41.0.4
+cryptography==41.0.5
     # via python-telegram-bot
 frozenlist==1.4.0
     # via
@@ -70,9 +70,9 @@ homeassistant-api==4.1.1.post2
     # via smarthouse (setup.py)
 hpack==4.0.0
     # via h2
-httpcore==0.17.3
+httpcore==0.18.0
     # via httpx
-httpx[http2,socks]==0.24.1
+httpx[http2,socks]==0.25.0
     # via python-telegram-bot
 hyperframe==6.0.1
     # via h2
@@ -88,7 +88,7 @@ multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
-pycares==4.3.0
+pycares==4.4.0
     # via aiodns
 pycparser==2.21
     # via cffi
@@ -100,7 +100,7 @@ python-dotenv==1.0.0
     # via pydantic
 python-forge==18.6.0
     # via aiohttp-client-cache
-python-telegram-bot[all,ext]==20.5
+python-telegram-bot[all,ext]==20.6
     # via smarthouse (setup.py)
 pytz==2023.3.post1
     # via
@@ -114,7 +114,7 @@ requests==2.31.0
     #   requests-cache
 requests-cache==0.9.8
     # via homeassistant-api
-simplejson==3.19.1
+simplejson==3.19.2
     # via homeassistant-api
 six==1.16.0
     # via
@@ -133,7 +133,7 @@ tornado==6.3.3
     # via python-telegram-bot
 typing-extensions==4.8.0
     # via pydantic
-tzlocal==5.0.1
+tzlocal==5.2
     # via apscheduler
 url-normalize==1.4.3
     # via

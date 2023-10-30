@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class SKeys(Enum):
+    last_human_detected = "last_human_detected"
     last_cleanup = "last_cleanup"
     last_notify = "last_notify"
     last_silence = "last_silence"
@@ -37,3 +38,4 @@ class SKeys(Enum):
     cleanups = "cleanups"
     evening = "evening"
     paint = "paint"
+    startup = "startup"

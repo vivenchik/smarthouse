@@ -3,12 +3,13 @@ import copy
 import time
 
 from smarthouse.action_decorators import looper
-from smarthouse.base_client.exceptions import InfraCheckError
+from smarthouse.base_client.exceptions import DeviceOffline, InfraCheckError
 from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.models import StateItem
 
 
 @looper(10)
@@ -47,11 +48,13 @@ async def detect_human():
     for device_id in states_keys:
         if ya_client.states_in(device_id):
             state = ya_client.states_get(device_id)
-            if state is not None and state.checked:
+            if state is not None and state.checked and not ya_client.quarantine_in(device_id):
                 try:
                     await ya_client._check_devices_capabilities(
                         state.actions_list, {device_id: state.excl}, err_retry=False, real_action=False
                     )
+                except DeviceOffline:
+                    continue
                 except InfraCheckError:
                     await asyncio.sleep(12)
 
@@ -64,14 +67,22 @@ async def detect_human():
                             await ya_client._check_devices_capabilities(
                                 state.actions_list, {device_id: state.excl}, err_retry=False, real_action=False
                             )
+                        except DeviceOffline:
+                            continue
                         except InfraCheckError as exc:
                             time_ = ya_client._human_time_funcs.get(device_id, lambda: time.time() + 15 * 60)()
                             ya_client.locks_set(device_id, time_, level=10)
-                            ya_client.states_remove(device_id)
-                            logger.info(f"detected human: {ya_client.names.get(device_id, device_id)} {exc}")
+                            ya_client.states_set(
+                                device_id,
+                                StateItem(
+                                    actions_list=exc.wished_actions_list, excl=state.excl, checked=True, mutated=True
+                                ),
+                            )
+                            storage.put("last_human_detected", time.time())
+                            logger.info(f"detected human:\n{exc}")
                             await storage.messages_queue.put(
                                 {
-                                    "message": f"detected human: {ya_client.names.get(device_id, device_id)} {exc}",
+                                    "message": f"Detected human:\n{exc}",
                                     "to_delete": True,
                                     "to_delete_timestamp": time_,
                                 }

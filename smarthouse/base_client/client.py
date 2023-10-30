@@ -164,7 +164,6 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             self.last_set(device_id, result)
             return result
         except (DeviceOffline, InfraServerError) as exc:
-            self.states_remove(device_id)
             self._quarantine_set(device_id)
             if not ignore_quarantine and exc.send:
                 await self.messages_queue.put({"message": str(exc)})
@@ -209,7 +208,6 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             logger.exception(exc)
             actions_dict = {action.device_id: action for action in actions_list}
             for device_id in exc.device_ids:
-                self.states_remove(device_id)
                 self._quarantine_set(device_id, {"actions": [actions_dict[device_id]]})
 
             if exc.send:
@@ -256,4 +254,4 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         except InfraCheckError as exc:
             for device_id in exc.device_ids:
                 self.states_remove(device_id)
-            await self.messages_queue.put({"message": str(exc)})
+            await self.messages_queue.put({"message": f"Device state check error:\n{exc}"})
