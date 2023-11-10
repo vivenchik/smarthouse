@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import json
 import time
@@ -52,10 +53,11 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             headers={"Authorization": f"Bearer {yandex_token}"},
             connector=aiohttp.TCPConnector(
                 ssl=False,
+                limit=None,
                 force_close=True,
                 enable_cleanup_closed=True,
             ),
-            timeout=aiohttp.ClientTimeout(total=5),
+            timeout=aiohttp.ClientTimeout(total=3),
         )
         self.prod = prod
 
@@ -118,9 +120,9 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 self.prod,
                 debug_str=f"{method} {path} {data}",
             ) from exc
-        except TimeoutError as exc:
+        except asyncio.TimeoutError as exc:
             raise InfraServerError(
-                f"Timeout Error: {exc}",
+                f"Yandex error: Timeout",
                 self.prod,
                 debug_str=f"{method} {path} {data}",
             ) from exc
