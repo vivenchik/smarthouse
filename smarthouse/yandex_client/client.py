@@ -53,7 +53,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             headers={"Authorization": f"Bearer {yandex_token}"},
             connector=aiohttp.TCPConnector(
                 ssl=False,
-                limit=None,
+                limit=None,  # type: ignore[arg-type]
                 force_close=True,
                 enable_cleanup_closed=True,
             ),
@@ -122,7 +122,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             ) from exc
         except asyncio.TimeoutError as exc:
             raise InfraServerError(
-                f"Yandex error: Timeout",
+                "Yandex error: Timeout",
                 self.prod,
                 debug_str=f"{method} {path} {data}",
             ) from exc
