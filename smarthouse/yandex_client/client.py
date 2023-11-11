@@ -8,7 +8,13 @@ import aiohttp
 from async_lru import alru_cache
 
 from smarthouse.base_client.client import BaseClient
-from smarthouse.base_client.exceptions import DeviceOffline, InfraCheckError, InfraServerError, ProgrammingError
+from smarthouse.base_client.exceptions import (
+    DeviceOffline,
+    InfraCheckError,
+    InfraServerError,
+    InfraServerTimeoutError,
+    ProgrammingError,
+)
 from smarthouse.base_client.utils import retry
 from smarthouse.logger import logger
 from smarthouse.yandex_client.models import (
@@ -121,8 +127,8 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 debug_str=f"{method} {path} {data}",
             ) from exc
         except asyncio.TimeoutError as exc:
-            raise InfraServerError(
-                "Yandex error: Timeout",
+            raise InfraServerTimeoutError(
+                "Yandex server timeout",
                 self.prod,
                 debug_str=f"{method} {path} {data}",
             ) from exc

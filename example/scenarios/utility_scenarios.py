@@ -27,10 +27,10 @@ async def worker_for_web_scenario():
 
     if task == "humidifier":
         if not await ds.humidifier.is_on():
-            await ds.humidifier.on().run(lock_level=5, lock=datetime.timedelta(minutes=55))
+            await ds.humidifier.on().run_async(lock_level=5, lock=datetime.timedelta(minutes=55))
             storage.put(SKeys.off_humidifier, time.time() + HOUR)
         else:
-            await ds.humidifier.off().run(lock_level=5, lock=datetime.timedelta(minutes=55))
+            await ds.humidifier.off().run_async(lock_level=5, lock=datetime.timedelta(minutes=55))
 
     if task == "good_mo":
         await good_mo()
@@ -64,7 +64,7 @@ async def web_utils_scenario():
     ds = DeviceSet()
 
     if storage.get(SKeys.off_humidifier) < time.time() and time.time() - storage.get(SKeys.off_humidifier) < 5 * MIN:
-        await ds.humidifier.off().run()
+        await ds.humidifier.off().run_async()
         return 5 * MIN
 
 

@@ -23,7 +23,7 @@ from smarthouse.action_decorators import looper
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN, get_time, get_timedelta_now, hsv_to_rgb
 from smarthouse.yandex_client.client import YandexClient
-from smarthouse.yandex_client.device import HSVLamp, RGBLamp, TemperatureLamp, run
+from smarthouse.yandex_client.device import HSVLamp, RGBLamp, TemperatureLamp, run_async
 
 
 @looper(1)
@@ -82,7 +82,7 @@ async def random_colors_scenario(
                             lamp.on_temp(temperature_k=possible_colors[i][1], brightness=possible_colors[i][0])
                         )
 
-        await run(actions)
+        await run_async(actions)
 
         if len(lamp_groups) > 1:
             return random.randint(*rand)
@@ -124,7 +124,7 @@ async def button_scenario():
 
         if state_button == "double_click":
             lamps_to_off = set(ds.all_lamps) - set(lamp for mode in ds.lamp_groups for lamp in mode)
-            await run([lamp.off() for lamp in lamps_to_off])
+            await run_async([lamp.off() for lamp in lamps_to_off])
 
             if not storage.get(SKeys.random_colors):
                 storage.put(SKeys.random_colors_mode, 0)
@@ -215,11 +215,11 @@ async def button_sleep_actions_scenario():
         alarmed_datetime = datetime.datetime.fromisoformat(storage.get(SKeys.alarmed, "2022-11-27T00:00:00+03:00"))
         if abs((get_time() - alarmed_datetime).total_seconds()) < 15 * MIN:
             storage.put(SKeys.stop_alarm, True)
-            await run([lamp.off() for lamp in ds.alarm_lamps], lock_level=8, lock=datetime.timedelta(minutes=15))
-            await ds.curtain.close().run(check=False)
+            await run_async([lamp.off() for lamp in ds.alarm_lamps], lock_level=8, lock=datetime.timedelta(minutes=15))
+            await ds.curtain.close().run_async(check=False)
             await ya_client.run_scenario(config.silence_scenario_id)
             await asyncio.sleep(10)
-            await ds.curtain.close().run(lock_level=8, lock=datetime.timedelta(minutes=15))
+            await ds.curtain.close().run_async(lock_level=8, lock=datetime.timedelta(minutes=15))
             return
 
         if state_button == "click":

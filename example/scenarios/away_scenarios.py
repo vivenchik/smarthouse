@@ -11,7 +11,7 @@ from smarthouse.logger import logger
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN, get_time, get_timedelta_now
 from smarthouse.yandex_client.client import YandexClient
-from smarthouse.yandex_client.device import run
+from smarthouse.yandex_client.device import run_async
 
 
 @looper(5)
@@ -63,9 +63,9 @@ async def away_actions_scenario():
 
         if 5 * MIN < door and 8 * HOUR < after_last_cleanup:
             logger.info(f"turning on cleaner {int(delta)}")
-            await ds.cleaner.on().run()
+            await ds.cleaner.on().run_async()
             if await ds.balcony_door.closed():
-                await ds.humidifier.on().run()
+                await ds.humidifier.on().run_async()
             storage.put(SKeys.last_cleanup, time.time())
             storage.put(SKeys.cleanups, storage.get(SKeys.cleanups, 0) + 1)
 
@@ -80,7 +80,7 @@ async def away_actions_scenario():
             await ya_client.run_scenario(config.silence_scenario_id)
             await asyncio.sleep(5)
             await turn_off_all()
-            await ds.air.off().run()
+            await ds.air.off().run_async()
             storage.put(SKeys.last_silence, time.time())
             await asyncio.sleep(5)
             await ya_client.run_scenario(config.bluetooth_off_scenario_id)
@@ -94,18 +94,18 @@ async def away_actions_scenario():
 
         if 5 * HOUR < door and await ds.humidifier.is_on(MIN):
             logger.info("turning off humidifier")
-            await ds.humidifier.off().run()
+            await ds.humidifier.off().run_async()
 
     else:
         if door < 10 * MIN:
             if after_last_cleanup < 10 * MIN:
                 logger.info("turning off cleaner")
-                await run([ds.cleaner.off(), ds.humidifier.off()])
+                await run_async([ds.cleaner.off(), ds.humidifier.off()])
                 storage.put(SKeys.last_cleanup, time.time() - 10 * HOUR)
                 storage.put(SKeys.cleanups, max(storage.get(SKeys.cleanups, 0) - 1, 0))
             elif after_last_cleanup < 30 * MIN and after_last_quieting > after_last_cleanup:
                 logger.info("quieting cleaner")
-                await ds.cleaner.change_work_speed("quiet").run()
+                await ds.cleaner.change_work_speed("quiet").run_async()
                 storage.put(SKeys.last_quieting, time.time())
 
             if after_last_silence < after_last_on:
@@ -119,7 +119,7 @@ async def away_actions_scenario():
                     if after_sunset:
                         await ya_client.run_scenario(config.music_scenario_id)
 
-                await ds.humidifier.off().run()
+                await ds.humidifier.off().run_async()
                 storage.put(SKeys.lights_locked, False)
                 storage.put(SKeys.last_on, time.time())
 

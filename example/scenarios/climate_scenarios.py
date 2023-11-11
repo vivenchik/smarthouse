@@ -8,7 +8,7 @@ from smarthouse.action_decorators import looper
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient
-from smarthouse.yandex_client.device import run
+from smarthouse.yandex_client.device import run_async
 
 
 @looper(10)
@@ -29,7 +29,7 @@ async def wc_hydro_scenario():
         and not await ds.air.is_on(10)
         and (await ds.wc_1.is_on() or await ds.wc_2.is_on())
     ):
-        await run([ds.air.on(), ds.humidifier.on("high")])
+        await run_async([ds.air.on(), ds.humidifier.on("high")])
         storage.put(SKeys.last_hydro, time.time())
 
     if last_hydro < HOUR + 5 * MIN:
@@ -40,16 +40,16 @@ async def wc_hydro_scenario():
             and ya_client.locks_get(config.air_id).level == 10
             and ya_client.locks_get(config.air_id).timestamp > time.time()
         ):
-            await ds.humidifier.off().run()
+            await ds.humidifier.off().run_async()
         if exit_sensor < 15 and await ds.air.is_on(10):
             while True:
                 wc_term_humidity = await ds.wc_term.humidity()
                 if wc_term_humidity.quarantine or wc_term_humidity.result <= 60:
                     break
                 await asyncio.sleep(30)
-            await ds.air.off().run()
+            await ds.air.off().run_async()
         elif HOUR < last_hydro < HOUR + 15:
-            await ds.air.off().run()
+            await ds.air.off().run_async()
 
 
 @looper(MIN)
@@ -64,7 +64,7 @@ async def dry_actions_scenario():
         await ds.humidifier.on().run()
         if await ds.humidifier.is_on():
             await asyncio.sleep(HOUR)
-            await ds.humidifier.off().run()
+            await ds.humidifier.off().run_async()
 
 
 @looper(MIN)

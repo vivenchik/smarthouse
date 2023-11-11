@@ -10,7 +10,7 @@ from example.scenarios.utils import get_act, get_needed_b_t
 from smarthouse.action_decorators import looper
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN, get_timedelta_now
-from smarthouse.yandex_client.device import run
+from smarthouse.yandex_client.device import run, run_async
 
 
 @looper(0.5)
@@ -32,7 +32,7 @@ async def lights_corridor_on_scenario():
             max_b = 70 if datetime.timedelta(hours=8) < get_timedelta_now() < calc_sunset() else 40
             needed_b = min(needed_b * 100, max_b)
 
-            await run([lamp.on_temp(needed_t, needed_b) for lamp in [ds.lamp_e_1, ds.lamp_e_2, ds.lamp_e_3]])
+            await run_async([lamp.on_temp(needed_t, needed_b) for lamp in [ds.lamp_e_1, ds.lamp_e_2, ds.lamp_e_3]])
 
             return 3 * MIN
 
@@ -73,7 +73,7 @@ async def lights_wc_on_scenario():
 
         await asyncio.sleep(1)
         if device and not await device.is_on():
-            await run([ds.wc_1.on(), ds.wc_2.on()])
+            await run_async([ds.wc_1.on(), ds.wc_2.on()])
 
         return 3 * MIN
 
@@ -101,7 +101,7 @@ async def balcony_lights_on_scenario():
             and not ds.balcony_lamp.in_quarantine()
             and balcony_sensor_motion_time < MIN
         ):
-            await ds.balcony_lamp.on().run(
+            await ds.balcony_lamp.on().run_async(
                 lock_level=1,
                 lock=datetime.timedelta(minutes=5) - datetime.timedelta(seconds=balcony_sensor_motion_time),
             )
@@ -138,7 +138,7 @@ async def lights_off_scenario():
                 and time.time() - ds.wc_sensor.quarantine().timestamp > 7 * MIN
             )
         ):
-            await run([ds.lamp_e_1.off(), ds.lamp_e_2.off(), ds.lamp_e_3.off()])
+            await run_async([ds.lamp_e_1.off(), ds.lamp_e_2.off(), ds.lamp_e_3.off()])
 
     wc_term_humidity = await ds.wc_term.humidity()
 
@@ -168,7 +168,7 @@ async def lights_off_scenario():
             and wc_term_humidity.result < 65
         )
     ):
-        await run([ds.wc_1.off(), ds.wc_2.off()])
+        await run_async([ds.wc_1.off(), ds.wc_2.off()])
         storage.put(SKeys.wc_lights, time.time() - 25 * HOUR)
 
     timedelta_now = get_timedelta_now()
@@ -209,4 +209,4 @@ async def lights_off_scenario():
                 and time.time() - storage.get(SKeys.balcony_lights) > 12 * MIN
             ):
                 if ds.balcony_lamp not in get_act(storage.get(SKeys.clicks)):
-                    await ds.balcony_lamp.off().run()
+                    await ds.balcony_lamp.off().run_async()

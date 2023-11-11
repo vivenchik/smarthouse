@@ -79,7 +79,10 @@ async def run_async(
     lock_level=0,
     lock: datetime.timedelta | None = None,
     feature_checkable=False,
-):  # todo: set lock immediately
+):
+    if lock is not None:
+        for action in actions:
+            YandexClient().locks_set(action.device_id, time.time() + lock.total_seconds(), level=lock_level)
     await RunQueuesSet().run.put(
         {
             "actions": actions,
@@ -110,7 +113,10 @@ async def check_and_run_async(
     actions: list[Action],
     lock_level=0,
     lock: datetime.timedelta | None = None,
-):  # todo: set lock immediately
+):
+    if lock is not None:
+        for action in actions:
+            YandexClient().locks_set(action.device_id, time.time() + lock.total_seconds(), level=lock_level)
     await RunQueuesSet().check_and_run.put({"actions": actions, "lock_level": lock_level, "lock": lock})
 
 
