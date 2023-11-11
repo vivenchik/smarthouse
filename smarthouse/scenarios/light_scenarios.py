@@ -11,7 +11,7 @@ from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet, check_and_run, run
 
 
-@looper(0)
+@looper(0)  # todo: replace looper
 async def worker_run():
     run_queue = RunQueuesSet().run
 
@@ -22,7 +22,7 @@ async def worker_run():
 
 
 @looper(0)
-async def worker_check_and_run():
+async def worker_check_and_run():  # todo: replace looper
     run_queue = RunQueuesSet().check_and_run
 
     task = await run_queue.get()
