@@ -134,8 +134,6 @@ async def main():
         await ignore_exc(tg_client.write_tg_document("./main.log"))
         if storage.get(SysSKeys.retries, 0) >= 5:
             ignore_exc(await tg_client.write_tg("going to sleep an hour"))
-
-        if storage.get(SysSKeys.retries, 0) >= 5:
             await asyncio.sleep(3600)
         sys.exit(1)
 
