@@ -1,5 +1,7 @@
 import datetime
+import time
 from unittest import mock
+from unittest.mock import AsyncMock
 
 import aiohttp
 import pytest
@@ -95,12 +97,12 @@ async def test_ask_permissions(base_client):
     result = await base_client.ask_permissions([(device_id, None)])
     assert result == [device_id]
 
-    base_client.locks_set(device_id=device_id, timestamp=123456.0, level=2)
+    base_client.locks_set(device_id=device_id, timestamp=123456, level=2)
 
     result = await base_client.ask_permissions([(device_id, None)])
     assert result == [device_id]
 
-    base_client.locks_set(device_id=device_id, timestamp=1234560000000000000000.0, level=2)
+    base_client.locks_set(device_id=device_id, timestamp=1234560000000000000000, level=2)
 
     result = await base_client.ask_permissions([(device_id, None)])
     assert result == []
@@ -165,7 +167,8 @@ async def test_quarantine_yandex_error(mocker, device):
     resp = MockResponse({}, 500)
     mocker.patch("aiohttp.ClientSession.request", return_value=resp)
 
-    await ya_client.check_capability(ITEM_UUID, "on_off")
+    with mock.patch("asyncio.sleep", new_callable=AsyncMock):
+        await ya_client.check_capability(ITEM_UUID, "on_off")
     assert ya_client.quarantine_in(ITEM_UUID)
 
 
@@ -181,7 +184,7 @@ async def test_retry(mocker, device):
     lamp_response_online = await get_lamp_response()
     lamp_response_online["id"] = ITEM_UUID
     resp = MockResponse(lamp_response_online, 200)
-    # mocker.patch("asyncio.sleep", new_callable=AsyncMock)
+    # with mock.patch('asyncio.sleep', new_callable=AsyncMock):
     with mocker.patch("aiohttp.ClientSession.request", side_effect=[resp_offline, resp]):
         await ya_client.check_capability(ITEM_UUID, "on_off")
     assert not ya_client.quarantine_in(ITEM_UUID)
@@ -197,10 +200,12 @@ async def test_quarantine_get(mocker, device):
     resp = MockResponse(lamp_response, 200)
     mocker.patch("aiohttp.ClientSession.request", return_value=resp)
 
-    await ya_client.check_capability(ITEM_UUID, "on_off")
+    with mock.patch("asyncio.sleep", new_callable=AsyncMock):
+        await ya_client.check_capability(ITEM_UUID, "on_off")
     assert ya_client.quarantine_in(ITEM_UUID)
     ITEM_UUID_2 = "22c4455b-ce9b-49d8-ab0e-ec0468a5f7a6"
-    await ya_client.check_capability(ITEM_UUID_2, "on_off")
+    with mock.patch("asyncio.sleep", new_callable=AsyncMock):
+        await ya_client.check_capability(ITEM_UUID_2, "on_off")
     assert ya_client.quarantine_in(ITEM_UUID_2)
     assert ya_client.quarantine_get(ITEM_UUID).timestamp < ya_client.quarantine_get(ITEM_UUID_2).timestamp
 
@@ -215,17 +220,19 @@ async def test_quarantine_action(mocker, device):
     resp = MockResponse(action_response, 200)
     mocker.patch("aiohttp.ClientSession.request", return_value=resp)
 
-    await ya_client.change_devices_capabilities(
-        [DeviceCapabilityAction(device_id=ITEM_UUID, capabilities=[("on_off", "on", True)])]
-    )
+    with mock.patch("asyncio.sleep", new_callable=AsyncMock):
+        await ya_client.change_devices_capabilities(
+            [DeviceCapabilityAction(device_id=ITEM_UUID, capabilities=[("on_off", "on", True)])]
+        )
     assert ya_client.quarantine_in(ITEM_UUID)
     assert ya_client.quarantine_get(ITEM_UUID).data == {
         "actions": [DeviceCapabilityAction(device_id=ITEM_UUID, capabilities=[("on_off", "on", True)])]
     }
 
-    await ya_client.change_devices_capabilities(
-        [DeviceCapabilityAction(device_id=ITEM_UUID, capabilities=[("on_off", "on", False)])]
-    )
+    with mock.patch("asyncio.sleep", new_callable=AsyncMock):
+        await ya_client.change_devices_capabilities(
+            [DeviceCapabilityAction(device_id=ITEM_UUID, capabilities=[("on_off", "on", False)])]
+        )
 
     lamp_response = await get_lamp_response()
     lamp_response["state"] = "offline"
@@ -233,7 +240,8 @@ async def test_quarantine_action(mocker, device):
     resp = MockResponse(lamp_response, 200)
     mocker.patch("aiohttp.ClientSession.request", return_value=resp)
 
-    await ya_client.check_capability(ITEM_UUID, "on_off")
+    with mock.patch("asyncio.sleep", new_callable=AsyncMock):
+        await ya_client.check_capability(ITEM_UUID, "on_off")
 
     assert ya_client.quarantine_get(ITEM_UUID).data == {
         "actions": [DeviceCapabilityAction(device_id=ITEM_UUID, capabilities=[("on_off", "on", False)])]
@@ -265,9 +273,10 @@ async def test_states_dont_check(mocker, device):
     resp = MockResponse(action_response, 200)
     mocker.patch("aiohttp.ClientSession.request", return_value=resp)
 
-    await ya_client.change_devices_capabilities(
-        [DeviceCapabilityAction(device_id=ITEM_UUID, capabilities=[("on_off", "on", True)])], check=False
-    )
+    with mock.patch("asyncio.sleep", new_callable=AsyncMock):
+        await ya_client.change_devices_capabilities(
+            [DeviceCapabilityAction(device_id=ITEM_UUID, capabilities=[("on_off", "on", True)])], check=False
+        )
     assert not ya_client.states_in(ITEM_UUID)
 
 

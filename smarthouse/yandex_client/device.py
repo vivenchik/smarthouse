@@ -7,6 +7,8 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 from smarthouse.base_client.exceptions import InfraCheckError
+from smarthouse.scenarios.storage_keys import SysSKeys
+from smarthouse.storage import Storage
 from smarthouse.utils import Singleton
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.models import DeviceCapabilityAction
@@ -92,6 +94,8 @@ async def run_async(
             "feature_checkable": feature_checkable,
         }
     )
+    storage = Storage()
+    storage.put(SysSKeys.max_run_queue_size, max(storage.get(SysSKeys.max_run_queue_size), RunQueuesSet().run.qsize()))
 
 
 async def check_and_run(
@@ -118,6 +122,11 @@ async def check_and_run_async(
         for action in actions:
             YandexClient().locks_set(action.device_id, time.time() + lock.total_seconds(), level=lock_level)
     await RunQueuesSet().check_and_run.put({"actions": actions, "lock_level": lock_level, "lock": lock})
+    storage = Storage()
+    storage.put(
+        SysSKeys.max_check_and_run_queue_size,
+        max(storage.get(SysSKeys.max_check_and_run_queue_size), RunQueuesSet().check_and_run.qsize()),
+    )
 
 
 class Response(BaseModel):

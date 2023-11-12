@@ -3,6 +3,7 @@ import functools
 
 from smarthouse.base_client.exceptions import (
     DeviceOffline,
+    InfraCheckError,
     InfraError,
     InfraServerError,
     InfraServerTimeoutError,
@@ -19,6 +20,7 @@ def retry(func):
             "iste": [0, Exception()],
             "pe": [0, Exception()],
             "do": [0, Exception()],
+            "ice": [0, Exception()],
             "other": [0, Exception()],
         }
         _exc = Exception()
@@ -45,8 +47,11 @@ def retry(func):
                 elif isinstance(exc, DeviceOffline):
                     errors["do"][0] += 1
                     errors["do"][1] = exc
-                    if errors["do"][0] >= 3:
-                        time_to_sleep = 0.1
+                    time_to_sleep = 0.1
+                elif isinstance(exc, InfraCheckError):
+                    errors["ice"][0] += 1
+                    errors["ice"][1] = exc
+                    time_to_sleep = 0.1
                 else:
                     errors["other"][0] += 1
                     errors["other"][1] = exc
@@ -74,6 +79,9 @@ def retry(func):
                 break
             if errors["do"][0] >= 10:
                 _exc = errors["do"][1]
+                break
+            if errors["ice"][0] >= 10:
+                _exc = errors["ice"][1]
                 break
             if errors["other"][0] >= 10:
                 _exc = errors["other"][1]

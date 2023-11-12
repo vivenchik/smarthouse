@@ -11,24 +11,30 @@ from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet, check_and_run, run
 
 
-@looper(0)  # todo: replace looper
 async def worker_run():
-    run_queue = RunQueuesSet().run
+    while True:
+        try:
+            run_queue = RunQueuesSet().run
 
-    task = await run_queue.get()
-    await run(**task)
+            task = await run_queue.get()
+            await run(**task)
 
-    run_queue.task_done()
+            run_queue.task_done()
+        except Exception:
+            pass
 
 
-@looper(0)
-async def worker_check_and_run():  # todo: replace looper
-    run_queue = RunQueuesSet().check_and_run
+async def worker_check_and_run():
+    while True:
+        try:
+            run_queue = RunQueuesSet().check_and_run
 
-    task = await run_queue.get()
-    await check_and_run(**task)
+            task = await run_queue.get()
+            await check_and_run(**task)
 
-    run_queue.task_done()
+            run_queue.task_done()
+        except Exception:
+            pass
 
 
 @looper(0)
@@ -95,6 +101,7 @@ async def ping_devices():
 @looper(24 * HOUR)
 async def stats():
     ya_client = YandexClient()
+    storage = Storage()
     logger.debug(f"{YandexClient._request.cache_info()}")
 
     for path, total_time in sorted(ya_client._stats.items(), key=lambda item: -item[1]):
@@ -103,6 +110,11 @@ async def stats():
             clean_path = "/devices/" + ya_client.names.get(path[len("/devices/") :], path[len("/devices/") :])
         logger.debug(f"{clean_path}: {total_time}")
     ya_client._stats = {}
+
+    logger.debug(f"max_run_queue_size: {storage.get(SysSKeys.max_run_queue_size)}")
+    logger.debug(f"max_check_and_run_queue_size: {storage.get(SysSKeys.max_check_and_run_queue_size)}")
+    storage.put(SysSKeys.max_run_queue_size, 0)
+    storage.put(SysSKeys.max_check_and_run_queue_size, 0)
 
 
 async def clear_retries():
