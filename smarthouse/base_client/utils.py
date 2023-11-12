@@ -37,8 +37,10 @@ def retry(func):
                 elif isinstance(exc, InfraServerError):
                     errors["ise"][0] += 1
                     errors["ise"][1] = exc
-                    if errors["ise"][0] >= 30:
+                    if errors["ise"][0] >= 3:
                         time_to_sleep = 0.1
+                    elif errors["ise"][0] >= 10:
+                        time_to_sleep = 1
                 elif isinstance(exc, ProgrammingError):
                     errors["pe"][0] += 1
                     errors["pe"][1] = exc
@@ -71,10 +73,10 @@ def retry(func):
             if errors["iste"][0] >= 10:
                 _exc = errors["iste"][1]
                 break
-            if errors["ise"][0] >= 100:
+            if errors["ise"][0] >= 30:
                 _exc = errors["ise"][1]
                 break
-            if errors["pe"][0] >= 10:
+            if errors["pe"][0] >= 20:
                 _exc = errors["pe"][1]
                 break
             if errors["do"][0] >= 10:
