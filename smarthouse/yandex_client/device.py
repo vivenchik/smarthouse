@@ -136,13 +136,21 @@ class Response(BaseModel):
 
 
 class Device:
-    def __init__(self, device_id, name: str = "", ping=True, human_time_func=lambda: time.time() + 15 * 60):
+    def __init__(
+        self,
+        device_id,
+        name: str = "",
+        ping=True,
+        human_time_func=lambda: time.time() + 15 * 60,
+        use_china_client=False,
+    ):
         self.device_id = device_id
         self.name = name
         self.ya_client = YandexClient()
         self.excl: tuple[tuple[str, str], ...] = ()
+        self.use_china_client = use_china_client
 
-        self.ya_client.register_device(self.device_id, self.name, ping, human_time_func)
+        self.ya_client.register_device(self.device_id, self.name, ping, human_time_func, use_china_client)
 
     async def info(self, hash_seconds=1):
         return await self.ya_client.device_info(self.device_id, hash_seconds=hash_seconds)
@@ -334,6 +342,8 @@ class Humidifier(ControlDevice):
         response = await self.check_property("water_level", hash_seconds=hash_seconds)
         return response[0]
 
+
+class HumidifierOld(Humidifier):
     def on(self, fan_speed="auto") -> Action:
         return super().on().add_capability(("mode", "fan_speed", fan_speed))
 

@@ -65,21 +65,39 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             ),
             timeout=aiohttp.ClientTimeout(total=3),
         )
+        self.china_client = aiohttp.ClientSession(
+            base_url=self.base_url,
+            headers={"Authorization": f"Bearer {yandex_token}"},
+            connector=aiohttp.TCPConnector(
+                ssl=False,
+                limit=None,  # type: ignore[arg-type]
+                force_close=True,
+                enable_cleanup_closed=True,
+            ),
+            timeout=aiohttp.ClientTimeout(total=60),
+        )
         self.prod = prod
 
         self._states: dict[str, StateItem] = {}
         self._last: dict[str, DeviceInfoResponse] = {}
 
     @alru_cache(maxsize=1024)
-    async def _request(self, method: str, path: str, data: Optional[str] = None, ttl_hash=None) -> dict:
+    async def _request(
+        self, method: str, path: str, data: Optional[str] = None, use_china_client=False, ttl_hash=None
+    ) -> dict:
         if not self.prod and method == "POST":
             logger.debug(path)
 
         start = time.time()
         response_data_text = None
         response_data_json = None
+
+        if not use_china_client:
+            client_for_request = self.client
+        else:
+            client_for_request = self.china_client
         try:
-            async with self.client.request(method, f"/v1.0{path}", data=data) as response:
+            async with client_for_request.request(method, f"/v1.0{path}", data=data) as response:
                 if response.content_type == "application/json":
                     response_data_text = await response.text()
                     response_data_json = await response.json()
@@ -149,8 +167,10 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     def get_ttl_hash(seconds):
         return int(time.time() / seconds) if seconds is not None else time.time()
 
-    async def request(self, method: str, path: str, data: Optional[dict] = None, hash_seconds=1) -> dict:
-        return await self._request(method, path, json.dumps(data), self.get_ttl_hash(hash_seconds))
+    async def request(
+        self, method: str, path: str, data: Optional[dict] = None, use_china_client=False, hash_seconds=1
+    ) -> dict:
+        return await self._request(method, path, json.dumps(data), use_china_client, self.get_ttl_hash(hash_seconds))
 
     @retry
     async def info(self, hash_seconds=1) -> dict:
@@ -160,8 +180,11 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     async def _device_info(
         self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
     ) -> DeviceInfoResponse:
+        use_china_client = self._use_china_client.get(device_id, False)
         try:
-            response = await self.request("GET", f"/devices/{device_id}", hash_seconds=hash_seconds)
+            response = await self.request(
+                "GET", f"/devices/{device_id}", use_china_client=use_china_client, hash_seconds=hash_seconds
+            )
         except ProgrammingError as exc:
             exc.dont_log = False
             exc.err_retry = err_retry
@@ -238,8 +261,13 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 Device(id=action.device_id, actions=self.get_actions(action.capabilities)) for action in actions_list
             ]
         )
+        use_china_client = False
+        for _device in data.devices:
+            use_china_client |= self._use_china_client.get(_device.id, False)
         try:
-            response = await self.request("POST", "/devices/actions", data=data.dict(), hash_seconds=None)
+            response = await self.request(
+                "POST", "/devices/actions", data=data.dict(), use_china_client=use_china_client, hash_seconds=None
+            )
         except ProgrammingError as exc:
             exc.device_ids = [device.id for device in data.devices]
             raise exc

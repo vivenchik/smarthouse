@@ -85,6 +85,9 @@ async def away_actions_scenario():
             await asyncio.sleep(5)
             await ya_client.run_scenario(config.bluetooth_off_scenario_id)
 
+            logger.info("turning off humidifier")
+            await ds.humidifier_new.off().run_async(check=False)
+
             if after_last_cleanup < 30 * MIN:
                 cleaner_battery_level = await ds.cleaner.battery_level()
                 if not 50 < cleaner_battery_level < 95:  # because we cant check on_off state
@@ -95,6 +98,9 @@ async def away_actions_scenario():
         if 5 * HOUR < door and await ds.humidifier.is_on(MIN):
             logger.info("turning off humidifier")
             await ds.humidifier.off().run_async()
+
+        if 2 * HOUR < door and await ds.humidifier_new.is_on(MIN):
+            await ds.humidifier_new.off().run_async()
 
     else:
         if door < 10 * MIN:
@@ -110,8 +116,8 @@ async def away_actions_scenario():
 
             if after_last_silence < after_last_on:
                 logger.info("welcome home")
-                if storage.get(SKeys.cleanups, 0) >= 6:
-                    await storage.messages_queue.put({"message": "insert water in cleaner /water_done"})
+                storage.put(SKeys.lights_locked, False)
+
                 after_sunset = get_timedelta_now() >= calc_sunset()
                 if after_sunset or get_time().hour < 6 or storage.get(SKeys.evening):
                     logger.info("turning on lights (welcome)")
@@ -119,8 +125,13 @@ async def away_actions_scenario():
                     if after_sunset:
                         await ya_client.run_scenario(config.music_scenario_id)
 
+                logger.info("turning on humidifier")
+                await ds.humidifier_new.on().run_async()
+
+                if storage.get(SKeys.cleanups, 0) >= 6:
+                    await storage.messages_queue.put({"message": "insert water in cleaner /water_done"})
+
                 await ds.humidifier.off().run_async()
-                storage.put(SKeys.lights_locked, False)
                 storage.put(SKeys.last_on, time.time())
 
         if after_last_notify < MIN:

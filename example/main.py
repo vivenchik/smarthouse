@@ -24,7 +24,7 @@ from example.scenarios.dayly_lights_scenarios import (
     scheduled_morning_lights_scenario,
 )
 from example.scenarios.motion_light_scenarios import (
-    balcony_lights_on_scenario,
+    lights_balcony_on_scenario,
     lights_corridor_on_scenario,
     lights_off_scenario,
     lights_wc_on_scenario,
@@ -103,7 +103,7 @@ async def main():
             # refresh_storage(storage),
             alarm_scenario(),
             worker_for_web_scenario(),
-            balcony_lights_on_scenario(),
+            lights_balcony_on_scenario(),
             water_level_checker_scenario(),
             button_sleep_actions_scenario(),
         ]

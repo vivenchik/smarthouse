@@ -72,7 +72,7 @@ async def water_level_checker_scenario():
     storage = Storage()
     ds = DeviceSet()
 
-    water_level = await ds.humidifier.water_level()
+    water_level = await ds.humidifier_new.water_level()
 
     if water_level <= 30 and not storage.get(SKeys.water_notified):
         await storage.messages_queue.put({"message": "please insert water"})

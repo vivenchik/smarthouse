@@ -86,26 +86,28 @@ async def adaptive_lights_scenario():
     storage = Storage()
     ds = DeviceSet()
 
-    if storage.get(SKeys.evening):
+    if (
+        storage.get(SKeys.evening)
+        or storage.get(SKeys.lights_locked)
+        or storage.get(SKeys.adaptive_locked)
+        or storage.get(SKeys.sleep)
+    ):
+        return 0.5
+
+    (previous_b, previous_t, timestamp) = storage.get(SKeys.previous_b_t, (0, 0, 0))
+
+    needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor)
+    needed_b = min(needed_b * 100, 70)
+
+    if timestamp + 2 * MIN > time.time() and [previous_b, previous_t] == [needed_b, needed_t]:
         return
 
-    if not storage.get(SKeys.lights_locked) and not storage.get(SKeys.adaptive_locked) and not storage.get(SKeys.sleep):
-        (previous_b, previous_t, timestamp) = storage.get(SKeys.previous_b_t, (0, 0, 0))
+    if timestamp + 2 * MIN > time.time() and (previous_b == 0 and needed_b < 10 or previous_b < 10 and needed_b == 0):
+        return
 
-        needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor)
-        needed_b = min(needed_b * 100, 70)
+    storage.put(SKeys.previous_b_t, [needed_b, needed_t, time.time()])
 
-        if timestamp + 2 * MIN > time.time() and [previous_b, previous_t] == [needed_b, needed_t]:
-            return
-
-        if timestamp + 2 * MIN > time.time() and (
-            previous_b == 0 and needed_b < 10 or previous_b < 10 and needed_b == 0
-        ):
-            return
-
-        storage.put(SKeys.previous_b_t, [needed_b, needed_t, time.time()])
-
-        await run_async([lamp.on_temp(needed_t, needed_b) for lamp in ds.adaptive_lamps])
+    await run_async([lamp.on_temp(needed_t, needed_b) for lamp in ds.adaptive_lamps])
 
 
 @looper(10)

@@ -14,6 +14,7 @@ from smarthouse.yandex_client.device import (
     Door,
     HSVLamp,
     Humidifier,
+    HumidifierOld,
     LuxSensor,
     MotionSensor,
     RGBLamp,
@@ -77,7 +78,8 @@ class DeviceSet(metaclass=Singleton):
 
         self.cleaner = Cleaner(config.cleaner_id, "Пылесос")
 
-        self.humidifier = Humidifier(config.humidifier_id, "Увлажнитель", ping=False)
+        self.humidifier = HumidifierOld(config.humidifier_id, "Старый увлажнитель", ping=False)
+        self.humidifier_new = Humidifier(config.humidifier_new_id, "Увлажнитель", use_china_client=True)
 
         self.button = Button(config.button_id, "Кнопка")
         self.button_2 = Button(config.button_2_id, "Кнопка спальня")

@@ -79,7 +79,7 @@ async def lights_wc_on_scenario():
 
 
 @looper(1)
-async def balcony_lights_on_scenario():
+async def lights_balcony_on_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN
