@@ -65,17 +65,15 @@ async def tg_actions():
     await tg_client.update_tg()
 
 
-@looper(0)
+@looper(0.1)
 async def clear_tg():
     tg_client = TGClient()
 
-    to_delete_timestamp, (to_delete_timestamp, message_id) = await tg_client.to_delete_messages.get()
+    to_delete_timestamp, message_id = await tg_client.to_delete_messages.get()
     if to_delete_timestamp <= time.time():
         await tg_client.delete_message(int(message_id))
     else:
-        await tg_client.to_delete_messages.put(
-            (to_delete_timestamp, (to_delete_timestamp, message_id)),
-        )
+        await tg_client.to_delete_messages.put((to_delete_timestamp, message_id))
     tg_client.to_delete_messages.task_done()
 
 
