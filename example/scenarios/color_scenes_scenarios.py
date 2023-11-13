@@ -10,6 +10,8 @@ from example.configuration.storage_keys import SKeys
 from example.scenarios.light_utils import calc_sunset
 from example.scenarios.utils import (
     check_and_fix_act,
+    find_current_pos_modes_order,
+    get_modes_order,
     get_possible_colors,
     get_possible_white_colors,
     get_zone,
@@ -159,16 +161,18 @@ async def button_scenario():
         if not light_on or light_on and storage.get(SKeys.random_colors_passive):
             skip = -1
         else:
+            modes_order = get_modes_order()
             if button_time - last_click < MIN:
-                clicks += 1
+                current_pos = find_current_pos_modes_order(modes_order, clicks)
+                clicks = (current_pos + 1) % len(ds.modes)
                 if clicks == skip:
-                    clicks += 1
+                    clicks = (current_pos + 2) % len(ds.modes)
+                    skip = -1
             else:
-                modes = ds.modes
-                skip = clicks % len(modes)
-                clicks = 1 if clicks % len(modes) == 0 else 0
+                skip = clicks % len(ds.modes)
+                clicks = modes_order[1] if skip == modes_order[0] else modes_order[0]
 
-        await turn_on_act(clicks, check=False, feature_checkable=True)
+        await turn_on_act(clicks, skip, check=False, feature_checkable=True)
         storage.put(SKeys.button_checked, False)
         storage.put(SKeys.random_colors_passive, False)
         storage.put(SKeys.clicks, clicks)
@@ -182,7 +186,7 @@ async def button_scenario():
         and not storage.get(SKeys.random_colors_passive)
         and await light_ons()
     ):
-        await check_and_fix_act(clicks)
+        await check_and_fix_act(clicks, clicks)
         storage.put(SKeys.button_checked, True)
 
     if after_last_click < 5:

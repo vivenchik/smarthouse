@@ -46,7 +46,7 @@ async def worker_for_web_scenario():
 
     if task == "evening":
         storage.put(SKeys.evening, True)
-        await turn_on_act(storage.get(SKeys.clicks))
+        await turn_on_act(storage.get(SKeys.clicks), storage.get(SKeys.clicks))
 
     if task == "paint":
         storage.put(SKeys.paint, not storage.get(SKeys.paint, False))

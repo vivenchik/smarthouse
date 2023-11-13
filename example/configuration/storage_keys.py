@@ -39,3 +39,5 @@ class SKeys(Enum):
     evening = "evening"
     paint = "paint"
     startup = "startup"
+    modes_stats = "modes_stats"
+    last_mode_on = "last_mode_on"

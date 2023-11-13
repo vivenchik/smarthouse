@@ -121,7 +121,7 @@ async def away_actions_scenario():
                 after_sunset = get_timedelta_now() >= calc_sunset()
                 if after_sunset or get_time().hour < 6 or storage.get(SKeys.evening):
                     logger.info("turning on lights (welcome)")
-                    await turn_on_act(storage.get(SKeys.clicks))
+                    await turn_on_act(storage.get(SKeys.clicks), storage.get(SKeys.clicks))
                     if after_sunset:
                         await ya_client.run_scenario(config.music_scenario_id)
 
