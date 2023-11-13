@@ -9,26 +9,34 @@ from smarthouse.telegram_client import TGClient
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet, check_and_run, run
+from smarthouse.yandex_client.models import DeviceCapabilityAction, StateItem
+from smarthouse.yandex_client.utils import get_current_capabilities
 
 
-@looper(0)
 async def worker_run():
-    run_queue = RunQueuesSet().run
+    while True:
+        try:
+            run_queue = RunQueuesSet().run
 
-    task = await run_queue.get()
-    await run(**task)
+            task = await run_queue.get()
+            await run(**task)
 
-    run_queue.task_done()
+            run_queue.task_done()
+        except Exception:
+            pass
 
 
-@looper(0)
 async def worker_check_and_run():
-    run_queue = RunQueuesSet().check_and_run
+    while True:
+        try:
+            run_queue = RunQueuesSet().check_and_run
 
-    task = await run_queue.get()
-    await check_and_run(**task)
+            task = await run_queue.get()
+            await check_and_run(**task)
 
-    run_queue.task_done()
+            run_queue.task_done()
+        except Exception:
+            pass
 
 
 @looper(0)
@@ -57,17 +65,15 @@ async def tg_actions():
     await tg_client.update_tg()
 
 
-@looper(0)
+@looper(0.1)
 async def clear_tg():
     tg_client = TGClient()
 
-    to_delete_timestamp, (to_delete_timestamp, message_id) = await tg_client.to_delete_messages.get()
+    to_delete_timestamp, message_id = await tg_client.to_delete_messages.get()
     if to_delete_timestamp <= time.time():
         await tg_client.delete_message(int(message_id))
     else:
-        await tg_client.to_delete_messages.put(
-            (to_delete_timestamp, (to_delete_timestamp, message_id)),
-        )
+        await tg_client.to_delete_messages.put((to_delete_timestamp, message_id))
     tg_client.to_delete_messages.task_done()
 
 
@@ -88,13 +94,28 @@ async def ping_devices():
     ya_client = YandexClient()
 
     for device_id in ya_client._ping:
-        await ya_client.device_info(device_id)
+        device_info = await ya_client.device_info(device_id)
+
+        if not ya_client.quarantine_in(device_id) and not ya_client.states_in(device_id):
+            ya_client.states_set(
+                device_id,
+                StateItem(
+                    actions_list=[
+                        DeviceCapabilityAction(device_id=device_id, capabilities=get_current_capabilities(device_info))
+                    ],
+                    excl=(),
+                    checked=True,
+                    mutated=True,
+                ),
+            )
+
         await asyncio.sleep(1)
 
 
 @looper(24 * HOUR)
 async def stats():
     ya_client = YandexClient()
+    storage = Storage()
     logger.debug(f"{YandexClient._request.cache_info()}")
 
     for path, total_time in sorted(ya_client._stats.items(), key=lambda item: -item[1]):
@@ -103,6 +124,11 @@ async def stats():
             clean_path = "/devices/" + ya_client.names.get(path[len("/devices/") :], path[len("/devices/") :])
         logger.debug(f"{clean_path}: {total_time}")
     ya_client._stats = {}
+
+    logger.debug(f"max_run_queue_size: {storage.get(SysSKeys.max_run_queue_size)}")
+    logger.debug(f"max_check_and_run_queue_size: {storage.get(SysSKeys.max_check_and_run_queue_size)}")
+    storage.put(SysSKeys.max_run_queue_size, 0)
+    storage.put(SysSKeys.max_check_and_run_queue_size, 0)
 
 
 async def clear_retries():
