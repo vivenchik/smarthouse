@@ -51,7 +51,7 @@ async def scheduled_morning_lights_scenario():
     storage.put(SKeys.max_brightness, 1)
     storage.put(SKeys.night, False)
     if not storage.get(SKeys.lights_locked) and calc_sunrise(datetime.timedelta(minutes=0)) > get_timedelta_now():
-        await ds.table_lamp.on_brightness(50)
+        await ds.table_lamp.on_brightness(50).run_async()
     await ya_client.run_scenario(config.clocks_on_scenario_id)
 
 
