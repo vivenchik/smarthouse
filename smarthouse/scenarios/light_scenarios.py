@@ -9,6 +9,8 @@ from smarthouse.telegram_client import TGClient
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet, check_and_run, run
+from smarthouse.yandex_client.models import DeviceCapabilityAction, StateItem
+from smarthouse.yandex_client.utils import get_current_capabilities
 
 
 async def worker_run():
@@ -94,7 +96,21 @@ async def ping_devices():
     ya_client = YandexClient()
 
     for device_id in ya_client._ping:
-        await ya_client.device_info(device_id)
+        device_info = await ya_client.device_info(device_id)
+
+        if not ya_client.quarantine_in(device_id) and not ya_client.states_in(device_id):
+            ya_client.states_set(
+                device_id,
+                StateItem(
+                    actions_list=[
+                        DeviceCapabilityAction(device_id=device_id, capabilities=get_current_capabilities(device_info))
+                    ],
+                    excl=(),
+                    checked=True,
+                    mutated=True,
+                ),
+            )
+
         await asyncio.sleep(1)
 
 

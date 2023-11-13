@@ -26,6 +26,7 @@ from smarthouse.yandex_client.models import (
     DeviceInfoResponse,
     StateItem,
 )
+from smarthouse.yandex_client.utils import get_current_capabilities
 
 DEFAULTS: dict[str, dict[str, Any]] = {  # todo: move to devices
     "capability": {"on_off": False},
@@ -254,6 +255,10 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             self.register_device(device_id, result.name)
         return result
 
+    async def get_current_capabilities(self, device_id: str, hash_seconds=1) -> list[tuple[str, str, Any]] | None:
+        device_info = await self.device_info(device_id, hash_seconds=hash_seconds)
+        return get_current_capabilities(device_info)
+
     @retry
     async def _devices_action(self, actions_list: list[DeviceCapabilityAction]) -> DeviceActionResponse | None:
         data = ActionRequestModel(
@@ -352,7 +357,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 patched_actions_list.append(action)
 
         device_ids = {action.device_id for action in patched_actions_list if action is not None}
-        devices = {device_id: await self.device_info(device_id) for device_id in device_ids}
+        devices = {device_id: await self.device_info(device_id) for device_id in device_ids}  # todo: asyncio
 
         errors = []
         for i, _ in enumerate(patched_actions_list):
