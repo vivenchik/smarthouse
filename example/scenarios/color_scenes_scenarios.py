@@ -189,8 +189,8 @@ async def button_scenario():
         await check_and_fix_act(clicks, clicks)
         storage.put(SKeys.button_checked, True)
 
-    if after_last_click < 5:
-        return 0
+    if after_last_click < 15:
+        return 0.1
     if after_last_click < 10 * MIN:
         return 0.5
     if (
