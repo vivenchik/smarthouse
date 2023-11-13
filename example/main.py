@@ -13,6 +13,7 @@ from example.scenarios.climate_scenarios import water_level_checker_scenario, wc
 from example.scenarios.color_scenes_scenarios import (
     button_scenario,
     button_sleep_actions_scenario,
+    div_modes_stats_scenario,
     random_colors_scenario,
 )
 from example.scenarios.dayly_lights_scenarios import (
@@ -104,6 +105,7 @@ async def main():
             lights_balcony_on_scenario(),
             water_level_checker_scenario(),
             button_sleep_actions_scenario(),
+            div_modes_stats_scenario(),
         ]
         app.add_tasks(tasks)
 

@@ -21,7 +21,7 @@ from example.scenarios.utils import (
     turn_off_all,
     turn_on_act,
 )
-from smarthouse.action_decorators import looper
+from smarthouse.action_decorators import looper, scheduler
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN, get_time, get_timedelta_now, hsv_to_rgb
 from smarthouse.yandex_client.client import YandexClient
@@ -234,3 +234,13 @@ async def button_sleep_actions_scenario():
 
     if storage.get(SKeys.lights_locked):
         return 10
+
+
+@scheduler((datetime.timedelta(hours=4),))
+async def div_modes_stats_scenario():
+    storage = Storage()
+    ds = DeviceSet()
+
+    modes_stats = storage.get(SKeys.modes_stats, [0] * len(ds.modes))
+    modes_stats = [mode_stats * 0.95 for mode_stats in modes_stats]
+    storage.put(SKeys.modes_stats, modes_stats)
