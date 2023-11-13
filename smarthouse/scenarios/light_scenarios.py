@@ -77,13 +77,6 @@ async def clear_tg():
     tg_client.to_delete_messages.task_done()
 
 
-@looper(10)
-async def refresh_storage():
-    return
-    storage = Storage()
-    await storage.refresh()
-
-
 @looper(MIN)
 async def write_storage():
     storage = Storage()
