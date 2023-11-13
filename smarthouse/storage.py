@@ -7,6 +7,7 @@ import aiofiles
 import yaml
 
 from smarthouse.utils import Singleton
+from smarthouse.yandex_cloud import YandexCloudClient
 
 
 class StorageError(Exception):
@@ -21,9 +22,11 @@ class Storage(metaclass=Singleton):
     tasks: asyncio.Queue
     need_to_write: bool
 
-    async def init(self, storage_name: str | None):
+    async def init(self, storage_name: str | None, s3_mode=False):
         self._storage = {}
         self._storage_name = storage_name
+        self._s3_mode = s3_mode
+        self.cloud_client = YandexCloudClient()  # if s3_mode else None
         self._lock = asyncio.Lock()
 
         self.messages_queue = asyncio.Queue()
@@ -46,14 +49,19 @@ class Storage(metaclass=Singleton):
     async def _read_storage(self) -> dict:
         if self._storage_name is None:
             return {}
-        data = None
-        for _ in range(100):
-            async with aiofiles.open(self._storage_name, mode="r") as f:
-                content = await f.read()
-                data = yaml.safe_load(content)
-            if data is not None:
-                return data
-        raise StorageError("empty data")
+        if not self._s3_mode:
+            data = None
+            for _ in range(100):
+                async with aiofiles.open(self._storage_name, mode="r") as f:
+                    content = await f.read()
+                    data = yaml.safe_load(content)
+                if data is not None:
+                    return data
+            raise StorageError("empty data")
+        else:
+            content = await self.cloud_client.get_bucket("home-bucket", self._storage_name)
+            data = yaml.safe_load(content)
+            return data
 
     async def refresh(self) -> None:
         self._storage = await self._read_storage()
@@ -63,8 +71,11 @@ class Storage(metaclass=Singleton):
             return
         async with self._lock:
             if self.need_to_write or force:
-                async with aiofiles.open(self._storage_name, mode="w") as f:
-                    await f.write(yaml.dump(self._storage))
+                if not self._s3_mode:
+                    async with aiofiles.open(self._storage_name, mode="w") as f:
+                        await f.write(yaml.dump(self._storage))
+                else:
+                    await self.cloud_client.put_bucket("home-bucket", "storage.yaml", yaml.dump(self._storage))
                 self.need_to_write = False
 
     def put(self, key: Union[Enum, str], value):

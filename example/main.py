@@ -60,9 +60,15 @@ async def main():
         telegram_chat_id=config.telegram_chat_id,
         ha_url=config.ha_url,
         ha_token=config.ha_token,
+        service_account_id=config.service_account_id,
+        key_id=config.key_id,
+        private_key=config.private_key,
+        aws_access_key_id=config.aws_access_key_id,
+        aws_secret_access_key=config.aws_secret_access_key,
         tg_commands=get_commands(),
         tg_handlers=get_handlers(),
         prod=config.prod,
+        s3_mode=config.s3_mode,
         aiohttp_routes=routes,
     )
 

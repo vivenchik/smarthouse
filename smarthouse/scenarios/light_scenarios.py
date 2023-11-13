@@ -79,11 +79,12 @@ async def clear_tg():
 
 @looper(10)
 async def refresh_storage():
+    return
     storage = Storage()
     await storage.refresh()
 
 
-@looper(5)
+@looper(MIN)
 async def write_storage():
     storage = Storage()
     await storage._write_storage()

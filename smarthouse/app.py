@@ -23,6 +23,7 @@ from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet
+from smarthouse.yandex_cloud import YandexCloudClient
 
 
 class App:
@@ -34,9 +35,15 @@ class App:
         telegram_chat_id: str = "",
         ha_url: str = "",
         ha_token: str = "",
+        service_account_id: str = "",
+        key_id: str = "",
+        private_key: str = "",
+        aws_access_key_id: str = "",
+        aws_secret_access_key: str = "",
         tg_commands: list[tuple[str, str]] | None = None,
         tg_handlers: list[tuple[str, Awaitable]] | None = None,
         prod: bool = False,
+        s3_mode: bool = False,
         aiohttp_routes: Iterable[AbstractRouteDef] | None = None,
     ):
         self.storage_name = storage_name
@@ -45,9 +52,15 @@ class App:
         self.telegram_chat_id = telegram_chat_id
         self.ha_url = ha_url
         self.ha_token = ha_token
+        self.service_account_id = service_account_id
+        self.key_id = key_id
+        self.private_key = private_key
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
         self.tg_commands = tg_commands
         self.tg_handlers = tg_handlers
         self.prod = prod
+        self.s3_mode = s3_mode
 
         self.tasks = (
             [
@@ -75,7 +88,14 @@ class App:
         self.tasks.extend(tasks)
 
     async def prepare(self):
-        await Storage().init(storage_name=self.storage_name)
+        YandexCloudClient().init(
+            service_account_id=self.service_account_id,
+            key_id=self.key_id,
+            private_key=self.private_key,
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key,
+        )
+        await Storage().init(storage_name=self.storage_name, s3_mode=self.s3_mode)
 
         YandexClient().init(yandex_token=self.yandex_token, prod=self.prod)
 
