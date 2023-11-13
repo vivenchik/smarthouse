@@ -11,7 +11,6 @@ from smarthouse.logger import logger
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN, get_time, get_timedelta_now
 from smarthouse.yandex_client.client import YandexClient
-from smarthouse.yandex_client.device import run_async
 
 
 @looper(5)
@@ -64,8 +63,6 @@ async def away_actions_scenario():
         if 5 * MIN < door and 8 * HOUR < after_last_cleanup:
             logger.info(f"turning on cleaner {int(delta)}")
             await ds.cleaner.on().run_async()
-            if await ds.balcony_door.closed():
-                await ds.humidifier.on().run_async()
             storage.put(SKeys.last_cleanup, time.time())
             storage.put(SKeys.cleanups, storage.get(SKeys.cleanups, 0) + 1)
 
@@ -95,10 +92,6 @@ async def away_actions_scenario():
                     await storage.messages_queue.put({"message": "looks like cleaner is offed"})
                     storage.put(SKeys.last_cleanup, time.time() - 10 * HOUR)
 
-        if 5 * HOUR < door and await ds.humidifier.is_on(MIN):
-            logger.info("turning off humidifier")
-            await ds.humidifier.off().run_async()
-
         if 2 * HOUR < door and await ds.humidifier_new.is_on(MIN):
             await ds.humidifier_new.off().run_async()
 
@@ -106,7 +99,7 @@ async def away_actions_scenario():
         if door < 10 * MIN:
             if after_last_cleanup < 10 * MIN:
                 logger.info("turning off cleaner")
-                await run_async([ds.cleaner.off(), ds.humidifier.off()])
+                await ds.cleaner.off().run_async()
                 storage.put(SKeys.last_cleanup, time.time() - 10 * HOUR)
                 storage.put(SKeys.cleanups, max(storage.get(SKeys.cleanups, 0) - 1, 0))
             elif after_last_cleanup < 30 * MIN and after_last_quieting > after_last_cleanup:
@@ -131,7 +124,6 @@ async def away_actions_scenario():
                 if storage.get(SKeys.cleanups, 0) >= 6:
                     await storage.messages_queue.put({"message": "insert water in cleaner /water_done"})
 
-                await ds.humidifier.off().run_async()
                 storage.put(SKeys.last_on, time.time())
 
         if after_last_notify < MIN:

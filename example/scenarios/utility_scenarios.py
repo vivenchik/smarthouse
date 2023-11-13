@@ -1,7 +1,5 @@
 import asyncio
-import datetime
 import sys
-import time
 
 from example.configuration.config import get_config
 from example.configuration.device_set import DeviceSet
@@ -10,7 +8,7 @@ from example.scenarios.utils import get_mode_with_off, good_mo, sleep, turn_on_a
 from smarthouse.action_decorators import looper
 from smarthouse.logger import logger
 from smarthouse.storage import Storage
-from smarthouse.utils import HOUR, MIN
+from smarthouse.utils import MIN
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import run_async
 
@@ -24,13 +22,6 @@ async def worker_for_web_scenario():
 
     if task == "sleep":
         await sleep()
-
-    if task == "humidifier":
-        if not await ds.humidifier.is_on():
-            await ds.humidifier.on().run_async(lock_level=5, lock=datetime.timedelta(minutes=55))
-            storage.put(SKeys.off_humidifier, time.time() + HOUR)
-        else:
-            await ds.humidifier.off().run_async(lock_level=5, lock=datetime.timedelta(minutes=55))
 
     if task == "good_mo":
         await good_mo()
@@ -53,19 +44,6 @@ async def worker_for_web_scenario():
         await run_async(get_mode_with_off(ds.paint))
 
     storage.tasks.task_done()
-
-
-@looper(MIN)
-async def web_utils_scenario():
-    config = get_config()
-    if config.pause:
-        return 1 * MIN
-    storage = Storage()
-    ds = DeviceSet()
-
-    if storage.get(SKeys.off_humidifier) < time.time() and time.time() - storage.get(SKeys.off_humidifier) < 5 * MIN:
-        await ds.humidifier.off().run_async()
-        return 5 * MIN
 
 
 @looper(5 * MIN)

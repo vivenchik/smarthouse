@@ -30,7 +30,6 @@ class SKeys(Enum):
     balcony_lights = "balcony_lights"
     previous_b_t = "previous_b_t"
     night = "night"
-    off_humidifier = "off_humidifier"
     water_notified = "water_notified"
     last_click_b_2 = "last_click_b_2"
     stop_alarm = "stop_alarm"

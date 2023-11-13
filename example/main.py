@@ -9,7 +9,7 @@ from example.configuration.storage_keys import SKeys
 from example.configuration.tg_handlers import get_commands, get_handlers
 from example.configuration.web import routes
 from example.scenarios.away_scenarios import away_actions_scenario
-from example.scenarios.climate_scenarios import dry_actions_scenario, water_level_checker_scenario, wc_hydro_scenario
+from example.scenarios.climate_scenarios import water_level_checker_scenario, wc_hydro_scenario
 from example.scenarios.color_scenes_scenarios import (
     button_scenario,
     button_sleep_actions_scenario,
@@ -29,7 +29,7 @@ from example.scenarios.motion_light_scenarios import (
     lights_off_scenario,
     lights_wc_on_scenario,
 )
-from example.scenarios.utility_scenarios import not_prod_scenario, web_utils_scenario, worker_for_web_scenario
+from example.scenarios.utility_scenarios import not_prod_scenario, worker_for_web_scenario
 from smarthouse.app import App
 from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
@@ -88,8 +88,6 @@ async def main():
             lights_corridor_on_scenario(),
             lights_wc_on_scenario(),
             lights_off_scenario(),
-            dry_actions_scenario(),
-            web_utils_scenario(),
             button_scenario(),
             adaptive_lights_scenario(),
             # motion_lights_actions(),
