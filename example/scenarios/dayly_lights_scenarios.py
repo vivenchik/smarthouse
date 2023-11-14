@@ -12,7 +12,7 @@ from smarthouse.logger import logger
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN, get_time, get_timedelta_now
 from smarthouse.yandex_client.client import YandexClient
-from smarthouse.yandex_client.device import check_and_run, run
+from smarthouse.yandex_client.device import check_and_run_async, run_async
 
 
 @scheduler((datetime.timedelta(hours=4),))
@@ -51,7 +51,7 @@ async def scheduled_morning_lights_scenario():
     storage.put(SKeys.max_brightness, 1)
     storage.put(SKeys.night, False)
     if not storage.get(SKeys.lights_locked) and calc_sunrise(datetime.timedelta(minutes=0)) > get_timedelta_now():
-        await ds.table_lamp.on_brightness(50)
+        await ds.table_lamp.on_brightness(50).run_async()
     await ya_client.run_scenario(config.clocks_on_scenario_id)
 
 
@@ -62,7 +62,7 @@ async def scheduled_morning_lights_off_scenario():
         return 1 * MIN
     ds = DeviceSet()
 
-    await run([lamp.off() for lamp in list(ds.alarm_lamps) + [ds.table_lamp]])
+    await run_async([lamp.off() for lamp in list(ds.alarm_lamps) + [ds.table_lamp]])
 
 
 @scheduler((calc_sunset,))
@@ -75,7 +75,7 @@ async def scheduled_lights_scenario():
     storage.put(SKeys.adaptive_locked, False)
     if not storage.get(SKeys.lights_locked) and not storage.get(SKeys.sleep) and not storage.get(SKeys.evening):
         logger.info("turning on lights (schedule)")
-        await turn_on_act(storage.get(SKeys.clicks))
+        await turn_on_act(storage.get(SKeys.clicks), storage.get(SKeys.clicks))
 
 
 @looper(3, (datetime.timedelta(hours=10), calc_sunset))
@@ -86,26 +86,28 @@ async def adaptive_lights_scenario():
     storage = Storage()
     ds = DeviceSet()
 
-    if storage.get(SKeys.evening):
+    if (
+        storage.get(SKeys.evening)
+        or storage.get(SKeys.lights_locked)
+        or storage.get(SKeys.adaptive_locked)
+        or storage.get(SKeys.sleep)
+    ):
+        return 0.5
+
+    (previous_b, previous_t, timestamp) = storage.get(SKeys.previous_b_t, (0, 0, 0))
+
+    needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor)
+    needed_b = min(needed_b * 100, 70)
+
+    if timestamp + 2 * MIN > time.time() and [previous_b, previous_t] == [needed_b, needed_t]:
         return
 
-    if not storage.get(SKeys.lights_locked) and not storage.get(SKeys.adaptive_locked) and not storage.get(SKeys.sleep):
-        (previous_b, previous_t, timestamp) = storage.get(SKeys.previous_b_t, (0, 0, 0))
+    if timestamp + 2 * MIN > time.time() and (previous_b == 0 and needed_b < 10 or previous_b < 10 and needed_b == 0):
+        return
 
-        needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor)
-        needed_b = min(needed_b * 100, 70)
+    storage.put(SKeys.previous_b_t, [needed_b, needed_t, time.time()])
 
-        if timestamp + 2 * MIN > time.time() and [previous_b, previous_t] == [needed_b, needed_t]:
-            return
-
-        if timestamp + 2 * MIN > time.time() and (
-            previous_b == 0 and needed_b < 10 or previous_b < 10 and needed_b == 0
-        ):
-            return
-
-        storage.put(SKeys.previous_b_t, [needed_b, needed_t, time.time()])
-
-        await run([lamp.on_temp(needed_t, needed_b) for lamp in ds.adaptive_lamps])
+    await run_async([lamp.on_temp(needed_t, needed_b) for lamp in ds.adaptive_lamps])
 
 
 @looper(10)
@@ -130,7 +132,7 @@ async def alarm_scenario():
         storage.put(SKeys.alarm, (alarm_datetime + datetime.timedelta(days=1)).isoformat())
 
         if not storage.get(SKeys.lights_locked):
-            await ds.curtain.open().run(check=False)
+            await ds.curtain.open().run_async(check=False)
 
             if calc_sunrise(datetime.timedelta(minutes=0)) > get_timedelta_now():
                 current_b = 0
@@ -140,7 +142,7 @@ async def alarm_scenario():
                 while current_b <= 30 - step_b:
                     current_b += step_b
                     last_b = current_b
-                    await run(
+                    await run_async(
                         [lamp.on_temp(temperature_k=4500, brightness=current_b) for lamp in ds.alarm_lamps],
                         check=False,
                         feature_checkable=True,
@@ -149,11 +151,13 @@ async def alarm_scenario():
                     if storage.get(SKeys.stop_alarm):
                         return
 
-                await check_and_run([lamp.on_temp(temperature_k=4500, brightness=last_b) for lamp in ds.alarm_lamps])
+                await check_and_run_async(
+                    [lamp.on_temp(temperature_k=4500, brightness=last_b) for lamp in ds.alarm_lamps]
+                )
                 await asyncio.sleep(10)
                 if storage.get(SKeys.stop_alarm):
                     return
-                await ds.curtain.open().run()
+                await ds.curtain.open().run_async()
 
                 await asyncio.sleep(10 * MIN)
                 if storage.get(SKeys.stop_alarm):
@@ -161,7 +165,7 @@ async def alarm_scenario():
                 while current_b <= 50 - step_b:
                     current_b += step_b
                     last_b = current_b
-                    await run(
+                    await run_async(
                         [lamp.on_temp(temperature_k=4500, brightness=current_b) for lamp in ds.alarm_lamps],
                         check=False,
                         feature_checkable=True,
@@ -169,9 +173,11 @@ async def alarm_scenario():
                     await asyncio.sleep(1)
                     if storage.get(SKeys.stop_alarm):
                         return
-                await check_and_run([lamp.on_temp(temperature_k=4500, brightness=last_b) for lamp in ds.alarm_lamps])
+                await check_and_run_async(
+                    [lamp.on_temp(temperature_k=4500, brightness=last_b) for lamp in ds.alarm_lamps]
+                )
             else:
                 await asyncio.sleep(10)
                 if storage.get(SKeys.stop_alarm):
                     return
-                await ds.curtain.open().run()
+                await ds.curtain.open().run_async()

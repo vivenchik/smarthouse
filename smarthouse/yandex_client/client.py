@@ -1,3 +1,5 @@
+import asyncio
+import copy
 import json
 import time
 from typing import Any, Optional
@@ -6,7 +8,13 @@ import aiohttp
 from async_lru import alru_cache
 
 from smarthouse.base_client.client import BaseClient
-from smarthouse.base_client.exceptions import DeviceOffline, InfraCheckError, InfraServerError, ProgrammingError
+from smarthouse.base_client.exceptions import (
+    DeviceOffline,
+    InfraCheckError,
+    InfraServerError,
+    InfraServerTimeoutError,
+    ProgrammingError,
+)
 from smarthouse.base_client.utils import retry
 from smarthouse.logger import logger
 from smarthouse.yandex_client.models import (
@@ -18,6 +26,7 @@ from smarthouse.yandex_client.models import (
     DeviceInfoResponse,
     StateItem,
 )
+from smarthouse.yandex_client.utils import get_current_capabilities
 
 DEFAULTS: dict[str, dict[str, Any]] = {  # todo: move to devices
     "capability": {"on_off": False},
@@ -51,10 +60,22 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             headers={"Authorization": f"Bearer {yandex_token}"},
             connector=aiohttp.TCPConnector(
                 ssl=False,
+                limit=None,  # type: ignore[arg-type]
                 force_close=True,
                 enable_cleanup_closed=True,
             ),
-            timeout=aiohttp.ClientTimeout(total=5),
+            timeout=aiohttp.ClientTimeout(total=3),
+        )
+        self.china_client = aiohttp.ClientSession(
+            base_url=self.base_url,
+            headers={"Authorization": f"Bearer {yandex_token}"},
+            connector=aiohttp.TCPConnector(
+                ssl=False,
+                limit=None,  # type: ignore[arg-type]
+                force_close=True,
+                enable_cleanup_closed=True,
+            ),
+            timeout=aiohttp.ClientTimeout(total=60),
         )
         self.prod = prod
 
@@ -62,15 +83,22 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         self._last: dict[str, DeviceInfoResponse] = {}
 
     @alru_cache(maxsize=1024)
-    async def _request(self, method: str, path: str, data: Optional[str] = None, ttl_hash=None) -> dict:
+    async def _request(
+        self, method: str, path: str, data: Optional[str] = None, use_china_client=False, ttl_hash=None
+    ) -> dict:
         if not self.prod and method == "POST":
             logger.debug(path)
 
         start = time.time()
         response_data_text = None
         response_data_json = None
+
+        if not use_china_client:
+            client_for_request = self.client
+        else:
+            client_for_request = self.china_client
         try:
-            async with self.client.request(method, f"/v1.0{path}", data=data) as response:
+            async with client_for_request.request(method, f"/v1.0{path}", data=data) as response:
                 if response.content_type == "application/json":
                     response_data_text = await response.text()
                     response_data_json = await response.json()
@@ -117,9 +145,9 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 self.prod,
                 debug_str=f"{method} {path} {data}",
             ) from exc
-        except TimeoutError as exc:
-            raise InfraServerError(
-                f"Timeout Error: {exc}",
+        except asyncio.TimeoutError as exc:
+            raise InfraServerTimeoutError(
+                "Yandex server timeout",
                 self.prod,
                 debug_str=f"{method} {path} {data}",
             ) from exc
@@ -140,8 +168,10 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     def get_ttl_hash(seconds):
         return int(time.time() / seconds) if seconds is not None else time.time()
 
-    async def request(self, method: str, path: str, data: Optional[dict] = None, hash_seconds=1) -> dict:
-        return await self._request(method, path, json.dumps(data), self.get_ttl_hash(hash_seconds))
+    async def request(
+        self, method: str, path: str, data: Optional[dict] = None, use_china_client=False, hash_seconds=1
+    ) -> dict:
+        return await self._request(method, path, json.dumps(data), use_china_client, self.get_ttl_hash(hash_seconds))
 
     @retry
     async def info(self, hash_seconds=1) -> dict:
@@ -151,8 +181,11 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     async def _device_info(
         self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
     ) -> DeviceInfoResponse:
+        use_china_client = self._use_china_client.get(device_id, False)
         try:
-            response = await self.request("GET", f"/devices/{device_id}", hash_seconds=hash_seconds)
+            response = await self.request(
+                "GET", f"/devices/{device_id}", use_china_client=use_china_client, hash_seconds=hash_seconds
+            )
         except ProgrammingError as exc:
             exc.dont_log = False
             exc.err_retry = err_retry
@@ -222,6 +255,10 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             self.register_device(device_id, result.name)
         return result
 
+    async def get_current_capabilities(self, device_id: str, hash_seconds=1) -> list[tuple[str, str, Any]] | None:
+        device_info = await self.device_info(device_id, hash_seconds=hash_seconds)
+        return get_current_capabilities(device_info)
+
     @retry
     async def _devices_action(self, actions_list: list[DeviceCapabilityAction]) -> DeviceActionResponse | None:
         data = ActionRequestModel(
@@ -229,8 +266,13 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 Device(id=action.device_id, actions=self.get_actions(action.capabilities)) for action in actions_list
             ]
         )
+        use_china_client = False
+        for _device in data.devices:
+            use_china_client |= self._use_china_client.get(_device.id, False)
         try:
-            response = await self.request("POST", "/devices/actions", data=data.dict(), hash_seconds=None)
+            response = await self.request(
+                "POST", "/devices/actions", data=data.dict(), use_china_client=use_china_client, hash_seconds=None
+            )
         except ProgrammingError as exc:
             exc.device_ids = [device.id for device in data.devices]
             raise exc
@@ -291,25 +333,31 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         excl: dict[str, tuple[tuple[str, str], ...]] | None = None,
         err_retry: bool = True,
         real_action=True,
+        mutated=False,
     ):
         if excl is None:
             excl = {}
 
-        filtered_ids = await self.ask_permissions([(action.device_id, None) for action in actions_list])
+        if real_action:
+            filtered_ids = await self.ask_permissions([(action.device_id, None) for action in actions_list])
+        else:
+            filtered_ids = [action.device_id for action in actions_list]
         patched_actions_list: list = []
+        wished_actions_list: list = []
         for action in actions_list:
+            wished_actions_list.append(copy.deepcopy(action))
             if action.device_id not in filtered_ids:
                 patched_actions_list.append(None)
                 continue
 
-            if self._mutations.get(action.device_id) is not None:
+            if self._mutations.get(action.device_id) is not None and not mutated:
                 patched_action = self._mutations[action.device_id](action)
                 patched_actions_list.append(patched_action)
             else:
                 patched_actions_list.append(action)
 
         device_ids = {action.device_id for action in patched_actions_list if action is not None}
-        devices = {device_id: await self.device_info(device_id) for device_id in device_ids}
+        devices = {device_id: await self.device_info(device_id) for device_id in device_ids}  # todo: asyncio
 
         errors = []
         for i, _ in enumerate(patched_actions_list):
@@ -329,12 +377,20 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                     )
                 continue
 
-            for needed_capability in action.capabilities:
+            for j, needed_capability in enumerate(action.capabilities):
                 for capability in device.capabilities:
                     if capability.type == f"devices.capabilities.{needed_capability[0]}":
+                        wished_actions_list[i].capabilities[j] = (
+                            needed_capability[0],
+                            capability.state["instance"],
+                            capability.state["value"],
+                        )
                         if capability.state["instance"] != needed_capability[1]:
                             errors.append(
-                                (f'diff: {needed_capability[1]} != {capability.state["instance"]}', device_id)
+                                (
+                                    f'{needed_capability[0]} {needed_capability[1]} -> {capability.state["instance"]}',
+                                    device_id,
+                                )
                             )
                             continue
                         current_capability_value = capability.state["value"]
@@ -345,8 +401,8 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                         ):
                             errors.append(
                                 (
-                                    f"capability: {(needed_capability[0], needed_capability[1])} "
-                                    f'diff: {needed_capability[2]} != {capability.state["value"]}',
+                                    f"{needed_capability[0]} {needed_capability[1]} {needed_capability[2]} "
+                                    f'-> {capability.state["value"]}',
                                     device_id,
                                 )
                             )
@@ -364,10 +420,10 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
 
         if len(errors) > 0:
             raise InfraCheckError(
-                f"Device state check error ({[self.names.get(error[1], error[1]) for error in errors]}): "
-                f"{' '.join([error[0] for error in errors])}",
+                "\n".join([f"{self.names.get(error[1], error[1])}: {error[0]}" for error in errors]),
                 self.prod,
                 [error[1] for error in errors],
+                wished_actions_list=wished_actions_list,
                 err_retry=err_retry,
             )
 

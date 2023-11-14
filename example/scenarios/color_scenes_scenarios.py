@@ -10,6 +10,8 @@ from example.configuration.storage_keys import SKeys
 from example.scenarios.light_utils import calc_sunset
 from example.scenarios.utils import (
     check_and_fix_act,
+    find_current_pos_modes_order,
+    get_modes_order,
     get_possible_colors,
     get_possible_white_colors,
     get_zone,
@@ -19,11 +21,11 @@ from example.scenarios.utils import (
     turn_off_all,
     turn_on_act,
 )
-from smarthouse.action_decorators import looper
+from smarthouse.action_decorators import looper, scheduler
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN, get_time, get_timedelta_now, hsv_to_rgb
 from smarthouse.yandex_client.client import YandexClient
-from smarthouse.yandex_client.device import HSVLamp, RGBLamp, TemperatureLamp, run
+from smarthouse.yandex_client.device import HSVLamp, RGBLamp, TemperatureLamp, run_async
 
 
 @looper(1)
@@ -82,7 +84,7 @@ async def random_colors_scenario(
                             lamp.on_temp(temperature_k=possible_colors[i][1], brightness=possible_colors[i][0])
                         )
 
-        await run(actions)
+        await run_async(actions)
 
         if len(lamp_groups) > 1:
             return random.randint(*rand)
@@ -101,28 +103,30 @@ async def button_scenario():
     storage = Storage()
     ds = DeviceSet()
 
-    last_click = storage.get(SKeys.last_click)
+    last_click = max(storage.get(SKeys.last_click), storage.get(SKeys.startup))
     state_button, button_time = await ds.button.button(None)
 
     storage_commands = sorted(
         [(key[len("__click_") :], value) for key, value in storage.items() if key.startswith("__click")],
         key=lambda x: x[1],
     )
+    button_clicked = button_time - last_click > 0.01
+    storage_button_clicked = storage_commands and storage_commands[0][1] - last_click > 0.01
 
-    if button_time - last_click > 0.01 or storage_commands:
+    if button_clicked or storage_button_clicked:
         storage.put(SKeys.last_click, max(button_time, time.time()))
         storage.put(SKeys.lights_locked, False)
         storage.put(SKeys.paint, False)
 
-        if not button_time - last_click > 0.01 and storage_commands:
+        if not button_clicked and storage_button_clicked:
             state_button = storage_commands[0][0]
             button_time = storage_commands[0][1]
-            storage.delete(f"__click_{storage_commands[0][0]}")
-            storage.put(SKeys.last_click, max(storage_commands[0][1], time.time()))
+
+        storage.put(SKeys.last_click, max(button_time, time.time()))
 
         if state_button == "double_click":
             lamps_to_off = set(ds.all_lamps) - set(lamp for mode in ds.lamp_groups for lamp in mode)
-            await run([lamp.off() for lamp in lamps_to_off])
+            await run_async([lamp.off() for lamp in lamps_to_off])
 
             if not storage.get(SKeys.random_colors):
                 storage.put(SKeys.random_colors_mode, 0)
@@ -157,40 +161,42 @@ async def button_scenario():
         if not light_on or light_on and storage.get(SKeys.random_colors_passive):
             skip = -1
         else:
+            modes_order = get_modes_order()
             if button_time - last_click < MIN:
-                clicks += 1
+                current_pos = find_current_pos_modes_order(modes_order, clicks)
+                clicks = (current_pos + 1) % len(ds.modes)
                 if clicks == skip:
-                    clicks += 1
+                    clicks = (current_pos + 2) % len(ds.modes)
+                    skip = -1
             else:
-                modes = ds.modes
-                skip = clicks % len(modes)
-                clicks = 1 if clicks % len(modes) == 0 else 0
+                skip = clicks % len(ds.modes)
+                clicks = modes_order[1] if skip == modes_order[0] else modes_order[0]
 
-        await turn_on_act(clicks, check=False, feature_checkable=True)
+        await turn_on_act(clicks, skip, check=False, feature_checkable=True)
         storage.put(SKeys.button_checked, False)
         storage.put(SKeys.random_colors_passive, False)
         storage.put(SKeys.clicks, clicks)
         storage.put(SKeys.skip, skip)
 
-    from_last_click = time.time() - storage.get(SKeys.last_click)
+    after_last_click = time.time() - max(storage.get(SKeys.last_click), storage.get(SKeys.startup))
     clicks = storage.get(SKeys.clicks)
     if (
         not storage.get(SKeys.button_checked)
-        and from_last_click > 5
+        and after_last_click > 5
         and not storage.get(SKeys.random_colors_passive)
         and await light_ons()
     ):
-        await check_and_fix_act(clicks)
+        await check_and_fix_act(clicks, clicks)
         storage.put(SKeys.button_checked, True)
 
-    if from_last_click < 5:
-        return 0
-    if from_last_click < 10 * MIN:
+    if after_last_click < 15:
+        return 0.1
+    if after_last_click < 10 * MIN:
         return 0.5
     if (
         storage.get(SKeys.lights_locked)
         or storage.get(SKeys.sleep)
-        or (from_last_click > 30 * MIN and await ds.room_sensor.motion_time() > 30 * MIN)
+        or (after_last_click > 30 * MIN and await ds.room_sensor.motion_time() > 30 * MIN)
     ):
         return 10
 
@@ -204,7 +210,7 @@ async def button_sleep_actions_scenario():
     storage = Storage()
     ds = DeviceSet()
 
-    last_click_b_2 = storage.get(SKeys.last_click_b_2)
+    last_click_b_2 = max(storage.get(SKeys.last_click_b_2), storage.get(SKeys.startup))
     state_button, button_time = await ds.button_2.button(None)
 
     if button_time - last_click_b_2 > 0.01:
@@ -213,11 +219,11 @@ async def button_sleep_actions_scenario():
         alarmed_datetime = datetime.datetime.fromisoformat(storage.get(SKeys.alarmed, "2022-11-27T00:00:00+03:00"))
         if abs((get_time() - alarmed_datetime).total_seconds()) < 15 * MIN:
             storage.put(SKeys.stop_alarm, True)
-            await run([lamp.off() for lamp in ds.alarm_lamps], lock_level=8, lock=datetime.timedelta(minutes=15))
-            await ds.curtain.close().run(check=False)
+            await run_async([lamp.off() for lamp in ds.alarm_lamps], lock_level=8, lock=datetime.timedelta(minutes=15))
+            await ds.curtain.close().run_async(check=False)
             await ya_client.run_scenario(config.silence_scenario_id)
             await asyncio.sleep(10)
-            await ds.curtain.close().run(lock_level=8, lock=datetime.timedelta(minutes=15))
+            await ds.curtain.close().run_async(lock_level=8, lock=datetime.timedelta(minutes=15))
             return
 
         if state_button == "click":
@@ -228,3 +234,13 @@ async def button_sleep_actions_scenario():
 
     if storage.get(SKeys.lights_locked):
         return 10
+
+
+@scheduler((datetime.timedelta(hours=4),))
+async def div_modes_stats_scenario():
+    storage = Storage()
+    ds = DeviceSet()
+
+    modes_stats = storage.get(SKeys.modes_stats, [0] * len(ds.modes))
+    modes_stats = [mode_stats * 0.95 for mode_stats in modes_stats]
+    storage.put(SKeys.modes_stats, modes_stats)

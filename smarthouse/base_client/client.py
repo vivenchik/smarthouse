@@ -32,6 +32,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
     names: dict[str, str]
     _ping: set
     _human_time_funcs: dict
+    _use_china_client: dict
 
     def base_init(self) -> None:
         self._quarantine: dict[str, QuarantineItem] = {}
@@ -46,12 +47,16 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self.names: dict[str, str] = {}
         self._ping: set = set()
         self._human_time_funcs: dict = {}
+        self._use_china_client: dict = {}
 
-    def register_device(self, device_id, name, ping=True, human_time_func=lambda: time.time() + 15 * 60):
+    def register_device(
+        self, device_id, name, ping=True, human_time_func=lambda: time.time() + 15 * 60, use_china_client=False
+    ):
         self.names[device_id] = name
         if ping:
             self._ping.add(device_id)
         self._human_time_funcs[device_id] = self._human_time_funcs.get(device_id) or human_time_func
+        self._use_china_client[device_id] = use_china_client
 
     def register_mutation(self, device_id, mutation):
         self._mutations[device_id] = mutation
@@ -164,7 +169,6 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             self.last_set(device_id, result)
             return result
         except (DeviceOffline, InfraServerError) as exc:
-            self.states_remove(device_id)
             self._quarantine_set(device_id)
             if not ignore_quarantine and exc.send:
                 await self.messages_queue.put({"message": str(exc)})
@@ -209,7 +213,6 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             logger.exception(exc)
             actions_dict = {action.device_id: action for action in actions_list}
             for device_id in exc.device_ids:
-                self.states_remove(device_id)
                 self._quarantine_set(device_id, {"actions": [actions_dict[device_id]]})
 
             if exc.send:
@@ -256,4 +259,4 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         except InfraCheckError as exc:
             for device_id in exc.device_ids:
                 self.states_remove(device_id)
-            await self.messages_queue.put({"message": str(exc)})
+            await self.messages_queue.put({"message": f"Device state check error:\n{exc}"})

@@ -18,11 +18,11 @@ services:
       timeout: 1s
       retries: 5
       start_period: 10s
-    depends_on:
-      - homeassistant
+#    depends_on:
+#      - homeassistant
 
   nginx:
-    image: nginx:1.25.1
+    image: nginx:1.25
     restart: unless-stopped
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -34,20 +34,20 @@ services:
       options:
         max-size: "2048m"
 
-  homeassistant:
-    container_name: homeassistant
-    privileged: true
-    image: "ghcr.io/home-assistant/home-assistant:2023.7.2"
-    restart: unless-stopped
-    volumes:
-      - /home/ivan/homeassistant_config:/config
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "8123:8123"
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "2048m"
+#  homeassistant:
+#    container_name: homeassistant
+#    privileged: true
+#    image: "ghcr.io/home-assistant/home-assistant:2023.7.2"
+#    restart: unless-stopped
+#    volumes:
+#      - /home/ivan/homeassistant_config:/config
+#      - /etc/localtime:/etc/localtime:ro
+#    ports:
+#      - "8123:8123"
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-size: "2048m"
 
 #  restarter:
 #      image: docker
