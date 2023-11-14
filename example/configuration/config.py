@@ -43,7 +43,7 @@ class Config(BaseSettings):
     table_lamp_id: str = "d4384c76-3db6-4f16-be39-dfcf04f9744c"
     balcony_lamp_id: str = "5da80b0a-ab93-434d-9a24-065c7cd65b68"
     sofa_lamp_id: str = "3957c326-99ad-4fa7-b098-3484cad82e56"
-    humidifier_id: str = "3e8a7f5a-9648-430a-b7cb-30ba722e1d83"
+    humidifier_new_id: str = "7c33b045-930b-4fa9-9994-b956402b3a60"
     air_cleaner_id: str = "b3569bbc-2518-4933-9849-3058bbf9c2fc"
     lamp_e_1_id: str = "2ea89d96-568c-446e-b31d-86d77aa60e98"
     lamp_e_2_id: str = "ca57b793-2617-4712-a002-dde2f82c6b27"

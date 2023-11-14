@@ -21,7 +21,7 @@ aiolimiter==1.1.0
 aiosignal==1.3.1
     # via aiohttp
 anyio==4.0.0
-    # via httpcore
+    # via httpx
 appdirs==1.4.4
     # via requests-cache
 apscheduler==3.10.4
@@ -38,7 +38,7 @@ attrs==21.4.0
     #   aiohttp-client-cache
     #   cattrs
     #   requests-cache
-black==23.10.1
+black==23.11.0
     # via smarthouse (setup.py)
 brotli==1.1.0
     # via aiohttp
@@ -55,14 +55,16 @@ cffi==1.16.0
     # via
     #   cryptography
     #   pycares
-charset-normalizer==3.3.1
+charset-normalizer==3.3.2
     # via
     #   aiohttp
     #   requests
 click==8.1.7
     # via black
 coverage[toml]==7.3.2
-    # via pytest-cov
+    # via
+    #   coverage
+    #   pytest-cov
 cryptography==41.0.5
     # via python-telegram-bot
 execnet==2.0.2
@@ -85,9 +87,9 @@ homeassistant-api==4.1.1.post2
     # via smarthouse (setup.py)
 hpack==4.0.0
     # via h2
-httpcore==0.18.0
+httpcore==1.0.2
     # via httpx
-httpx[http2,socks]==0.25.0
+httpx[http2,socks]==0.25.1
     # via python-telegram-bot
 hyperframe==6.0.1
     # via h2
@@ -111,7 +113,7 @@ multidict==6.0.4
     # via
     #   aiohttp
     #   yarl
-mypy==1.6.1
+mypy==1.7.0
     # via smarthouse (setup.py)
 mypy-extensions==1.0.0
     # via
@@ -126,7 +128,7 @@ packaging==23.2
     #   pytest
 pathspec==0.11.2
     # via black
-platformdirs==3.11.0
+platformdirs==4.0.0
     # via black
 pluggy==1.3.0
     # via pytest
@@ -139,6 +141,7 @@ pycparser==2.21
 pydantic[dotenv]==1.9.0
     # via
     #   homeassistant-api
+    #   pydantic
     #   smarthouse (setup.py)
 pyflakes==3.1.0
     # via flake8
@@ -193,7 +196,6 @@ six==1.16.0
 sniffio==1.3.0
     # via
     #   anyio
-    #   httpcore
     #   httpx
 socksio==1.0.0
     # via httpx
