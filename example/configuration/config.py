@@ -9,6 +9,7 @@ class Config(BaseSettings):
     pause: bool = False
     storage_name: str = "storage.yaml"
     s3_mode: bool = False
+    iam_mode: bool = False
 
     yandex_token: str
 

@@ -1,6 +1,7 @@
 import asyncio
 import functools
 import json
+import logging
 import time
 from typing import Optional
 
@@ -8,8 +9,9 @@ import aioboto3
 import aiohttp
 import jwt
 
-from smarthouse.logger import logger
 from smarthouse.utils import Singleton
+
+logger = logging.getLogger("root")
 
 
 def retry(func):
@@ -74,7 +76,7 @@ class YandexCloudClient(metaclass=Singleton):
             region_name="ru-central1",
         )
 
-        await self.update_iam_token()
+        # await self.update_iam_token()
 
     @retry
     async def get_bucket(self, bucket: str, key: str) -> bytes:

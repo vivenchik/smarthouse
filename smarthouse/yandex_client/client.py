@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import json
+import logging
 import time
 from typing import Any, Optional
 
@@ -16,7 +17,6 @@ from smarthouse.base_client.exceptions import (
     ProgrammingError,
 )
 from smarthouse.base_client.utils import retry
-from smarthouse.logger import logger
 from smarthouse.yandex_client.models import (
     Action,
     ActionRequestModel,
@@ -27,6 +27,8 @@ from smarthouse.yandex_client.models import (
     StateItem,
 )
 from smarthouse.yandex_client.utils import get_current_capabilities
+
+logger = logging.getLogger("root")
 
 DEFAULTS: dict[str, dict[str, Any]] = {  # todo: move to devices
     "capability": {"on_off": False},

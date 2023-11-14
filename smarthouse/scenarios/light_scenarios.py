@@ -1,8 +1,8 @@
 import asyncio
+import logging
 import time
 
 from smarthouse.action_decorators import looper
-from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
@@ -11,6 +11,9 @@ from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet, check_and_run, run
 from smarthouse.yandex_client.models import DeviceCapabilityAction, StateItem
 from smarthouse.yandex_client.utils import get_current_capabilities
+from smarthouse.yandex_cloud import YandexCloudClient
+
+logger = logging.getLogger("root")
 
 
 async def worker_run():
@@ -77,10 +80,26 @@ async def clear_tg():
     tg_client.to_delete_messages.task_done()
 
 
-@looper(MIN)
-async def write_storage():
+@looper(10)
+async def refresh_storage(s3_mode=False):
+    if not s3_mode:
+        storage = Storage()
+        await storage.refresh()
+
+
+@looper(5)
+async def write_storage(s3_mode=False):
     storage = Storage()
     await storage._write_storage()
+
+    if s3_mode:
+        return MIN
+
+
+@looper(15 * MIN)
+async def update_iam_token():
+    cloud_client = YandexCloudClient()
+    await cloud_client.update_iam_token()
 
 
 @looper(MIN)
