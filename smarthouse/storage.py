@@ -46,7 +46,7 @@ class Storage(metaclass=Singleton):
             return {}
         for _ in range(10):
             if not self._s3_mode:
-                async with aiofiles.open("storage/{self._storage_name}", mode="r") as f:
+                async with aiofiles.open(f"storage/{self._storage_name}", mode="r") as f:
                     content = await f.read()
             else:
                 content = await self.cloud_client.get_bucket("home-bucket", self._storage_name)
