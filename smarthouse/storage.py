@@ -34,11 +34,7 @@ class Storage(metaclass=Singleton):
         self.need_to_write = False
 
         if self._storage_name is not None:
-            if not exists(self._storage_name):
-                open(self._storage_name, "x")
-                self._storage = {}
-            else:
-                self._storage = await self._read_storage()
+            self._storage = await self._read_storage()
         else:
             self._storage = {}
         to_delete = [k for k in self._storage.keys() if k.startswith("__")]
