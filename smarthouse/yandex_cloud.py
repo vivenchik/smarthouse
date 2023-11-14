@@ -1,3 +1,5 @@
+import asyncio
+import functools
 import json
 import time
 from typing import Optional
@@ -6,7 +8,26 @@ import aioboto3
 import aiohttp
 import jwt
 
+from smarthouse.logger import logger
 from smarthouse.utils import Singleton
+
+
+def retry(func):
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        _exc = Exception()
+        for _ in range(10):
+            try:
+                return await func(*args, **kwargs)
+            except Exception as exc:
+                logger.exception(exc)
+                _exc = exc
+
+            await asyncio.sleep(0.1)
+
+        raise _exc
+
+    return wrapper
 
 
 class YandexCloudException(Exception):
@@ -55,16 +76,19 @@ class YandexCloudClient(metaclass=Singleton):
 
         await self.update_iam_token()
 
-    async def get_bucket(self, bucket: str, key: str):
+    @retry
+    async def get_bucket(self, bucket: str, key: str) -> bytes:
         async with self.boto_session.client(service_name="s3", endpoint_url=self.endpoint_url) as s3:
             s3_ob = await s3.get_object(Bucket=bucket, Key=key)
 
         return await s3_ob["Body"].read()
 
+    @retry
     async def put_bucket(self, bucket: str, key: str, body: str):
         async with self.boto_session.client(service_name="s3", endpoint_url=self.endpoint_url) as s3:
             await s3.put_object(Bucket=bucket, Key=key, Body=body)
 
+    @retry
     async def iam_request(self, method: str, path: str, data: Optional[dict] = None) -> dict:
         async with self.iam_client.request(method, path, data=json.dumps(data)) as response:
             response.raise_for_status()

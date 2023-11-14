@@ -53,17 +53,6 @@ def ignore_exc(func):
 async def main():
     config = get_config()
 
-    # YandexCloudClient().init(
-    #     aws_access_key_id=config.aws_access_key_id,
-    #     aws_secret_access_key=config.aws_secret_access_key,
-    # )
-    # cloud_client = YandexCloudClient()
-    # # bucket = await cloud_client.get_bucket("home-bucket", "storage.yaml")
-    # # print(bucket.decode("utf-8"))
-    # print(cloud_client.iam_token)
-    #
-    # return
-
     app = App(
         storage_name=config.storage_name,
         yandex_token=config.yandex_token,

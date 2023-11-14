@@ -49,19 +49,17 @@ class Storage(metaclass=Singleton):
     async def _read_storage(self) -> dict:
         if self._storage_name is None:
             return {}
-        if not self._s3_mode:
-            data = None
-            for _ in range(100):
+        for _ in range(100):
+            if not self._s3_mode:
                 async with aiofiles.open(self._storage_name, mode="r") as f:
                     content = await f.read()
-                    data = yaml.safe_load(content)
-                if data is not None:
-                    return data
-            raise StorageError("empty data")
-        else:
-            content = await self.cloud_client.get_bucket("home-bucket", self._storage_name)
-            data = yaml.safe_load(content)
-            return data
+            else:
+                content = await self.cloud_client.get_bucket("home-bucket", self._storage_name)
+
+            if (isinstance(content, str) or isinstance(content, bytes)) and content:
+                return yaml.safe_load(content)
+
+        raise StorageError("empty data")
 
     async def refresh(self) -> None:
         self._storage = await self._read_storage()
