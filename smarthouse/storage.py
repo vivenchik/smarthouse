@@ -54,6 +54,7 @@ class Storage(metaclass=Singleton):
             if (isinstance(content, str) or isinstance(content, bytes)) and content:
                 data = yaml.safe_load(content)
                 if data:
+                    print(data)
                     return data
 
             await asyncio.sleep(0.1)
