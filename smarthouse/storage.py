@@ -57,11 +57,13 @@ class Storage(metaclass=Singleton):
                 content = await self.cloud_client.get_bucket("home-bucket", self._storage_name)
 
             if (isinstance(content, str) or isinstance(content, bytes)) and content:
-                return yaml.safe_load(content)
+                data = yaml.safe_load(content)
+                if data:
+                    return data
 
             await asyncio.sleep(0.1)
 
-        raise StorageError("empty data")
+        raise StorageError("empty data on read")
 
     async def refresh(self) -> None:
         self._storage = await self._read_storage()
@@ -69,6 +71,8 @@ class Storage(metaclass=Singleton):
     async def _write_storage(self, force=False):
         if self._storage_name is None:
             return
+        if not self._storage:
+            raise StorageError("empty data on write")
         async with self._lock:
             if self.need_to_write or force:
                 if not self._s3_mode:
