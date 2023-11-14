@@ -7,6 +7,8 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 from smarthouse.base_client.exceptions import InfraCheckError
+from smarthouse.scenarios.storage_keys import SysSKeys
+from smarthouse.storage import Storage
 from smarthouse.utils import Singleton
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.models import DeviceCapabilityAction
@@ -79,7 +81,10 @@ async def run_async(
     lock_level=0,
     lock: datetime.timedelta | None = None,
     feature_checkable=False,
-):  # todo: set lock immediately
+):
+    if lock is not None:
+        for action in actions:
+            YandexClient().locks_set(action.device_id, time.time() + lock.total_seconds(), level=lock_level)
     await RunQueuesSet().run.put(
         {
             "actions": actions,
@@ -89,6 +94,8 @@ async def run_async(
             "feature_checkable": feature_checkable,
         }
     )
+    storage = Storage()
+    storage.put(SysSKeys.max_run_queue_size, max(storage.get(SysSKeys.max_run_queue_size), RunQueuesSet().run.qsize()))
 
 
 async def check_and_run(
@@ -110,8 +117,16 @@ async def check_and_run_async(
     actions: list[Action],
     lock_level=0,
     lock: datetime.timedelta | None = None,
-):  # todo: set lock immediately
+):
+    if lock is not None:
+        for action in actions:
+            YandexClient().locks_set(action.device_id, time.time() + lock.total_seconds(), level=lock_level)
     await RunQueuesSet().check_and_run.put({"actions": actions, "lock_level": lock_level, "lock": lock})
+    storage = Storage()
+    storage.put(
+        SysSKeys.max_check_and_run_queue_size,
+        max(storage.get(SysSKeys.max_check_and_run_queue_size), RunQueuesSet().check_and_run.qsize()),
+    )
 
 
 class Response(BaseModel):
@@ -121,13 +136,21 @@ class Response(BaseModel):
 
 
 class Device:
-    def __init__(self, device_id, name: str = "", ping=True, human_time_func=lambda: time.time() + 15 * 60):
+    def __init__(
+        self,
+        device_id,
+        name: str = "",
+        ping=True,
+        human_time_func=lambda: time.time() + 15 * 60,
+        use_china_client=False,
+    ):
         self.device_id = device_id
         self.name = name
         self.ya_client = YandexClient()
         self.excl: tuple[tuple[str, str], ...] = ()
+        self.use_china_client = use_china_client
 
-        self.ya_client.register_device(self.device_id, self.name, ping, human_time_func)
+        self.ya_client.register_device(self.device_id, self.name, ping, human_time_func, use_china_client)
 
     async def info(self, hash_seconds=1):
         return await self.ya_client.device_info(self.device_id, hash_seconds=hash_seconds)
@@ -319,6 +342,8 @@ class Humidifier(ControlDevice):
         response = await self.check_property("water_level", hash_seconds=hash_seconds)
         return response[0]
 
+
+class HumidifierOld(Humidifier):
     def on(self, fan_speed="auto") -> Action:
         return super().on().add_capability(("mode", "fan_speed", fan_speed))
 

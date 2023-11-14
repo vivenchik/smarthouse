@@ -78,7 +78,7 @@ async def detect_human():
                                     actions_list=exc.wished_actions_list, excl=state.excl, checked=True, mutated=True
                                 ),
                             )
-                            storage.put("last_human_detected", time.time())
+                            storage.put(SysSKeys.last_human_detected, time.time())
                             logger.info(f"detected human:\n{exc}")
                             await storage.messages_queue.put(
                                 {

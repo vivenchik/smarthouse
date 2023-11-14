@@ -140,13 +140,9 @@ class TGClient(metaclass=Singleton):
 
         if to_delete:
             if replay_message_id is not None:
-                await self.to_delete_messages.put(
-                    (to_delete_timestamp, (to_delete_timestamp, replay_message_id)),
-                )
+                await self.to_delete_messages.put((to_delete_timestamp, replay_message_id))
             if response_message_id is not None:
-                await self.to_delete_messages.put(
-                    (to_delete_timestamp, (to_delete_timestamp, response_message_id)),
-                )
+                await self.to_delete_messages.put((to_delete_timestamp, response_message_id))
             return
 
     async def write_tg_document(self, document):
