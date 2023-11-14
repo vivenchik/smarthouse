@@ -1,6 +1,5 @@
 import asyncio
 from enum import Enum
-from os.path import exists
 from typing import Union
 
 import aiofiles
