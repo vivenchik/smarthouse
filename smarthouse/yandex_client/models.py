@@ -85,3 +85,4 @@ class StateItem(BaseModel):
     checked: bool = False
     actions_list: list
     excl: tuple[tuple[str, str], ...] = ()
+    mutated: bool = False

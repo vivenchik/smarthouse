@@ -34,7 +34,7 @@ def pytest_configure(config):
     asyncio.run(Storage().init(storage_name=None))
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="session")
 async def ya_client_mock():
     mock = AsyncMock(spec=YandexClient)
     mock._quarantine = {}
@@ -52,7 +52,7 @@ async def ya_client_mock():
     return mock
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="function")
 async def device():
     ITEM_UUID = str(uuid.uuid4())
 
@@ -66,7 +66,7 @@ async def device():
     return ITEM_UUID, DEVICE, ACTIONS_LIST
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="function")
 async def device_f():
     ITEM_UUID = str(uuid.uuid4())
 
@@ -104,7 +104,7 @@ async def get_action_response():
     return copy.deepcopy(action_response)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def base_client():
     from smarthouse.base_client.client import ActionRequestModelType, BaseClient, DeviceInfoResponseType
 
@@ -132,7 +132,7 @@ def base_client():
     return TestClient()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def ya_client():
     class TestClient(YandexClient):
         def __init__(self):
