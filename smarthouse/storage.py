@@ -71,7 +71,7 @@ class Storage(metaclass=Singleton):
         async with self._lock:
             if self.need_to_write or force:
                 if not self._s3_mode:
-                    async with aiofiles.open(self._storage_name, mode="w") as f:
+                    async with aiofiles.open(f"./storage/{self._storage_name}", mode="w") as f:
                         await f.write(yaml.dump(self._storage))
                 else:
                     await self.cloud_client.put_bucket("home-bucket", "storage.yaml", yaml.dump(self._storage))
