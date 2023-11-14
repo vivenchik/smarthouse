@@ -49,7 +49,7 @@ class Storage(metaclass=Singleton):
     async def _read_storage(self) -> dict:
         if self._storage_name is None:
             return {}
-        for _ in range(100):
+        for _ in range(10):
             if not self._s3_mode:
                 async with aiofiles.open(self._storage_name, mode="r") as f:
                     content = await f.read()
@@ -58,6 +58,8 @@ class Storage(metaclass=Singleton):
 
             if (isinstance(content, str) or isinstance(content, bytes)) and content:
                 return yaml.safe_load(content)
+
+            await asyncio.sleep(0.1)
 
         raise StorageError("empty data")
 
