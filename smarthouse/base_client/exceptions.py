@@ -38,6 +38,10 @@ class InfraServerError(InfraError):
         super().__init__(message, prod, err_retry, debug_str, dont_log)
 
 
+class InfraServerTimeoutError(InfraServerError):
+    pass
+
+
 class InfraCheckError(InfraError):
     def __init__(
         self,

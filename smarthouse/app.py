@@ -62,8 +62,8 @@ class App:
                 clear_quarantine(),
                 detect_human(),
             ]
-            + [worker_run()] * 10
-            + [worker_check_and_run()] * 3
+            + [worker_run()] * 100
+            + [worker_check_and_run()] * 30
         )
 
         if aiohttp_routes is not None:

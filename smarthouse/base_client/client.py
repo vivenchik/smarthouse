@@ -32,6 +32,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
     names: dict[str, str]
     _ping: set
     _human_time_funcs: dict
+    _use_china_client: dict
 
     def base_init(self) -> None:
         self._quarantine: dict[str, QuarantineItem] = {}
@@ -46,12 +47,16 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self.names: dict[str, str] = {}
         self._ping: set = set()
         self._human_time_funcs: dict = {}
+        self._use_china_client: dict = {}
 
-    def register_device(self, device_id, name, ping=True, human_time_func=lambda: time.time() + 15 * 60):
+    def register_device(
+        self, device_id, name, ping=True, human_time_func=lambda: time.time() + 15 * 60, use_china_client=False
+    ):
         self.names[device_id] = name
         if ping:
             self._ping.add(device_id)
         self._human_time_funcs[device_id] = self._human_time_funcs.get(device_id) or human_time_func
+        self._use_china_client[device_id] = use_china_client
 
     def register_mutation(self, device_id, mutation):
         self._mutations[device_id] = mutation

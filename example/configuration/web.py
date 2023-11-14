@@ -72,18 +72,6 @@ async def exit_off(request: web.Request):
     return web.Response()
 
 
-@routes.post("/humidifier")
-async def humidifier(request: web.Request):
-    config = get_config()
-    if config.auth != request.headers.get("Authorization"):
-        raise web.HTTPForbidden()
-
-    storage = Storage()
-    await storage.tasks.put("humidifier")
-
-    return web.Response()
-
-
 @routes.post("/minimize_lights")
 async def minimize_lights(request: web.Request):
     config = get_config()
