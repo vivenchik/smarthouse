@@ -61,7 +61,7 @@ setup(
         "homeassistant_api>=4",
         "pyjwt",
         "cryptography",
-        "boto3",
+        "aioboto3",
     ],
     extras_require=extras,
     setup_requires=["pytest-runner"],
