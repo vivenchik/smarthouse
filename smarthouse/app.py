@@ -35,6 +35,9 @@ class App:
         telegram_chat_id: str = "",
         ha_url: str = "",
         ha_token: str = "",
+        service_account_id: str = "",
+        key_id: str = "",
+        private_key: str = "",
         aws_access_key_id: str = "",
         aws_secret_access_key: str = "",
         tg_commands: list[tuple[str, str]] | None = None,
@@ -49,6 +52,9 @@ class App:
         self.telegram_chat_id = telegram_chat_id
         self.ha_url = ha_url
         self.ha_token = ha_token
+        self.service_account_id = service_account_id
+        self.key_id = key_id
+        self.private_key = private_key
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
         self.tg_commands = tg_commands
@@ -82,7 +88,10 @@ class App:
         self.tasks.extend(tasks)
 
     async def prepare(self):
-        YandexCloudClient().init(
+        await YandexCloudClient().init(
+            service_account_id=self.service_account_id,
+            key_id=self.key_id,
+            private_key=self.private_key,
             aws_access_key_id=self.aws_access_key_id,
             aws_secret_access_key=self.aws_secret_access_key,
         )

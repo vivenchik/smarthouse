@@ -20,6 +20,9 @@ class Config(BaseSettings):
     ha_url: str = "http://homeassistant:8123"
     ha_token: str
 
+    service_account_id: str
+    key_id: str
+    private_key: str
     aws_access_key_id: str
     aws_secret_access_key: str
 
