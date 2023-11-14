@@ -45,9 +45,6 @@ def handler(event, context):
             result = request("balcony_off")
         if event["request"]["original_utterance"] == "коридор":
             result = request("exit_off")
-        if event["request"]["original_utterance"] == "увлажнитель":
-            resp = "сейчас"
-            result = request("humidifier")
         if event["request"]["original_utterance"] == "вечер":
             resp = "сейчас"
             result = request("evening")

@@ -7,8 +7,9 @@ linters:
 up:
 	docker compose up --build -d
 
-build:
-	python setup.py pytest ; python setup.py sdist bdist_wheel
+build_py:
+	python3 setup.py pytest
+	python3 setup.py sdist bdist_wheel
 
-upload:
+upload_py:
 	twine upload dist/*

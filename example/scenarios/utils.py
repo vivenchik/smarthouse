@@ -13,11 +13,37 @@ from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import LuxSensor, check_and_run_async, run_async
 
 
+def get_modes_order():
+    storage = Storage()
+    ds = DeviceSet()
+
+    modes_stats = storage.get(SKeys.modes_stats, [0] * len(ds.modes))
+    return [i for i, _ in sorted(enumerate(modes_stats), key=lambda item: -item[1])]
+
+
+def find_current_pos_modes_order(modes_order, clicks):
+    ds = DeviceSet()
+    for i in range(len(modes_order)):
+        if modes_order[i] == clicks % len(ds.modes):
+            return i
+
+
 def get_act(clicks):
     ds = DeviceSet()
-    modes = ds.modes
-    current_mode = modes[clicks % len(modes)]
+    current_mode = ds.modes[clicks % len(ds.modes)]
     return current_mode
+
+
+def reg_on_prev(clicks_prev, on=True):
+    storage = Storage()
+    ds = DeviceSet()
+
+    if storage.get(SKeys.last_mode_on, None) is not None:
+        modes_stats = storage.get(SKeys.modes_stats, [0] * len(ds.modes))
+        modes_stats[clicks_prev % len(ds.modes)] += time.time() - storage.get(SKeys.last_mode_on)
+        storage.put(SKeys.modes_stats, modes_stats)
+
+    storage.put(SKeys.last_mode_on, time.time() if on else None)
 
 
 def get_mode_with_off(current_mode: list):
@@ -28,14 +54,16 @@ def get_mode_with_off(current_mode: list):
     return current_mode + current_mode_off
 
 
-async def turn_on_act(clicks, check: bool = True, feature_checkable: bool = False):
+async def turn_on_act(clicks, prev, check: bool = True, feature_checkable: bool = False):
     current_mode = get_act(clicks)
     await run_async(get_mode_with_off(current_mode), check=check, feature_checkable=feature_checkable)
+    reg_on_prev(prev)
 
 
-async def check_and_fix_act(clicks):
+async def check_and_fix_act(clicks, prev):
     current_mode = get_act(clicks)
     await check_and_run_async(get_mode_with_off(current_mode))
+    reg_on_prev(prev)
 
 
 async def light_ons(hash_seconds=1):
@@ -176,6 +204,7 @@ async def turn_off_all():
     storage.put(SKeys.random_colors_passive, False)
     storage.put(SKeys.random_colors, False)
     await run_async([lamp.off() for lamp in ds.all_lamps], lock_level=11, lock=datetime.timedelta(seconds=0))
+    reg_on_prev(storage.get(SKeys.clicks), on=False)
 
 
 async def sleep():
@@ -193,7 +222,7 @@ async def sleep():
     await ds.curtain.close().run_async(check=False, feature_checkable=True)
     await turn_off_all()
     await run_async([ds.wc_1.off(), ds.wc_2.off(), ds.lamp_e_1.off(), ds.lamp_e_2.off(), ds.lamp_e_3.off()])
-    await run_async([ds.humidifier.off(), ds.air.off()])
+    await ds.air.off().run_async()
     await ya_client.run_scenario(config.clocks_off_scenario_id)
     await asyncio.sleep(3)
     await ya_client.run_scenario(config.silence_scenario_id)

@@ -4,9 +4,9 @@ import time
 
 from example.configuration.config import get_config
 from example.scenarios.light_utils import calc_sunset, calc_sunset_datetime
-from smarthouse.ha_client.device import YeelinkAirCleaner
 from smarthouse.utils import Singleton, get_timedelta_now, hsv_to_rgb
 from smarthouse.yandex_client.device import (
+    AirCleaner,
     AirSensor,
     Button,
     Cleaner,
@@ -54,7 +54,7 @@ class DeviceSet(metaclass=Singleton):
         self.hub_power = Switch(config.hub_power_id, "Хаб", ping=False)
 
         self.wc_term = AirSensor(config.term_id, "Датчик воздуха туалет")
-        self.air_cleaner = YeelinkAirCleaner(config.air_cleaner_id, "Очиститель воздуха")
+        self.air_cleaner = AirCleaner(config.air_cleaner_id, "Очиститель воздуха")
 
         self.lamp_e_1 = HSVLamp(config.lamp_e_1_id, "Лампа выход 1")
         self.lamp_e_2 = HSVLamp(config.lamp_e_2_id, "Лампа выход 2")
@@ -77,7 +77,7 @@ class DeviceSet(metaclass=Singleton):
 
         self.cleaner = Cleaner(config.cleaner_id, "Пылесос")
 
-        self.humidifier = Humidifier(config.humidifier_id, "Увлажнитель", ping=False)
+        self.humidifier_new = Humidifier(config.humidifier_new_id, "Увлажнитель", use_china_client=True)
 
         self.button = Button(config.button_id, "Кнопка")
         self.button_2 = Button(config.button_2_id, "Кнопка спальня")
@@ -106,7 +106,7 @@ class DeviceSet(metaclass=Singleton):
             self.piano_lamp,
             self.lux_sensor,
             # self.air_cleaner,
-            self.humidifier,
+            self.humidifier_new,
             self.button,
             self.air,
             self.wc_1,
