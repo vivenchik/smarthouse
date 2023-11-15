@@ -1,15 +1,17 @@
 import asyncio
 import copy
+import logging
 import time
 
 from smarthouse.action_decorators import looper
 from smarthouse.base_client.exceptions import DeviceOffline, InfraCheckError
-from smarthouse.logger import logger
 from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.models import StateItem
+
+logger = logging.getLogger("root")
 
 
 @looper(10)

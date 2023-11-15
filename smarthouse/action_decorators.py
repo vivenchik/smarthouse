@@ -1,12 +1,14 @@
 import asyncio
 import datetime
 import functools
+import logging
 import time
 from typing import Callable, Union
 
-from smarthouse.logger import logger
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN, get_timedelta_now
+
+logger = logging.getLogger("root")
 
 
 def calc_sleep(

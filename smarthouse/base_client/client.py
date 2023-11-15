@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import datetime
+import logging
 import time
 from collections.abc import Callable
 from typing import Any, Generic, Optional, TypeVar
@@ -11,9 +12,10 @@ from smarthouse.base_client.exceptions import DeviceOffline, InfraCheckError, In
 from smarthouse.base_client.gap_stat import GapStat
 from smarthouse.base_client.models import LockItem, QuarantineItem
 from smarthouse.base_client.utils import retry
-from smarthouse.logger import logger
 from smarthouse.utils import Singleton
 from smarthouse.yandex_client.models import DeviceCapabilityAction, StateItem
+
+logger = logging.getLogger("root")
 
 DeviceInfoResponseType = TypeVar("DeviceInfoResponseType", bound=BaseModel)
 ActionRequestModelType = TypeVar("ActionRequestModelType", bound=BaseModel)
