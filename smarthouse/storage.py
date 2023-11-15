@@ -25,7 +25,7 @@ class Storage(metaclass=Singleton):
         self._storage = {}
         self._storage_name = storage_name
         self._s3_mode = s3_mode
-        self.cloud_client = YandexCloudClient()  # if s3_mode else None
+        self.cloud_client = YandexCloudClient()
         self._lock = asyncio.Lock()
 
         self.messages_queue = asyncio.Queue()

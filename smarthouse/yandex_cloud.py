@@ -45,8 +45,18 @@ class YandexCloudClient(metaclass=Singleton):
     iam_client: aiohttp.ClientSession
 
     async def init(
-        self, service_account_id: str, key_id: str, private_key: str, aws_access_key_id: str, aws_secret_access_key: str
+        self,
+        service_account_id: str,
+        key_id: str,
+        private_key: str,
+        aws_access_key_id: str,
+        aws_secret_access_key: str,
+        s3_mode: bool = True,
+        iam_mode: bool = True,
     ):
+        self.s3_mode = s3_mode
+        self.iam_mode = iam_mode
+
         self.service_account_id = service_account_id
         self.key_id = key_id
         self.private_key = private_key
@@ -58,25 +68,25 @@ class YandexCloudClient(metaclass=Singleton):
         self.iam_token = ""
         self.iam_refreshed = 0
 
-        self.iam_client = aiohttp.ClientSession(
-            base_url="https://iam.api.cloud.yandex.net",
-            headers={"Content-Type": "application/json"},
-            connector=aiohttp.TCPConnector(
-                ssl=False,
-                limit=None,  # type: ignore[arg-type]
-                force_close=True,
-                enable_cleanup_closed=True,
-            ),
-            timeout=aiohttp.ClientTimeout(total=3),
-        )
+        if self.iam_mode:
+            self.iam_client = aiohttp.ClientSession(
+                base_url="https://iam.api.cloud.yandex.net",
+                headers={"Content-Type": "application/json"},
+                connector=aiohttp.TCPConnector(
+                    ssl=False,
+                    limit=None,  # type: ignore[arg-type]
+                    force_close=True,
+                    enable_cleanup_closed=True,
+                ),
+                timeout=aiohttp.ClientTimeout(total=3),
+            )
 
-        self.boto_session = aioboto3.session.Session(
-            aws_access_key_id=self.aws_access_key_id,
-            aws_secret_access_key=self.aws_secret_access_key,
-            region_name="ru-central1",
-        )
-
-        # await self.update_iam_token()
+        if self.s3_mode:
+            self.boto_session = aioboto3.session.Session(
+                aws_access_key_id=self.aws_access_key_id,
+                aws_secret_access_key=self.aws_secret_access_key,
+                region_name="ru-central1",
+            )
 
     @retry
     async def get_bucket(self, bucket: str, key: str) -> bytes:
