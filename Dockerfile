@@ -17,4 +17,4 @@ COPY server.py server.py
 COPY .env .env
 
 RUN chmod +x /usr/src/smarthouse/server.py
-CMD ["python3", "/usr/src/smarthouse/server.py"]
+ENTRYPOINT ["python3", "/usr/src/smarthouse/server.py"]
