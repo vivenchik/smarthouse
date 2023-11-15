@@ -42,16 +42,16 @@ async def wc_hydro_scenario():
             await ds.air.off().run_async()
 
 
-@looper(MIN)
+@looper(10 * MIN)
 async def water_level_checker_scenario():
     storage = Storage()
     ds = DeviceSet()
 
     water_level = await ds.humidifier_new.water_level()
 
-    if water_level <= 30 and not storage.get(SKeys.water_notified):
+    if water_level <= 20 and not storage.get(SKeys.water_notified):
         await storage.messages_queue.put({"message": "please insert water"})
         storage.put(SKeys.water_notified, True)
 
-    if water_level > 50 and storage.get(SKeys.water_notified):
+    if water_level > 80 and storage.get(SKeys.water_notified):
         storage.put(SKeys.water_notified, False)
