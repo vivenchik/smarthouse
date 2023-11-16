@@ -25,7 +25,15 @@ extras = {
         "pytest-cov",
         "no_implicit_optional",
         "python-dotenv",
-    ]
+    ],
+    "ha": [
+        "homeassistant_api>=4",
+    ],
+    "cloud": [
+        "pyjwt",
+        "cryptography",
+        "aioboto3",
+    ],
 }
 
 
@@ -58,10 +66,6 @@ setup(
         "pydantic[dotenv]<2",
         "async_lru",
         "astral",
-        "homeassistant_api>=4",
-        "pyjwt",
-        "cryptography",
-        "aioboto3",
     ],
     extras_require=extras,
     setup_requires=["pytest-runner"],
