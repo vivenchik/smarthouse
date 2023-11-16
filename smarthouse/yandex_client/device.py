@@ -242,7 +242,7 @@ class AirSensor(HumiditySensor):
         return response[0]
 
 
-class AirCleaner(AirSensor):
+class AirCleaner(ControlDevice, AirSensor):
     pass
 
 

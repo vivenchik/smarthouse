@@ -75,7 +75,16 @@ async def bad_humidity_checker_scenario():
     )
 
     if max_humidity >= 50:
-        await ds.humidifier_new.off().run(check=False)
+        await ds.humidifier_new.off().run_async(check=False)
 
     if max_humidity < 35:
-        await ds.humidifier_new.on().run()
+        await ds.humidifier_new.on().run_async()
+
+
+@looper(10 * MIN)
+async def air_cleaner_checker_scenario():
+    ds = DeviceSet()
+
+    if not await ds.air_cleaner.is_on():
+        await asyncio.sleep(HOUR)
+        await ds.air_cleaner.on().run_async()
