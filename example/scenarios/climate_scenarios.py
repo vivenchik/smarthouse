@@ -65,7 +65,14 @@ async def bad_humidity_checker_scenario():
     if storage.get(SKeys.lights_locked):
         return
 
-    max_humidity = max(await ds.air_cleaner.humidity(), await ds.wc_term.humidity())
+    wc_term_humidity = await ds.wc_term.humidity()
+    air_cleaner_humidity = await ds.air_cleaner.humidity()
+    humidifier_new_humidity = await ds.humidifier_new.humidity()
+    max_humidity = max(
+        wc_term_humidity.result if not wc_term_humidity.quarantine else 0,
+        air_cleaner_humidity.result if not air_cleaner_humidity.quarantine else 0,
+        humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 0,
+    )
 
     if max_humidity >= 50:
         await ds.humidifier_new.off().run(check=False)
