@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import datetime
+import logging
 import time
 from collections.abc import Callable
 from typing import Any, Generic, Optional, TypeVar
@@ -11,9 +12,10 @@ from smarthouse.base_client.exceptions import DeviceOffline, InfraCheckError, In
 from smarthouse.base_client.gap_stat import GapStat
 from smarthouse.base_client.models import LockItem, QuarantineItem
 from smarthouse.base_client.utils import retry
-from smarthouse.logger import logger
 from smarthouse.utils import Singleton
 from smarthouse.yandex_client.models import DeviceCapabilityAction, StateItem
+
+logger = logging.getLogger("root")
 
 DeviceInfoResponseType = TypeVar("DeviceInfoResponseType", bound=BaseModel)
 ActionRequestModelType = TypeVar("ActionRequestModelType", bound=BaseModel)
@@ -50,7 +52,12 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self._use_china_client: dict = {}
 
     def register_device(
-        self, device_id, name, ping=True, human_time_func=lambda: time.time() + 15 * 60, use_china_client=False
+        self,
+        device_id,
+        name,
+        ping=True,
+        human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
+        use_china_client=False,
     ):
         self.names[device_id] = name
         if ping:
@@ -258,5 +265,13 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             )
         except InfraCheckError as exc:
             for device_id in exc.device_ids:
-                self.states_remove(device_id)
+                self.states_set(
+                    device_id,
+                    StateItem(
+                        actions_list=exc.wished_actions_list,
+                        excl=excl[device_id] if excl else (),
+                        checked=True,
+                        mutated=True,
+                    ),
+                )
             await self.messages_queue.put({"message": f"Device state check error:\n{exc}"})

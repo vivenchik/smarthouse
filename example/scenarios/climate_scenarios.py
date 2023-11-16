@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import time
 
 from example.configuration.config import get_config
@@ -7,6 +8,8 @@ from example.configuration.storage_keys import SKeys
 from smarthouse.action_decorators import looper
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN
+
+logger = logging.getLogger("root")
 
 
 @looper(10)
@@ -42,16 +45,60 @@ async def wc_hydro_scenario():
             await ds.air.off().run_async()
 
 
-@looper(MIN)
+@looper(10 * MIN)
 async def water_level_checker_scenario():
     storage = Storage()
     ds = DeviceSet()
 
     water_level = await ds.humidifier_new.water_level()
 
-    if water_level <= 30 and not storage.get(SKeys.water_notified):
+    if water_level <= 20 and not storage.get(SKeys.water_notified):
         await storage.messages_queue.put({"message": "please insert water"})
         storage.put(SKeys.water_notified, True)
 
-    if water_level > 50 and storage.get(SKeys.water_notified):
+    if water_level > 80 and storage.get(SKeys.water_notified):
         storage.put(SKeys.water_notified, False)
+
+
+@looper(MIN)
+async def bad_humidity_checker_scenario():
+    storage = Storage()
+    ds = DeviceSet()
+
+    if storage.get(SKeys.lights_locked):
+        return
+
+    wc_term_humidity = await ds.wc_term.humidity()
+    air_cleaner_humidity = await ds.air_cleaner.humidity()
+    humidifier_new_humidity = await ds.humidifier_new.humidity()
+    max_humidity = max(
+        wc_term_humidity.result if not wc_term_humidity.quarantine else 0,
+        air_cleaner_humidity.result if not air_cleaner_humidity.quarantine else 0,
+        humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 0,
+    )
+    max_humidity_home = max(
+        air_cleaner_humidity.result if not air_cleaner_humidity.quarantine else 0,
+        humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 0,
+    )
+
+    if max_humidity < 35 or max_humidity_home < 30:
+        logger.info("turning on humidifier")
+        await ds.humidifier_new.on().run_async()
+        storage.put(SKeys.humidifier_offed, 0)
+    elif (
+        max_humidity >= 45
+        and time.time() - storage.get(SKeys.humidifier_offed) > HOUR
+        and await ds.humidifier_new.is_on()
+    ):
+        logger.info("turning off humidifier")
+        await ds.humidifier_new.off().run_async(check=storage.get(SKeys.humidifier_offed) != 0)
+        storage.put(SKeys.humidifier_offed, time.time())
+
+
+@looper(10 * MIN)
+async def air_cleaner_checker_scenario():
+    ds = DeviceSet()
+
+    if not await ds.air_cleaner.is_on():
+        await asyncio.sleep(HOUR)
+        await ds.air_cleaner.on().run_async()

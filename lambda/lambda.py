@@ -11,7 +11,7 @@ def request(path):
         try:
             url = os.environ.get("HOME_URL")
             password = os.environ.get("HOME_PASSWORD")
-            httprequest = Request(f"{url}/{path}", headers={"Authorization": password}, method="POST")
+            httprequest = Request(f"{url}/{path}", headers={"AuthorizationI": password}, method="POST")
             with urlopen(httprequest) as response:
                 if response.status == 200:
                     return 0

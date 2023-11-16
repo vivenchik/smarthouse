@@ -7,7 +7,9 @@ from pydantic import BaseSettings
 class Config(BaseSettings):
     prod: bool
     pause: bool = False
-    storage_name: str = "./storage/storage.yaml"
+    storage_name: str = "storage.yaml"
+    s3_mode: bool = False
+    iam_mode: bool = False
 
     yandex_token: str
 
@@ -18,6 +20,12 @@ class Config(BaseSettings):
 
     ha_url: str = "http://homeassistant:8123"
     ha_token: str
+
+    service_account_id: str
+    key_id: str
+    private_key: str
+    aws_access_key_id: str
+    aws_secret_access_key: str
 
     exit_door_id: str = "cb7f8d6e-fe2f-4f27-956c-6119e95d8922"
     exit_sensor_id: str = "bcf42ffa-bc5a-434d-8952-83b247e20da7"
