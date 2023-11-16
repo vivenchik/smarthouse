@@ -55,3 +55,16 @@ async def water_level_checker_scenario():
 
     if water_level > 80 and storage.get(SKeys.water_notified):
         storage.put(SKeys.water_notified, False)
+
+
+@looper(MIN)
+async def bad_humidity_checker_scenario():
+    ds = DeviceSet()
+
+    max_humidity = max(await ds.air_cleaner.humidity(), await ds.wc_term.humidity())
+
+    if max_humidity >= 50:
+        await ds.humidifier_new.off().run(check=False)
+
+    if max_humidity < 35:
+        await ds.humidifier_new.on().run()

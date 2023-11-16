@@ -200,6 +200,12 @@ class DeviceSet(metaclass=Singleton):
                 self.lamp_k_2.on_temp(3400, 50),
                 self.lamp_k_3.on_temp(3400, 50),
             ],
+            [
+                self.table_lamp.on_temp(3400),
+                self.piano_lamp.on_temp(3400),
+                self.bed_lamp.on_temp(3400),
+                self.main_lamp.on(),
+            ],
         )
 
     @property
