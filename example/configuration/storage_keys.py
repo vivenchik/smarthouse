@@ -40,3 +40,4 @@ class SKeys(Enum):
     startup = "startup"
     modes_stats = "modes_stats"
     last_mode_on = "last_mode_on"
+    humidifier_offed = "humidifier_offed"
