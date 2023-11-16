@@ -59,7 +59,11 @@ async def water_level_checker_scenario():
 
 @looper(MIN)
 async def bad_humidity_checker_scenario():
+    storage = Storage()
     ds = DeviceSet()
+
+    if storage.get(SKeys.lights_locked):
+        return
 
     max_humidity = max(await ds.air_cleaner.humidity(), await ds.wc_term.humidity())
 
