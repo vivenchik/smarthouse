@@ -241,6 +241,8 @@ async def div_modes_stats_scenario():
     storage = Storage()
     ds = DeviceSet()
 
-    modes_stats = storage.get(SKeys.modes_stats, [0] * len(ds.modes))
+    modes_stats = storage.get(SKeys.modes_stats, [])
+    if len(ds.modes) > len(modes_stats):
+        modes_stats += [0] * (len(ds.modes) - len(modes_stats))
     modes_stats = [mode_stats * 0.95 for mode_stats in modes_stats]
     storage.put(SKeys.modes_stats, modes_stats)
