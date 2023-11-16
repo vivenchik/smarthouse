@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import time
 
 from example.configuration.config import get_config
@@ -7,6 +8,8 @@ from example.configuration.storage_keys import SKeys
 from smarthouse.action_decorators import looper
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN
+
+logger = logging.getLogger("root")
 
 
 @looper(10)
@@ -74,11 +77,15 @@ async def bad_humidity_checker_scenario():
         humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 0,
     )
 
-    if max_humidity >= 45:
-        await ds.humidifier_new.off().run_async(check=False)
+    if max_humidity >= 45 and time.time() - storage.get(SKeys.humidifier_offed) > HOUR:
+        logger.info("turning off humidifier")
+        await ds.humidifier_new.off().run_async(check=storage.get(SKeys.humidifier_offed) != 0)
+        storage.put(SKeys.humidifier_offed, time.time())
 
     if max_humidity < 35:
+        logger.info("turning on humidifier")
         await ds.humidifier_new.on().run_async()
+        storage.put(SKeys.humidifier_offed, 0)
 
 
 @looper(10 * MIN)

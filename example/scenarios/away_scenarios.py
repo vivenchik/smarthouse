@@ -84,8 +84,9 @@ async def away_actions_scenario():
             await asyncio.sleep(5)
             await ya_client.run_scenario(config.bluetooth_off_scenario_id)
 
-            logger.info("turning off humidifier")
-            await ds.humidifier_new.off().run_async(check=False)
+            if time.time() - storage.get(SKeys.humidifier_offed) > HOUR:
+                logger.info("turning off humidifier")
+                await ds.humidifier_new.off().run_async(check=storage.get(SKeys.humidifier_offed) != 0)
 
             if after_last_cleanup < 30 * MIN:
                 cleaner_battery_level = await ds.cleaner.battery_level()
