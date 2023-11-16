@@ -74,7 +74,7 @@ async def bad_humidity_checker_scenario():
         humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 0,
     )
 
-    if max_humidity >= 50:
+    if max_humidity >= 45:
         await ds.humidifier_new.off().run_async(check=False)
 
     if max_humidity < 35:
