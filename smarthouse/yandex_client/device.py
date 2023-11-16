@@ -141,7 +141,7 @@ class Device:
         device_id,
         name: str = "",
         ping=True,
-        human_time_func=lambda: time.time() + 15 * 60,
+        human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
         use_china_client=False,
     ):
         self.device_id = device_id
