@@ -1,3 +1,4 @@
+import aiofiles
 from aiohttp import web
 
 from example.configuration.config import get_config
@@ -12,10 +13,21 @@ async def health(request: web.Request):
     return web.Response()
 
 
+@routes.get("/logs")
+async def logs(request: web.Request):
+    config = get_config()
+    if config.auth != request.headers.get("AuthorizationI"):
+        raise web.HTTPForbidden()
+
+    async with aiofiles.open("main.log", mode="r") as f:
+        content = await f.read()
+    return web.Response(body=content)
+
+
 @routes.post("/sleep")
 async def sleep(request: web.Request):
     config = get_config()
-    if config.auth != request.headers.get("Authorization"):
+    if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()
 
     storage = Storage()
@@ -27,7 +39,7 @@ async def sleep(request: web.Request):
 @routes.post("/good_mo")
 async def good_mo(request: web.Request):
     config = get_config()
-    if config.auth != request.headers.get("Authorization"):
+    if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()
 
     storage = Storage()
@@ -39,7 +51,7 @@ async def good_mo(request: web.Request):
 @routes.post("/wc_off")
 async def wc_off(request: web.Request):
     config = get_config()
-    if config.auth != request.headers.get("Authorization"):
+    if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()
 
     storage = Storage()
@@ -51,7 +63,7 @@ async def wc_off(request: web.Request):
 @routes.post("/balcony_off")
 async def balcony_off(request: web.Request):
     config = get_config()
-    if config.auth != request.headers.get("Authorization"):
+    if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()
 
     storage = Storage()
@@ -63,7 +75,7 @@ async def balcony_off(request: web.Request):
 @routes.post("/exit_off")
 async def exit_off(request: web.Request):
     config = get_config()
-    if config.auth != request.headers.get("Authorization"):
+    if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()
 
     storage = Storage()
@@ -75,7 +87,7 @@ async def exit_off(request: web.Request):
 @routes.post("/minimize_lights")
 async def minimize_lights(request: web.Request):
     config = get_config()
-    if config.auth != request.headers.get("Authorization"):
+    if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()
 
     storage = Storage()
@@ -87,7 +99,7 @@ async def minimize_lights(request: web.Request):
 @routes.post("/evening")
 async def evening(request: web.Request):
     config = get_config()
-    if config.auth != request.headers.get("Authorization"):
+    if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()
 
     storage = Storage()
@@ -100,7 +112,7 @@ async def evening(request: web.Request):
 @routes.post("/paint")
 async def paint(request: web.Request):
     config = get_config()
-    if config.auth != request.headers.get("Authorization"):
+    if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()
 
     storage = Storage()

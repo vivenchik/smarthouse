@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import time
 
 from example.configuration.config import get_config
@@ -7,10 +8,11 @@ from example.configuration.storage_keys import SKeys
 from example.scenarios.light_utils import calc_sunset
 from example.scenarios.utils import turn_off_all, turn_on_act
 from smarthouse.action_decorators import looper
-from smarthouse.logger import logger
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN, get_time, get_timedelta_now
 from smarthouse.yandex_client.client import YandexClient
+
+logger = logging.getLogger("root")
 
 
 @looper(5)
@@ -82,8 +84,10 @@ async def away_actions_scenario():
             await asyncio.sleep(5)
             await ya_client.run_scenario(config.bluetooth_off_scenario_id)
 
-            logger.info("turning off humidifier")
-            await ds.humidifier_new.off().run_async(check=False)
+            if time.time() - storage.get(SKeys.humidifier_offed) > HOUR and await ds.humidifier_new.is_on():
+                logger.info("turning off humidifier")
+                await ds.humidifier_new.off().run_async(check=storage.get(SKeys.humidifier_offed) != 0)
+                storage.put(SKeys.humidifier_offed, time.time())
 
             if after_last_cleanup < 30 * MIN:
                 cleaner_battery_level = await ds.cleaner.battery_level()
@@ -120,6 +124,7 @@ async def away_actions_scenario():
 
                 logger.info("turning on humidifier")
                 await ds.humidifier_new.on().run_async()
+                storage.put(SKeys.humidifier_offed, 0)
 
                 if storage.get(SKeys.cleanups, 0) >= 6:
                     await storage.messages_queue.put({"message": "insert water in cleaner /water_done"})

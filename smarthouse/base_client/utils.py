@@ -1,5 +1,6 @@
 import asyncio
 import functools
+import logging
 
 from smarthouse.base_client.exceptions import (
     DeviceOffline,
@@ -9,7 +10,8 @@ from smarthouse.base_client.exceptions import (
     InfraServerTimeoutError,
     ProgrammingError,
 )
-from smarthouse.logger import logger
+
+logger = logging.getLogger("root")
 
 
 def retry(func):

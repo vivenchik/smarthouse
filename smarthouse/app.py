@@ -1,11 +1,11 @@
 import asyncio
+import logging
 from collections.abc import Coroutine
 from typing import Awaitable, Iterable
 
 from aiohttp import web
 from aiohttp.web_routedef import AbstractRouteDef
 
-from smarthouse.logger import logger
 from smarthouse.scenarios.light_scenarios import (
     clear_retries,
     clear_tg,
@@ -14,6 +14,7 @@ from smarthouse.scenarios.light_scenarios import (
     ping_devices,
     stats,
     tg_actions,
+    update_iam_token,
     worker_check_and_run,
     worker_run,
     write_storage,
@@ -23,6 +24,9 @@ from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet
+from smarthouse.yandex_cloud import YandexCloudClient
+
+logger = logging.getLogger("root")
 
 
 class App:
@@ -34,9 +38,16 @@ class App:
         telegram_chat_id: str = "",
         ha_url: str = "",
         ha_token: str = "",
+        service_account_id: str = "",
+        key_id: str = "",
+        private_key: str = "",
+        aws_access_key_id: str = "",
+        aws_secret_access_key: str = "",
         tg_commands: list[tuple[str, str]] | None = None,
         tg_handlers: list[tuple[str, Awaitable]] | None = None,
         prod: bool = False,
+        s3_mode: bool = False,
+        iam_mode: bool = False,
         aiohttp_routes: Iterable[AbstractRouteDef] | None = None,
     ):
         self.storage_name = storage_name
@@ -45,9 +56,16 @@ class App:
         self.telegram_chat_id = telegram_chat_id
         self.ha_url = ha_url
         self.ha_token = ha_token
+        self.service_account_id = service_account_id
+        self.key_id = key_id
+        self.private_key = private_key
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
         self.tg_commands = tg_commands
         self.tg_handlers = tg_handlers
         self.prod = prod
+        self.s3_mode = s3_mode
+        self.iam_mode = iam_mode
 
         self.tasks = (
             [
@@ -58,13 +76,16 @@ class App:
                 clear_retries(),
                 ping_devices(),
                 clear_tg(),
-                write_storage(),
+                write_storage(self.s3_mode),
+                # refresh_storage(self.s3_mode),
                 clear_quarantine(),
                 detect_human(),
             ]
             + [worker_run()] * 100
             + [worker_check_and_run()] * 30
         )
+        if self.iam_mode:
+            self.tasks.append(update_iam_token())
 
         if aiohttp_routes is not None:
             app = web.Application()
@@ -75,7 +96,14 @@ class App:
         self.tasks.extend(tasks)
 
     async def prepare(self):
-        await Storage().init(storage_name=self.storage_name)
+        await YandexCloudClient().init(
+            service_account_id=self.service_account_id,
+            key_id=self.key_id,
+            private_key=self.private_key,
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key,
+        )
+        await Storage().init(storage_name=self.storage_name, s3_mode=self.s3_mode)
 
         YandexClient().init(yandex_token=self.yandex_token, prod=self.prod)
 
