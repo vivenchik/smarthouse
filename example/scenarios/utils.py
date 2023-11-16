@@ -17,7 +17,9 @@ def get_modes_order():
     storage = Storage()
     ds = DeviceSet()
 
-    modes_stats = storage.get(SKeys.modes_stats, [0] * len(ds.modes))
+    modes_stats = storage.get(SKeys.modes_stats, [])
+    if len(ds.modes) > len(modes_stats):
+        modes_stats += [0] * (len(ds.modes) - len(modes_stats))
     return [i for i, _ in sorted(enumerate(modes_stats), key=lambda item: -item[1])]
 
 
@@ -39,7 +41,9 @@ def reg_on_prev(clicks_prev, on=True):
     ds = DeviceSet()
 
     if storage.get(SKeys.last_mode_on, None) is not None:
-        modes_stats = storage.get(SKeys.modes_stats, [0] * len(ds.modes))
+        modes_stats = storage.get(SKeys.modes_stats, [])
+        if len(ds.modes) > len(modes_stats):
+            modes_stats += [0] * (len(ds.modes) - len(modes_stats))
         modes_stats[clicks_prev % len(ds.modes)] += time.time() - storage.get(SKeys.last_mode_on)
         storage.put(SKeys.modes_stats, modes_stats)
 

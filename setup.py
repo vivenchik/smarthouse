@@ -31,7 +31,7 @@ extras = {
 
 setup(
     name="smarthouse",
-    version="2.1.0",
+    version="2.2.0",
     description="Smart House Scenarios",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -59,6 +59,9 @@ setup(
         "async_lru",
         "astral",
         "homeassistant_api>=4",
+        "pyjwt",
+        "cryptography",
+        "aioboto3",
     ],
     extras_require=extras,
     setup_requires=["pytest-runner"],

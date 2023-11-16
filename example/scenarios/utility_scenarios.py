@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import sys
 
 from example.configuration.config import get_config
@@ -6,11 +7,12 @@ from example.configuration.device_set import DeviceSet
 from example.configuration.storage_keys import SKeys
 from example.scenarios.utils import get_mode_with_off, good_mo, sleep, turn_on_act
 from smarthouse.action_decorators import looper
-from smarthouse.logger import logger
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import run_async
+
+logger = logging.getLogger("root")
 
 
 @looper(1)
@@ -47,7 +49,7 @@ async def worker_for_web_scenario():
 
 
 @looper(5 * MIN)
-async def reload_hub():
+async def reload_hub_scenario():
     config = get_config()
     if config.pause:
         return 1 * MIN

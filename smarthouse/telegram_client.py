@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import logging
 import re
 import time
 from typing import Any, Optional
@@ -9,9 +10,10 @@ import telegram
 from telegram import Update
 
 from example.configuration.storage_keys import SKeys
-from smarthouse.logger import logger
 from smarthouse.storage import Storage
 from smarthouse.utils import Singleton
+
+logger = logging.getLogger("root")
 
 
 class TGException(Exception):
