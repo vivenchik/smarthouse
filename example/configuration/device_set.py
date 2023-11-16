@@ -23,10 +23,12 @@ from smarthouse.yandex_client.device import (
 )
 
 
-def adaptive_human_time_func():
+def adaptive_human_time_func(timestamp=None):
+    if timestamp is None:
+        timestamp = time.time()
     if datetime.timedelta(hours=10) < get_timedelta_now() < calc_sunset():
         return calc_sunset_datetime().timestamp()
-    return time.time() + 15 * 60
+    return timestamp + 15 * 60
 
 
 class DeviceSet(metaclass=Singleton):
@@ -197,6 +199,12 @@ class DeviceSet(metaclass=Singleton):
                 self.lamp_k_1.on_temp(3400, 50),
                 self.lamp_k_2.on_temp(3400, 50),
                 self.lamp_k_3.on_temp(3400, 50),
+            ],
+            [
+                self.table_lamp.on_temp(3400),
+                self.piano_lamp.on_temp(3400),
+                self.bed_lamp.on_temp(3400),
+                self.main_lamp.on(),
             ],
         )
 
