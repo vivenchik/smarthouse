@@ -10,6 +10,7 @@ with open(path.join(HERE, "README.md"), encoding="utf-8") as f:
 
 extras = {
     "dev": [
+        "pip-tools",
         "black",
         "isort",
         "mypy",
@@ -63,7 +64,8 @@ setup(
         "pyyaml",
         "python-telegram-bot[all,ext]",
         "telegram",
-        "pydantic[dotenv]<2",
+        "pydantic",
+        "pydantic-settings",
         "async_lru",
         "astral",
     ],

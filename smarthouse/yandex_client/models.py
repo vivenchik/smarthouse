@@ -38,7 +38,7 @@ class DeviceInfoResponse(BaseModel):
     skill_id: str
     capabilities: list[Capability]
     properties: list[Properties]
-    message: Optional[str]
+    message: Optional[str] = None
 
 
 class Action(BaseModel):
@@ -57,7 +57,7 @@ class ActionRequestModel(BaseModel):
 
 class ActionResult(BaseModel):
     status: str
-    error_message: Optional[str]
+    error_message: Optional[str] = None
 
 
 class DeviceResponseState(BaseModel):

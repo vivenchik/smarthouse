@@ -24,7 +24,6 @@ from smarthouse.storage import Storage
 from smarthouse.telegram_client import TGClient
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet
-from smarthouse.yandex_cloud import YandexCloudClient
 
 logger = logging.getLogger("root")
 
@@ -96,13 +95,16 @@ class App:
         self.tasks.extend(tasks)
 
     async def prepare(self):
-        await YandexCloudClient().init(
-            service_account_id=self.service_account_id,
-            key_id=self.key_id,
-            private_key=self.private_key,
-            aws_access_key_id=self.aws_access_key_id,
-            aws_secret_access_key=self.aws_secret_access_key,
-        )
+        if self.s3_mode or self.iam_mode:
+            from smarthouse.yandex_cloud import YandexCloudClient
+
+            await YandexCloudClient().init(
+                service_account_id=self.service_account_id,
+                key_id=self.key_id,
+                private_key=self.private_key,
+                aws_access_key_id=self.aws_access_key_id,
+                aws_secret_access_key=self.aws_secret_access_key,
+            )
         await Storage().init(storage_name=self.storage_name, s3_mode=self.s3_mode)
 
         YandexClient().init(yandex_token=self.yandex_token, prod=self.prod)

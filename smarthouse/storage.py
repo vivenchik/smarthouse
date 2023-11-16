@@ -6,7 +6,6 @@ import aiofiles
 import yaml
 
 from smarthouse.utils import Singleton
-from smarthouse.yandex_cloud import YandexCloudClient
 
 
 class StorageError(Exception):
@@ -25,7 +24,10 @@ class Storage(metaclass=Singleton):
         self._storage = {}
         self._storage_name = storage_name
         self._s3_mode = s3_mode
-        self.cloud_client = YandexCloudClient()
+        if s3_mode:
+            from smarthouse.yandex_cloud import YandexCloudClient
+
+            self.cloud_client = YandexCloudClient()
         self._lock = asyncio.Lock()
 
         self.messages_queue = asyncio.Queue()
