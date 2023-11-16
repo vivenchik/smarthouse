@@ -141,7 +141,7 @@ class Device:
         device_id,
         name: str = "",
         ping=True,
-        human_time_func=lambda: time.time() + 15 * 60,
+        human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
         use_china_client=False,
     ):
         self.device_id = device_id
@@ -228,19 +228,21 @@ class Door(Device):
         return response[0] == "closed"
 
 
-class AirSensor(Device):
-    @make_response
-    async def temperature(self, hash_seconds=1):
-        response = await self.check_property("temperature", hash_seconds=hash_seconds)
-        return response[0]
-
+class HumiditySensor(Device):
     @make_response
     async def humidity(self, hash_seconds=1):
         response = await self.check_property("humidity", hash_seconds=hash_seconds)
         return response[0]
 
 
-class AirCleaner(AirSensor):
+class AirSensor(HumiditySensor):
+    @make_response
+    async def temperature(self, hash_seconds=1):
+        response = await self.check_property("temperature", hash_seconds=hash_seconds)
+        return response[0]
+
+
+class AirCleaner(ControlDevice, AirSensor):
     pass
 
 
@@ -337,7 +339,7 @@ class Cleaner(ControlDevice):
         return self.action().add_capability(("mode", "work_speed", work_speed))
 
 
-class Humidifier(ControlDevice):
+class Humidifier(ControlDevice, HumiditySensor):
     async def water_level(self, hash_seconds=1):
         response = await self.check_property("water_level", hash_seconds=hash_seconds)
         return response[0]

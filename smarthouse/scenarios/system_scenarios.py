@@ -6,10 +6,12 @@ import time
 from smarthouse.action_decorators import looper
 from smarthouse.base_client.exceptions import DeviceOffline, InfraCheckError
 from smarthouse.scenarios.storage_keys import SysSKeys
+from smarthouse.scenarios.utils import register_human
 from smarthouse.storage import Storage
 from smarthouse.utils import MIN
 from smarthouse.yandex_client.client import YandexClient
-from smarthouse.yandex_client.models import StateItem
+from smarthouse.yandex_client.models import DeviceCapabilityAction, StateItem
+from smarthouse.yandex_client.utils import get_current_capabilities
 
 logger = logging.getLogger("root")
 
@@ -22,11 +24,35 @@ async def clear_quarantine():
     quarantine_keys = ya_client.quarantine_ids()
     for device_id in quarantine_keys:
         if device_id in ya_client._ping and (info := ya_client.quarantine_get(device_id)) is not None:
-            if await ya_client.device_info(device_id, True) is not None:
+            if (device_info := await ya_client.device_info(device_id, True)) is not None:
                 quarantine_notifications[device_id] = 0
                 ya_client._quarantine_remove(device_id)
                 if info.data is not None and time.time() - info.timestamp < 10 * MIN:
                     await ya_client.change_devices_capabilities(info.data["actions"])
+                elif ya_client.states_in(device_id):
+                    state = ya_client.states_get(device_id)
+                    try:
+                        await ya_client._check_devices_capabilities(
+                            state.actions_list, {device_id: state.excl}, err_retry=False, real_action=False
+                        )
+                    except DeviceOffline:
+                        ya_client._quarantine_set(device_id)
+                    except InfraCheckError as exc:
+                        await register_human(device_id, exc, state, info.timestamp)
+                else:
+                    ya_client.states_set(
+                        device_id,
+                        StateItem(
+                            actions_list=[
+                                DeviceCapabilityAction(
+                                    device_id=device_id, capabilities=get_current_capabilities(device_info)
+                                )
+                            ],
+                            excl=(),
+                            checked=True,
+                            mutated=True,
+                        ),
+                    )
             elif time.time() - info.timestamp > 3600 * (2 ** quarantine_notifications.get(device_id, 0)):
                 await storage.messages_queue.put(
                     {
@@ -44,7 +70,6 @@ async def clear_quarantine():
 @looper(10)
 async def detect_human():
     ya_client = YandexClient()
-    storage = Storage()
 
     states_keys = copy.deepcopy(list(ya_client.states_keys()))
     for device_id in states_keys:
@@ -72,20 +97,4 @@ async def detect_human():
                         except DeviceOffline:
                             continue
                         except InfraCheckError as exc:
-                            time_ = ya_client._human_time_funcs.get(device_id, lambda: time.time() + 15 * 60)()
-                            ya_client.locks_set(device_id, time_, level=10)
-                            ya_client.states_set(
-                                device_id,
-                                StateItem(
-                                    actions_list=exc.wished_actions_list, excl=state.excl, checked=True, mutated=True
-                                ),
-                            )
-                            storage.put(SysSKeys.last_human_detected, time.time())
-                            logger.info(f"detected human:\n{exc}")
-                            await storage.messages_queue.put(
-                                {
-                                    "message": f"Detected human:\n{exc}",
-                                    "to_delete": True,
-                                    "to_delete_timestamp": time_,
-                                }
-                            )
+                            await register_human(device_id, exc, state, time.time())

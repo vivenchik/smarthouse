@@ -11,7 +11,12 @@ from example.configuration.storage_keys import SKeys
 from example.configuration.tg_handlers import get_commands, get_handlers
 from example.configuration.web import routes
 from example.scenarios.away_scenarios import away_actions_scenario
-from example.scenarios.climate_scenarios import water_level_checker_scenario, wc_hydro_scenario
+from example.scenarios.climate_scenarios import (
+    air_cleaner_checker_scenario,
+    bad_humidity_checker_scenario,
+    water_level_checker_scenario,
+    wc_hydro_scenario,
+)
 from example.scenarios.color_scenes_scenarios import (
     button_scenario,
     button_sleep_actions_scenario,
@@ -119,6 +124,8 @@ async def main():
             water_level_checker_scenario(),
             button_sleep_actions_scenario(),
             div_modes_stats_scenario(),
+            bad_humidity_checker_scenario(),
+            air_cleaner_checker_scenario(),
         ]
         app.add_tasks(tasks)
 

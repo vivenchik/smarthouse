@@ -52,7 +52,12 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self._use_china_client: dict = {}
 
     def register_device(
-        self, device_id, name, ping=True, human_time_func=lambda: time.time() + 15 * 60, use_china_client=False
+        self,
+        device_id,
+        name,
+        ping=True,
+        human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
+        use_china_client=False,
     ):
         self.names[device_id] = name
         if ping:
@@ -260,5 +265,13 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             )
         except InfraCheckError as exc:
             for device_id in exc.device_ids:
-                self.states_remove(device_id)
+                self.states_set(
+                    device_id,
+                    StateItem(
+                        actions_list=exc.wished_actions_list,
+                        excl=excl[device_id] if excl else (),
+                        checked=True,
+                        mutated=True,
+                    ),
+                )
             await self.messages_queue.put({"message": f"Device state check error:\n{exc}"})
