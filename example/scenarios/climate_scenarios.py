@@ -76,12 +76,12 @@ async def bad_humidity_checker_scenario():
         air_cleaner_humidity.result if not air_cleaner_humidity.quarantine else 0,
         humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 0,
     )
-    min_humidity_home = min(
-        air_cleaner_humidity.result if not air_cleaner_humidity.quarantine else 100,
-        humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 100,
+    max_humidity_home = max(
+        air_cleaner_humidity.result if not air_cleaner_humidity.quarantine else 0,
+        humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 0,
     )
 
-    if max_humidity < 35 or min_humidity_home < 30:
+    if max_humidity < 35 or max_humidity_home < 30:
         logger.info("turning on humidifier")
         await ds.humidifier_new.on().run_async()
         storage.put(SKeys.humidifier_offed, 0)
