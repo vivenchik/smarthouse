@@ -24,7 +24,7 @@ async def clear_quarantine():
     quarantine_keys = ya_client.quarantine_ids()
     for device_id in quarantine_keys:
         if device_id in ya_client._ping and (info := ya_client.quarantine_get(device_id)) is not None:
-            if device_info := await ya_client.device_info(device_id, True) is not None:
+            if (device_info := await ya_client.device_info(device_id, True)) is not None:
                 quarantine_notifications[device_id] = 0
                 ya_client._quarantine_remove(device_id)
                 if info.data is not None and time.time() - info.timestamp < 10 * MIN:
