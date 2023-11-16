@@ -11,7 +11,6 @@ from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet, check_and_run, run
 from smarthouse.yandex_client.models import DeviceCapabilityAction, StateItem
 from smarthouse.yandex_client.utils import get_current_capabilities
-from smarthouse.yandex_cloud import YandexCloudClient
 
 logger = logging.getLogger("root")
 
@@ -98,6 +97,8 @@ async def write_storage(s3_mode=False):
 
 @looper(15 * MIN)
 async def update_iam_token():
+    from smarthouse.yandex_cloud import YandexCloudClient
+
     cloud_client = YandexCloudClient()
     await cloud_client.update_iam_token()
 

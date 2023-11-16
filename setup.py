@@ -10,6 +10,7 @@ with open(path.join(HERE, "README.md"), encoding="utf-8") as f:
 
 extras = {
     "dev": [
+        "pip-tools",
         "black",
         "isort",
         "mypy",
@@ -25,7 +26,15 @@ extras = {
         "pytest-cov",
         "no_implicit_optional",
         "python-dotenv",
-    ]
+    ],
+    "ha": [
+        "homeassistant_api>=4",
+    ],
+    "cloud": [
+        "pyjwt",
+        "cryptography",
+        "aioboto3",
+    ],
 }
 
 
@@ -55,13 +64,10 @@ setup(
         "pyyaml",
         "python-telegram-bot[all,ext]",
         "telegram",
-        "pydantic[dotenv]<2",
+        "pydantic",
+        "pydantic-settings",
         "async_lru",
         "astral",
-        "homeassistant_api>=4",
-        "pyjwt",
-        "cryptography",
-        "aioboto3",
     ],
     extras_require=extras,
     setup_requires=["pytest-runner"],
