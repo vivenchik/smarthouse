@@ -24,25 +24,29 @@ async def wc_hydro_scenario():
     wc_term_humidity = await ds.wc_term.humidity()
     if (
         not wc_term_humidity.quarantine
-        and (last_hydro > HOUR + 30 * MIN or wc_term_humidity.result > 75)
-        and wc_term_humidity.result > 60
+        and (wc_term_humidity.result > 60 and last_hydro > HOUR + 30 * MIN or wc_term_humidity.result > 75)
         and not await ds.air.is_on(10)
-        and (await ds.wc_1.is_on() or await ds.wc_2.is_on())
+        and (
+            await ds.wc_1.is_on()
+            or await ds.wc_2.is_on()
+            or wc_term_humidity.result > 75
+            and last_hydro > HOUR + 30 * MIN
+            and not storage.get(SKeys.sleep)
+        )
     ):
         await ds.air.on().run_async()
         storage.put(SKeys.last_hydro, time.time())
 
+    last_hydro = time.time() - storage.get(SKeys.last_hydro)
     if last_hydro < HOUR + 5 * MIN:
         exit_sensor = await ds.exit_sensor.motion_time()
-        if exit_sensor < 15 and await ds.air.is_on(10):
-            while True:
-                wc_term_humidity = await ds.wc_term.humidity()
-                if wc_term_humidity.quarantine or wc_term_humidity.result <= 60:
-                    break
-                await asyncio.sleep(30)
-            await ds.air.off().run_async()
+        if last_hydro > exit_sensor and await ds.air.is_on(10):
+            wc_term_humidity = await ds.wc_term.humidity()
+            if not wc_term_humidity.quarantine and wc_term_humidity.result <= 55:
+                await ds.air.off().run_async()
         elif HOUR < last_hydro < HOUR + 15:
             await ds.air.off().run_async()
+            storage.put(SKeys.last_hydro, time.time() - (HOUR + 10 * MIN))
 
 
 @looper(10 * MIN)
@@ -86,7 +90,7 @@ async def bad_humidity_checker_scenario():
         await ds.humidifier_new.on().run_async()
         storage.put(SKeys.humidifier_offed, 0)
     elif (
-        max_humidity >= 45
+        (max_humidity >= 55 or max_humidity_home >= 45)
         and time.time() - storage.get(SKeys.humidifier_offed) > HOUR
         and await ds.humidifier_new.is_on()
     ):
