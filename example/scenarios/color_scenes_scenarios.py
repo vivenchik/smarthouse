@@ -164,9 +164,11 @@ async def button_scenario():
             modes_order = get_modes_order()
             if button_time - last_click < MIN:
                 current_pos = find_current_pos_modes_order(modes_order, clicks)
-                clicks = (current_pos + 1) % len(ds.modes)
+                next_pos = (current_pos + 1) % len(ds.modes)
+                clicks = modes_order[next_pos]
                 if clicks == skip:
-                    clicks = (current_pos + 2) % len(ds.modes)
+                    next_pos = (current_pos + 2) % len(ds.modes)
+                    clicks = modes_order[next_pos]
                     skip = -1
             else:
                 skip = clicks % len(ds.modes)
