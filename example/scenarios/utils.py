@@ -36,7 +36,7 @@ def get_act(clicks):
     return current_mode
 
 
-def reg_on_prev(clicks_prev, on=True):
+def reg_on_prev(clicks_prev, on=True, shadow: bool = False):
     storage = Storage()
     ds = DeviceSet()
 
@@ -45,7 +45,7 @@ def reg_on_prev(clicks_prev, on=True):
         if len(ds.modes) > len(modes_stats):
             modes_stats += [0] * (len(ds.modes) - len(modes_stats))
         modes_stats[clicks_prev % len(ds.modes)] += time.time() - storage.get(SKeys.last_mode_on)
-        storage.put(SKeys.modes_stats, modes_stats)
+        storage.put(SKeys.modes_stats, modes_stats, shadow=shadow)
 
     storage.put(SKeys.last_mode_on, time.time() if on else None)
 
@@ -58,16 +58,16 @@ def get_mode_with_off(current_mode: list):
     return current_mode + current_mode_off
 
 
-async def turn_on_act(clicks, prev, check: bool = True, feature_checkable: bool = False):
+async def turn_on_act(clicks, prev, check: bool = True, feature_checkable: bool = False, shadow: bool = False):
     current_mode = get_act(clicks)
     await run_async(get_mode_with_off(current_mode), check=check, feature_checkable=feature_checkable)
-    reg_on_prev(prev)
+    reg_on_prev(prev, shadow=shadow)
 
 
-async def check_and_fix_act(clicks, prev):
+async def check_and_fix_act(clicks, prev, shadow: bool = False):
     current_mode = get_act(clicks)
     await check_and_run_async(get_mode_with_off(current_mode))
-    reg_on_prev(prev)
+    reg_on_prev(prev, shadow=shadow)
 
 
 async def light_ons(hash_seconds=1):
@@ -202,13 +202,13 @@ def get_zone():
         return zones[minute15 // 4]
 
 
-async def turn_off_all():
+async def turn_off_all(shadow: bool = False):
     storage = Storage()
     ds = DeviceSet()
     storage.put(SKeys.random_colors_passive, False)
     storage.put(SKeys.random_colors, False)
     await run_async([lamp.off() for lamp in ds.all_lamps], lock_level=11, lock=datetime.timedelta(seconds=0))
-    reg_on_prev(storage.get(SKeys.clicks), on=False)
+    reg_on_prev(storage.get(SKeys.clicks), on=False, shadow=shadow)
 
 
 async def sleep():

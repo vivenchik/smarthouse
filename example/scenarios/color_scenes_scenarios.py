@@ -174,7 +174,7 @@ async def button_scenario():
                 skip = clicks % len(ds.modes)
                 clicks = modes_order[1] if skip == modes_order[0] else modes_order[0]
 
-        await turn_on_act(clicks, skip, check=False, feature_checkable=True)
+        await turn_on_act(clicks, skip, check=False, feature_checkable=True, shadow=True)
         storage.put(SKeys.button_checked, False)
         storage.put(SKeys.random_colors_passive, False)
         storage.put(SKeys.clicks, clicks)
