@@ -75,28 +75,51 @@ async def bad_humidity_checker_scenario():
     wc_term_humidity = await ds.wc_term.humidity()
     air_cleaner_humidity = await ds.air_cleaner.humidity()
     humidifier_new_humidity = await ds.humidifier_new.humidity()
+
+    air_cleaner_is_on = await ds.air_cleaner.is_on()
+    humidifier_new_is_on = await ds.humidifier_new.is_on()
+
+    wc_term_trusted = not wc_term_humidity.quarantine
+    air_cleaner_trusted = not air_cleaner_humidity.quarantine and air_cleaner_is_on
+    humidifier_new_trusted = not humidifier_new_humidity.quarantine and humidifier_new_is_on
+
     max_humidity = max(
-        wc_term_humidity.result if not wc_term_humidity.quarantine else 0,
-        air_cleaner_humidity.result if not air_cleaner_humidity.quarantine else 0,
-        humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 0,
+        wc_term_humidity.result if wc_term_trusted else 0,
+        air_cleaner_humidity.result if air_cleaner_trusted else 0,
+        humidifier_new_humidity.result if humidifier_new_trusted else 0,
     )
     max_humidity_home = max(
-        air_cleaner_humidity.result if not air_cleaner_humidity.quarantine else 0,
-        humidifier_new_humidity.result if not humidifier_new_humidity.quarantine else 0,
+        air_cleaner_humidity.result if air_cleaner_trusted else 0,
+        humidifier_new_humidity.result if humidifier_new_trusted else 0,
     )
 
-    if max_humidity < 35 or max_humidity_home < 30:
-        logger.info("turning on humidifier")
-        await ds.humidifier_new.on().run_async()
-        storage.put(SKeys.humidifier_offed, 0)
-    elif (
-        (max_humidity >= 55 or max_humidity_home >= 45)
-        and time.time() - storage.get(SKeys.humidifier_offed) > HOUR
-        and await ds.humidifier_new.is_on()
-    ):
-        logger.info("turning off humidifier")
-        await ds.humidifier_new.off().run_async(check=storage.get(SKeys.humidifier_offed) != 0)
-        storage.put(SKeys.humidifier_offed, time.time())
+    checked_is_off = not humidifier_new_is_on
+
+    humidifier_ond = storage.get(SKeys.humidifier_ond)
+    humidifier_offed = storage.get(SKeys.humidifier_offed)
+
+    last_command_is_on = humidifier_ond > humidifier_offed
+
+    from_humidifier_ond = time.time() - humidifier_ond
+    from_humidifier_offed = time.time() - humidifier_offed
+
+    not_often = from_humidifier_ond > 30 * MIN and from_humidifier_offed > 30 * MIN
+
+    need_to_turn_on = max_humidity < 35 or max_humidity_home < 30
+    need_to_turn_off = max_humidity >= 55 or max_humidity_home >= 45
+
+    long_on = last_command_is_on and from_humidifier_ond > HOUR
+    long_off = not last_command_is_on and from_humidifier_offed > 90 * MIN
+
+    if not_often:
+        if need_to_turn_on and (checked_is_off or not last_command_is_on or long_on):
+            logger.info("turning on humidifier")
+            await ds.humidifier_new.on().run_async()
+            storage.put(SKeys.humidifier_ond, time.time())
+        elif need_to_turn_off and not checked_is_off and (last_command_is_on or long_off):
+            logger.info("turning off humidifier")
+            await ds.humidifier_new.off().run_async(check=long_off)
+            storage.put(SKeys.humidifier_offed, time.time())
 
 
 @looper(10 * MIN)
