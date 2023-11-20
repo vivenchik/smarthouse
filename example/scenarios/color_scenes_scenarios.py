@@ -164,11 +164,7 @@ async def button_scenario():
             skip = -1
         else:
             modes_order = get_modes_order()
-            if (
-                button_time - last_click < MIN
-                and time.time() - storage.get(SKeys.last_off) > MIN
-                and time.time() - storage.get(SKeys.startup) > MIN
-            ):
+            if button_time - last_click < MIN and time.time() - storage.get(SKeys.last_off) > MIN:
                 current_pos = find_current_pos_modes_order(modes_order, clicks)
                 next_pos = (current_pos + 1) % len(ds.modes)
                 clicks = modes_order[next_pos]
@@ -178,11 +174,12 @@ async def button_scenario():
                     skip = -1
             else:
                 storage.write_shadow()
-                skip = clicks
                 if clicks == modes_order[0]:
                     clicks = modes_order[1]
+                    skip = -1
                 else:
                     clicks = modes_order[0]
+                    skip = clicks
 
         await turn_on_act(clicks, skip, check=False, feature_checkable=True, shadow=True)
         storage.put(SKeys.button_checked, False)
