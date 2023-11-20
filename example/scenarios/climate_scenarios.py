@@ -95,6 +95,8 @@ async def bad_humidity_checker_scenario():
         humidifier_new_humidity.result if humidifier_new_trusted else 0,
     )
 
+    sleep = storage.get(SKeys.sleep)
+
     checked_is_off = not humidifier_new_is_on
 
     humidifier_ond = storage.get(SKeys.humidifier_ond)
@@ -112,7 +114,7 @@ async def bad_humidity_checker_scenario():
 
     long_on = last_command_is_on and from_humidifier_ond > HOUR
     long_off = not last_command_is_on and (
-        from_humidifier_offed > 30 * MIN or storage.get(SKeys.sleep) and from_humidifier_offed > 10 * MIN
+        from_humidifier_offed > 30 * MIN or sleep and from_humidifier_offed > 10 * MIN
     )
 
     if not_often or long_on or long_off:
