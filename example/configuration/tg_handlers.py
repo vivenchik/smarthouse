@@ -10,6 +10,7 @@ from example.configuration.config import get_config
 from example.configuration.device_set import get_device_name
 from example.configuration.storage_keys import SKeys
 from smarthouse.storage import Storage
+from smarthouse.storage_keys import SysSKeys
 from smarthouse.telegram_client import TGClient
 from smarthouse.utils import get_time, get_timedelta_now
 from smarthouse.yandex_client.client import YandexClient
@@ -324,8 +325,15 @@ async def paint_handler(tg_client: TGClient, update: Update):
 async def clear_log_handler(tg_client: TGClient, update: Update):
     if update.message is None:
         return
-    async with aiofiles.open("./storage/main.log", mode="w") as f:
-        await f.write("")
+    storage = Storage()
+    storage.put(SysSKeys.clear_log, True)
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + 2,
+    )
+    sys.exit(0)
 
 
 def get_commands():

@@ -6,6 +6,7 @@ import time
 from collections.abc import Coroutine
 from typing import Awaitable, Iterable
 
+import aiofiles
 from aiohttp import web
 from aiohttp.web_routedef import AbstractRouteDef
 
@@ -181,6 +182,12 @@ class App:
             tg_client.register_handler(pattern, func)
 
         RunQueuesSet().init()
+
+        storage = Storage()
+        if storage.get(SysSKeys.clear_log):
+            async with aiofiles.open("./storage/main.log", mode="w") as f:
+                await f.write("")
+            storage.put(SysSKeys.clear_log, False)
 
     async def run(self):
         storage = Storage()
