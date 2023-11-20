@@ -124,9 +124,6 @@ class App:
         await ignore_exc(storage.write_shadow)()
         await ignore_exc(storage._write_storage(force=True))()
 
-        logger.info("going to exit")
-        await ignore_exc(tg_client.write_tg("going to exit"))()
-
         while not storage.messages_queue.empty():
             message = await storage.messages_queue.get()
             await ignore_exc(tg_client.write_tg(message))()
