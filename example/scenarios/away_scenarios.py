@@ -25,7 +25,7 @@ async def away_actions_scenario():
     ds = DeviceSet()
 
     door = await ds.exit_door.open_time()
-    hash_seconds = MIN if door > 20 * MIN else 1
+    hash_seconds = MIN if door > 20 * MIN else 0.5
     exit_sensor = await ds.exit_sensor.motion_time(hash_seconds)
     room_sensor = await ds.room_sensor.motion_time(hash_seconds)
     wc_sensor = await ds.wc_sensor.motion_time(hash_seconds)

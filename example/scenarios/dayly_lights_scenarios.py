@@ -32,7 +32,7 @@ async def night_reset_scenario():
         return None
 
     if (
-        await ds.room_sensor.motion_time() > 60 * MIN
+        await ds.room_sensor.motion_time(0.5) > 60 * MIN
         and await ds.exit_sensor.motion_time(0.5) > 60 * MIN
         and await ds.wc_sensor.motion_time(0.5) > 60 * MIN
     ):
@@ -98,7 +98,7 @@ async def adaptive_lights_scenario():
 
     (previous_b, previous_t, timestamp) = storage.get(SKeys.previous_b_t, (0, 0, 0))
 
-    needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor)
+    needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor, hash_seconds=0.5)
     needed_b = min(needed_b * 100, 70)
 
     if timestamp + 2 * MIN > time.time() and [previous_b, previous_t] == [needed_b, needed_t]:

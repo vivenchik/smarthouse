@@ -28,7 +28,9 @@ async def lights_corridor_on_scenario():
             or storage.get(SKeys.lights_locked)
             and await ds.exit_door.open_time() < 60
         ):
-            needed_b, needed_t = await get_needed_b_t(ds.exit_sensor, ds.lux_sensor, force_interval=5 * MIN)
+            needed_b, needed_t = await get_needed_b_t(
+                ds.exit_sensor, ds.lux_sensor, force_interval=5 * MIN, hash_seconds=0.5
+            )
             max_b = 70 if datetime.timedelta(hours=8) < get_timedelta_now() < calc_sunset() else 40
             needed_b = min(needed_b * 100, max_b)
 

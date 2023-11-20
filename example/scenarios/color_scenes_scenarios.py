@@ -210,11 +210,7 @@ async def button_scenario():
         return 0.1
     if after_last_click < 10 * MIN:
         return 0.5
-    if (
-        storage.get(SKeys.lights_locked)
-        or storage.get(SKeys.sleep)
-        or (after_last_click > 30 * MIN and await ds.room_sensor.motion_time() > 30 * MIN)
-    ):
+    if storage.get(SKeys.lights_locked) or storage.get(SKeys.sleep):
         return 10
 
 
