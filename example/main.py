@@ -137,6 +137,7 @@ async def main():
 
         storage.put(SysSKeys.retries, storage.get(SysSKeys.retries, 0) + 1)
 
+        await ignore_exc((storage.write_shadow()))
         await ignore_exc((storage._write_storage(force=True)))
 
         while not storage.messages_queue.empty():

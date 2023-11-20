@@ -199,20 +199,22 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             excl = {}
 
         filtered_ids = await self.ask_permissions(
-            [(action.device_id, self.device_from_action(action).dict()) for action in actions_list],
+            [(action.device_id, self.device_from_action(action).model_dump()) for action in actions_list],
             lock_level,
             lock,
             actions_list,
         )
         filtered_actions = [action for action in actions_list if action.device_id in filtered_ids]
 
-        actions_list_dict = {action.device_id: action for action in actions_list} if actions_list else {}
-        if checkable and actions_list:
-            for action in filtered_actions:
+        actions_list_dict = {action.device_id: action for action in actions_list}
+        for action in filtered_actions:
+            if checkable:
                 self.states_set(
                     action.device_id,
                     StateItem(actions_list=[actions_list_dict[action.device_id]], excl=excl.get(action.device_id, ())),
                 )
+            else:
+                self.states_remove(action.device_id)
 
         try:
             return await self._devices_action(filtered_actions)

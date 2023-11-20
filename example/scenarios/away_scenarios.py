@@ -84,9 +84,18 @@ async def away_actions_scenario():
             await asyncio.sleep(5)
             await ya_client.run_scenario(config.bluetooth_off_scenario_id)
 
-            if time.time() - storage.get(SKeys.humidifier_offed) > HOUR and await ds.humidifier_new.is_on():
+            humidifier_new_is_on = await ds.humidifier_new.is_on(MIN)
+            checked_is_off = not humidifier_new_is_on
+            humidifier_ond = storage.get(SKeys.humidifier_ond)
+            humidifier_offed = storage.get(SKeys.humidifier_offed)
+            last_command_is_on = humidifier_ond > humidifier_offed
+            from_humidifier_offed = time.time() - humidifier_offed
+
+            long_off = not last_command_is_on and from_humidifier_offed > 90 * MIN
+
+            if not checked_is_off and (last_command_is_on or long_off):
                 logger.info("turning off humidifier")
-                await ds.humidifier_new.off().run_async(check=storage.get(SKeys.humidifier_offed) != 0)
+                await ds.humidifier_new.off().run_async(check=long_off, feature_checkable=True)
                 storage.put(SKeys.humidifier_offed, time.time())
 
             if after_last_cleanup < 30 * MIN:
@@ -96,7 +105,7 @@ async def away_actions_scenario():
                     await storage.messages_queue.put({"message": "looks like cleaner is offed"})
                     storage.put(SKeys.last_cleanup, time.time() - 10 * HOUR)
 
-        if 2 * HOUR < door and await ds.humidifier_new.is_on(MIN):
+        if 2 * HOUR < door < 2 * HOUR + 10 * MIN and await ds.humidifier_new.is_on(MIN):
             await ds.humidifier_new.off().run_async()
 
     else:
@@ -124,7 +133,7 @@ async def away_actions_scenario():
 
                 logger.info("turning on humidifier")
                 await ds.humidifier_new.on().run_async()
-                storage.put(SKeys.humidifier_offed, 0)
+                storage.put(SKeys.humidifier_ond, time.time())
 
                 if storage.get(SKeys.cleanups, 0) >= 6:
                     await storage.messages_queue.put({"message": "insert water in cleaner /water_done"})

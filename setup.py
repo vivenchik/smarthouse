@@ -24,6 +24,7 @@ extras = {
         "pytest-aiohttp",
         "pytest-xdist",
         "pytest-cov",
+        "pytest-rerunfailures",
         "no_implicit_optional",
         "python-dotenv",
     ],

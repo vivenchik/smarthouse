@@ -259,7 +259,7 @@ async def get_device_name(device_id: str):
         return ds_result.name.lower()
 
     config = get_config()
-    config_dict = config.dict()
+    config_dict = config.model_dump()
     inverted_config_dict = {v: k for k, v in config_dict.items()}
     result = inverted_config_dict.get(device_id, "")
     if (result := result[: -len("_id")] if result.endswith("_id") else result) is not None:

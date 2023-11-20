@@ -17,6 +17,7 @@ from example.scenarios.utils import (
     get_zone,
     good_mo,
     light_ons,
+    reg_on_prev,
     sleep,
     turn_off_all,
     turn_on_act,
@@ -103,15 +104,18 @@ async def button_scenario():
     storage = Storage()
     ds = DeviceSet()
 
-    last_click = max(storage.get(SKeys.last_click), storage.get(SKeys.startup))
+    last_click = storage.get(SKeys.last_click)
+    startup = storage.get(SKeys.startup)
     state_button, button_time = await ds.button.button(None)
 
     storage_commands = sorted(
         [(key[len("__click_") :], value) for key, value in storage.items() if key.startswith("__click")],
         key=lambda x: x[1],
     )
-    button_clicked = button_time - last_click > 0.01
-    storage_button_clicked = storage_commands and storage_commands[0][1] - last_click > 0.01
+    button_clicked = button_time - last_click > 0.01 and button_time > startup
+    storage_button_clicked = (
+        storage_commands and storage_commands[0][1] - last_click > 0.01 and storage_commands[0][1] > startup
+    )
 
     if button_clicked or storage_button_clicked:
         storage.put(SKeys.last_click, max(button_time, time.time()))
@@ -134,12 +138,14 @@ async def button_scenario():
                 storage.put(SKeys.random_colors_mode, (storage.get(SKeys.random_colors_mode) + 1) % 2)
             storage.put(SKeys.random_colors, True)
             storage.put(SKeys.random_colors_passive, True)
+            storage.put(SKeys.last_off, time.time())
             return
 
         if state_button == "long_press":
             if datetime.timedelta(hours=10) < get_timedelta_now() < calc_sunset():
                 storage.put(SKeys.adaptive_locked, True)
             await turn_off_all()
+            storage.put(SKeys.last_off, time.time())
             return
 
         random_colors = storage.get(SKeys.random_colors)
@@ -162,17 +168,25 @@ async def button_scenario():
             skip = -1
         else:
             modes_order = get_modes_order()
-            if button_time - last_click < MIN:
+            if button_time - last_click < MIN and time.time() - storage.get(SKeys.last_off) > MIN:
                 current_pos = find_current_pos_modes_order(modes_order, clicks)
-                clicks = (current_pos + 1) % len(ds.modes)
+                next_pos = (current_pos + 1) % len(ds.modes)
+                clicks = modes_order[next_pos]
                 if clicks == skip:
-                    clicks = (current_pos + 2) % len(ds.modes)
+                    next_pos = (current_pos + 2) % len(ds.modes)
+                    clicks = modes_order[next_pos]
                     skip = -1
             else:
-                skip = clicks % len(ds.modes)
-                clicks = modes_order[1] if skip == modes_order[0] else modes_order[0]
+                storage.write_shadow()
+                reg_on_prev(clicks)
+                if clicks == modes_order[0]:
+                    skip = -1
+                    clicks = modes_order[1]
+                else:
+                    skip = clicks
+                    clicks = modes_order[0]
 
-        await turn_on_act(clicks, skip, check=False, feature_checkable=True)
+        await turn_on_act(clicks, skip, check=False, feature_checkable=True, shadow=True)
         storage.put(SKeys.button_checked, False)
         storage.put(SKeys.random_colors_passive, False)
         storage.put(SKeys.clicks, clicks)
@@ -186,8 +200,11 @@ async def button_scenario():
         and not storage.get(SKeys.random_colors_passive)
         and await light_ons()
     ):
-        await check_and_fix_act(clicks, clicks)
+        await check_and_fix_act(clicks, clicks, shadow=True)
         storage.put(SKeys.button_checked, True)
+    if not storage.get(SKeys.button_shadowed) and after_last_click > MIN:
+        storage.write_shadow()
+        storage.put(SKeys.button_shadowed, True)
 
     if after_last_click < 15:
         return 0.1

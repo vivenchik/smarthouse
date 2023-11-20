@@ -18,6 +18,7 @@ class SKeys(Enum):
     random_colors_mode = "random_colors_mode"
     rc_lock = "rc_lock"
     button_checked = "button_checked"
+    button_shadowed = "button_shadowed"
     last_hydro = "last_hydro"
     max_brightness = "max_brightness"
     alarm = "alarm"
@@ -41,3 +42,5 @@ class SKeys(Enum):
     modes_stats = "modes_stats"
     last_mode_on = "last_mode_on"
     humidifier_offed = "humidifier_offed"
+    humidifier_ond = "humidifier_ond"
+    last_off = "last_off"
