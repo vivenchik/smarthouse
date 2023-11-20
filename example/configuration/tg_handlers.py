@@ -326,6 +326,7 @@ async def clear_log_handler(tg_client: TGClient, update: Update):
     if update.message is None:
         return
     storage = Storage()
+    await tg_client.write_tg_document("./storage/main.log")
     storage.put(SysSKeys.clear_log, True)
     await tg_client.write_tg(
         "done",

@@ -122,6 +122,9 @@ class App:
         storage.put(SysSKeys.retries, retries + 1)
         need_to_sleep = retries >= 5
 
+        if need_to_sleep:
+            storage.put(SysSKeys.clear_log, True)
+
         await ignore_exc(storage.write_shadow)()
         await ignore_exc(storage._write_storage(force=True))()
 
@@ -135,11 +138,10 @@ class App:
             await ignore_exc(tg_client.write_tg(message))()
             ya_client.messages_queue.task_done()
 
-        # await ignore_exc(tg_client.write_tg_document("./storage/main.log"))()
-
         await ya_client.client.close()
 
         if need_to_sleep:
+            await ignore_exc(tg_client.write_tg_document("./storage/main.log"))()
             logger.info("going to sleep for an hour")
             ignore_exc(await tg_client.write_tg("going to sleep for an hour"))
             storage.put(SysSKeys.retries, 0)
