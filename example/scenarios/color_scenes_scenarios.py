@@ -17,9 +17,10 @@ from example.scenarios.utils import (
     get_zone,
     good_mo,
     light_ons,
+    reg_on_prev,
     sleep,
     turn_off_all,
-    turn_on_act, reg_on_prev,
+    turn_on_act,
 )
 from smarthouse.action_decorators import looper, scheduler
 from smarthouse.storage import Storage
