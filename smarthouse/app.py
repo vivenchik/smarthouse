@@ -113,16 +113,19 @@ class App:
             self.tasks.append(web._run_app(app))
 
     async def async_exit_gracefully(self):
-        logger.info("going to exit")
-
         storage = Storage()
         ya_client = YandexClient()
         tg_client = TGClient()
 
-        storage.put(SysSKeys.retries, storage.get(SysSKeys.retries, 0) + 1)
+        retries = storage.get(SysSKeys.retries, 0)
+        storage.put(SysSKeys.retries, retries + 1)
+        need_to_sleep = retries >= 5
 
         await ignore_exc(storage.write_shadow)()
         await ignore_exc(storage._write_storage(force=True))()
+
+        logger.info("going to exit")
+        await ignore_exc(tg_client.write_tg("going to exit"))()
 
         while not storage.messages_queue.empty():
             message = await storage.messages_queue.get()
@@ -134,13 +137,15 @@ class App:
             await ignore_exc(tg_client.write_tg(message))()
             ya_client.messages_queue.task_done()
 
-        await ignore_exc(tg_client.write_tg("its end"))()
         await ignore_exc(tg_client.write_tg_document("./main.log"))()
-        if storage.get(SysSKeys.retries, 0) >= 5:
-            ignore_exc(await tg_client.write_tg("going to sleep for an hour"))
-            await asyncio.sleep(3600)
 
         await ya_client.client.close()
+
+        if need_to_sleep:
+            logger.info("going to sleep for an hour")
+            ignore_exc(await tg_client.write_tg("going to sleep for an hour"))
+            storage.put(SysSKeys.retries, 0)
+            await asyncio.sleep(3600)
 
         logger.info("exited")
 
