@@ -83,7 +83,7 @@ async def bad_humidity_checker_scenario():
 
     wc_term_trusted = not wc_term_humidity.quarantine
     air_cleaner_trusted = not air_cleaner_humidity.quarantine and air_cleaner_is_on
-    humidifier_new_trusted = not humidifier_new_humidity.quarantine and humidifier_new_is_on
+    humidifier_new_trusted = not humidifier_new_humidity.quarantine
 
     max_humidity = max(
         wc_term_humidity.result if wc_term_trusted else 0,
