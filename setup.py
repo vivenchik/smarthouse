@@ -27,6 +27,7 @@ extras = {
         "pytest-rerunfailures",
         "no_implicit_optional",
         "python-dotenv",
+        "twine",
     ],
     "ha": [
         "homeassistant_api>=4",
