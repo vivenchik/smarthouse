@@ -1,6 +1,7 @@
 import asyncio
 import functools
 import logging
+import os
 import signal
 import time
 from collections.abc import Coroutine
@@ -122,7 +123,7 @@ class App:
         storage.put(SysSKeys.retries, retries + 1)
         need_to_sleep = retries >= 5
 
-        if need_to_sleep:
+        if need_to_sleep or os.path.getsize("./storage/main.log") > 500 * 1 << 20:
             storage.put(SysSKeys.clear_log, True)
 
         await ignore_exc(storage.write_shadow)()
@@ -141,7 +142,6 @@ class App:
         await ya_client.client.close()
 
         if need_to_sleep:
-            await ignore_exc(tg_client.write_tg_document("./storage/main.log"))()
             logger.info("going to sleep for an hour")
             ignore_exc(await tg_client.write_tg("going to sleep for an hour"))
             storage.put(SysSKeys.retries, 0)
