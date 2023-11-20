@@ -108,13 +108,13 @@ async def bad_humidity_checker_scenario():
 
     not_often = from_humidifier_ond > 30 * MIN and from_humidifier_offed > 30 * MIN
 
-    need_to_turn_on = max_humidity < 35 or max_humidity_home < 30
-    need_to_turn_off = max_humidity >= 55 or max_humidity_home >= 45
-
     long_on = last_command_is_on and from_humidifier_ond > HOUR
     long_off = not last_command_is_on and (
         from_humidifier_offed > 30 * MIN or sleep and from_humidifier_offed > 10 * MIN
     )
+
+    need_to_turn_on = max_humidity < 35 or max_humidity_home < 30
+    need_to_turn_off = max_humidity >= 55 or max_humidity_home >= 45 or long_off
 
     if not_often or long_on or long_off:
         if need_to_turn_on and water_level > 0 and (checked_is_off or not last_command_is_on or long_on):  # todo
