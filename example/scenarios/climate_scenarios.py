@@ -131,5 +131,5 @@ async def air_cleaner_checker_scenario():
     ds = DeviceSet()
 
     if not await ds.air_cleaner.is_on():
-        await asyncio.sleep(HOUR)
+        await asyncio.sleep(3 * HOUR)
         await ds.air_cleaner.on().run_async()
