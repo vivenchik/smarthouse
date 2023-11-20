@@ -148,6 +148,7 @@ class App:
             await asyncio.sleep(3600)
 
         logger.info("exited")
+        await ignore_exc(tg_client.write_tg("exited"))()
 
     def exit_gracefully(self, signum, frame):
         signame = signal.Signals(signum).name
