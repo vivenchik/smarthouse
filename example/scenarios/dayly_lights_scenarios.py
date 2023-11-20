@@ -80,7 +80,7 @@ async def scheduled_lights_scenario():
         await turn_on_act(storage.get(SKeys.clicks), storage.get(SKeys.clicks))
 
 
-@looper(3, (datetime.timedelta(hours=10), calc_sunset))
+@looper(1, (datetime.timedelta(hours=10), calc_sunset))
 async def adaptive_lights_scenario():
     config = get_config()
     if config.pause:
@@ -98,7 +98,7 @@ async def adaptive_lights_scenario():
 
     (previous_b, previous_t, timestamp) = storage.get(SKeys.previous_b_t, (0, 0, 0))
 
-    needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor, hash_seconds=0.5)
+    needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor, force_interval=3, hash_seconds=0.5)
     needed_b = min(needed_b * 100, 70)
 
     if timestamp + 2 * MIN > time.time() and [previous_b, previous_t] == [needed_b, needed_t]:
