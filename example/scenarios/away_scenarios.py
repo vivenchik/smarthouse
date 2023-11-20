@@ -131,9 +131,12 @@ async def away_actions_scenario():
                     if after_sunset:
                         await ya_client.run_scenario(config.music_scenario_id)
 
-                logger.info("turning on humidifier")
-                await ds.humidifier_new.on().run_async()
-                storage.put(SKeys.humidifier_ond, time.time())
+                water_level = await ds.humidifier_new.water_level()
+
+                if water_level > 0:  # todo
+                    logger.info("turning on humidifier")
+                    await ds.humidifier_new.on().run_async()
+                    storage.put(SKeys.humidifier_ond, time.time())
 
                 if storage.get(SKeys.cleanups, 0) >= 6:
                     await storage.messages_queue.put({"message": "insert water in cleaner /water_done"})

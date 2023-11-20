@@ -48,7 +48,7 @@ DEFAULTS: dict[str, dict[str, Any]] = {  # todo: move to devices
 
 class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     _states: dict[str, StateItem]
-    _last: dict[str, DeviceInfoResponse]
+    _last: dict[str, tuple[DeviceInfoResponse, float]]
     base_url: str
     client: aiohttp.ClientSession
     prod: bool

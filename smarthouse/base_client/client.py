@@ -23,7 +23,7 @@ ActionRequestModelType = TypeVar("ActionRequestModelType", bound=BaseModel)
 
 class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metaclass=Singleton):
     _states: dict[str, StateItem]
-    _last: dict[str, DeviceInfoResponseType]
+    _last: dict[str, tuple[DeviceInfoResponseType, float]]
     _quarantine: dict[str, QuarantineItem]
     _locks: dict[str, LockItem]
     _mutations: dict[str, Callable]
@@ -43,7 +43,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self._gss: dict[str, GapStat] = {}
         self._stats: dict[str, float] = {}
         self._states: dict[str, StateItem] = {}
-        self._last: dict[str, DeviceInfoResponseType] = {}
+        self._last: dict[str, tuple[DeviceInfoResponseType, float]] = {}
 
         self.messages_queue: asyncio.Queue = asyncio.Queue()
         self.names: dict[str, str] = {}
@@ -122,14 +122,14 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
     def states_in(self, device_id: str) -> bool:
         return device_id in self._states
 
-    def last_get(self, device_id: str) -> DeviceInfoResponseType:
+    def last_get(self, device_id: str) -> tuple[DeviceInfoResponseType, float]:
         return self._last[device_id]
 
     def last_in(self, device_id: str) -> bool:
         return device_id in self._last
 
     def last_set(self, device_id: str, response: DeviceInfoResponseType) -> None:
-        self._last[device_id] = response
+        self._last[device_id] = (response, time.time())
 
     async def ask_permissions(
         self,
@@ -168,7 +168,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self, device_id: str, ignore_quarantine=False, proceeded_last=False, hash_seconds=1
     ) -> DeviceInfoResponseType | None:
         if proceeded_last:
-            return self.last_get(device_id) if self.last_in(device_id) else None
+            return self.last_get(device_id)[0] if self.last_in(device_id) else None
         try:
             if not ignore_quarantine and self.quarantine_in(device_id):
                 return None

@@ -33,8 +33,8 @@ async def night_reset_scenario():
 
     if (
         await ds.room_sensor.motion_time() > 60 * MIN
-        and await ds.exit_sensor.motion_time() > 60 * MIN
-        and await ds.wc_sensor.motion_time() > 60 * MIN
+        and await ds.exit_sensor.motion_time(0.5) > 60 * MIN
+        and await ds.wc_sensor.motion_time(0.5) > 60 * MIN
     ):
         await ya_client.run_scenario(config.silence_scenario_id)
         await asyncio.sleep(5)

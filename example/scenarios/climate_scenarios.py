@@ -39,7 +39,7 @@ async def wc_hydro_scenario():
 
     last_hydro = time.time() - storage.get(SKeys.last_hydro)
     if last_hydro < HOUR + 5 * MIN:
-        exit_sensor = await ds.exit_sensor.motion_time()
+        exit_sensor = await ds.exit_sensor.motion_time(0.5)
         if last_hydro > exit_sensor and await ds.air.is_on(10):
             wc_term_humidity = await ds.wc_term.humidity()
             if not wc_term_humidity.quarantine and wc_term_humidity.result <= 55:
@@ -79,6 +79,8 @@ async def bad_humidity_checker_scenario():
     air_cleaner_is_on = await ds.air_cleaner.is_on()
     humidifier_new_is_on = await ds.humidifier_new.is_on()
 
+    water_level = await ds.humidifier_new.water_level()
+
     wc_term_trusted = not wc_term_humidity.quarantine
     air_cleaner_trusted = not air_cleaner_humidity.quarantine and air_cleaner_is_on
     humidifier_new_trusted = not humidifier_new_humidity.quarantine and humidifier_new_is_on
@@ -112,7 +114,7 @@ async def bad_humidity_checker_scenario():
     long_off = not last_command_is_on and from_humidifier_offed > 90 * MIN
 
     if not_often:
-        if need_to_turn_on and (checked_is_off or not last_command_is_on or long_on):
+        if need_to_turn_on and water_level > 0 and (checked_is_off or not last_command_is_on or long_on):  # todo
             logger.info("turning on humidifier")
             await ds.humidifier_new.on().run_async()
             storage.put(SKeys.humidifier_ond, time.time())
