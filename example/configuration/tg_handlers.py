@@ -321,16 +321,23 @@ async def paint_handler(tg_client: TGClient, update: Update):
     )
 
 
+async def clear_log_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    async with aiofiles.open("./storage/main.log", mode="w") as f:
+        await f.write("")
+
+
 def get_commands():
     return [
         ("b1", "Button one click"),
         ("b3", "Button long press"),
         ("quarantine", "Get quarantine"),
         ("skip_alarm", "Skip alarm"),
-        ("stats", "Quarantine stats"),
         ("water_done", "Water in cleaner"),
-        ("minimize_lights", "Set max brightness"),
         ("restart", "Restart"),
+        ("stats", "Quarantine stats"),
+        ("minimize_lights", "Set max brightness"),
         ("20", "20 lines of logs"),
         ("b2", "Button double click"),
         ("pause", "Pause"),
@@ -339,6 +346,7 @@ def get_commands():
         ("50d", "50 lines of logs with debug"),
         ("log", "log file"),
         ("storage", "storage file"),
+        ("clear_log", "clear log file"),
         ("sleep", "sleep"),
         ("good_mo", "good_mo"),
         ("wc_off", "wc_off"),
@@ -373,5 +381,6 @@ def get_handlers():
         (r"^/exit_off$", exit_off_handler),
         (r"^/evening$", evening_handler),
         (r"^/paint$", paint_handler),
+        (r"^/clear_log$", clear_log_handler),
         (r"^\/?\d*d?$", log_lines_handler),
     ]
