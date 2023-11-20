@@ -19,7 +19,7 @@ async def logs(request: web.Request):
     if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()
 
-    async with aiofiles.open("main.log", mode="r") as f:
+    async with aiofiles.open("./storage/main.log", mode="r") as f:
         content = await f.read()
     return web.Response(body=content)
 

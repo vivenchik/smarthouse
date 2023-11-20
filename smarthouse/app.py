@@ -137,7 +137,7 @@ class App:
             await ignore_exc(tg_client.write_tg(message))()
             ya_client.messages_queue.task_done()
 
-        await ignore_exc(tg_client.write_tg_document("./main.log"))()
+        # await ignore_exc(tg_client.write_tg_document("./storage/main.log"))()
 
         await ya_client.client.close()
 
