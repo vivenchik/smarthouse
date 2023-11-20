@@ -61,12 +61,12 @@ async def run(
             excl={action.device_id: action.excl for action in actions},
             lock_level=lock_level,
             lock=lock,
-            feature_checkable=feature_checkable,  # todo: review
+            feature_checkable=feature_checkable,  # todo: check feature_checkable after specified timeout
         )
     except Exception as exc:
         raise exc
     finally:
-        pass  # todo: clear succeeded
+        pass
 
 
 class RunQueuesSet(metaclass=Singleton):

@@ -358,8 +358,10 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             else:
                 patched_actions_list.append(action)
 
-        device_ids = {action.device_id for action in patched_actions_list if action is not None}
-        devices = {device_id: await self.device_info(device_id) for device_id in device_ids}  # todo: asyncio
+        device_ids = [action.device_id for action in patched_actions_list if action is not None]
+        tasks = [self.device_info(device_id) for device_id in device_ids]
+        devices_info = await asyncio.gather(*tasks)
+        devices = {device_ids[i]: device_info for i, device_info in enumerate(devices_info)}
 
         errors = []
         for i, _ in enumerate(patched_actions_list):

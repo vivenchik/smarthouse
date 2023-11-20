@@ -95,7 +95,7 @@ async def away_actions_scenario():
 
             if not checked_is_off and (last_command_is_on or long_off):
                 logger.info("turning off humidifier")
-                await ds.humidifier_new.off().run_async(check=long_off)
+                await ds.humidifier_new.off().run_async(check=long_off, feature_checkable=True)
                 storage.put(SKeys.humidifier_offed, time.time())
 
             if after_last_cleanup < 30 * MIN:

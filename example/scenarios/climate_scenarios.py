@@ -118,7 +118,7 @@ async def bad_humidity_checker_scenario():
             storage.put(SKeys.humidifier_ond, time.time())
         elif need_to_turn_off and not checked_is_off and (last_command_is_on or long_off):
             logger.info("turning off humidifier")
-            await ds.humidifier_new.off().run_async(check=long_off)
+            await ds.humidifier_new.off().run_async(check=long_off, feature_checkable=True)
             storage.put(SKeys.humidifier_offed, time.time())
 
 
