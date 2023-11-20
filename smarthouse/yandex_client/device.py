@@ -7,8 +7,8 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field
 
 from smarthouse.base_client.exceptions import InfraCheckError
-from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
+from smarthouse.storage_keys import SysSKeys
 from smarthouse.utils import Singleton
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.models import DeviceCapabilityAction

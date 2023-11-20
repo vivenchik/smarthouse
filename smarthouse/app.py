@@ -1,5 +1,8 @@
 import asyncio
+import functools
 import logging
+import signal
+import time
 from collections.abc import Coroutine
 from typing import Awaitable, Iterable
 
@@ -21,11 +24,26 @@ from smarthouse.scenarios.light_scenarios import (
 )
 from smarthouse.scenarios.system_scenarios import clear_quarantine, detect_human
 from smarthouse.storage import Storage
+from smarthouse.storage_keys import SysSKeys
 from smarthouse.telegram_client import TGClient
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import RunQueuesSet
 
 logger = logging.getLogger("root")
+
+
+def ignore_exc(func):
+    @functools.wraps(func)
+    async def wrapper():
+        try:
+            if isinstance(func, Coroutine):
+                return await func
+            else:
+                return func()
+        except Exception as exc:
+            logger.exception(exc)
+
+    return wrapper
 
 
 class App:
@@ -49,6 +67,9 @@ class App:
         iam_mode: bool = False,
         aiohttp_routes: Iterable[AbstractRouteDef] | None = None,
     ):
+        signal.signal(signal.SIGINT, self.exit_gracefully)
+        signal.signal(signal.SIGTERM, self.exit_gracefully)
+
         self.storage_name = storage_name
         self.yandex_token = yandex_token
         self.telegram_token = telegram_token
@@ -91,6 +112,45 @@ class App:
             app.add_routes(aiohttp_routes)
             self.tasks.append(web._run_app(app))
 
+    async def async_exit_gracefully(self):
+        logger.info("going to exit")
+
+        storage = Storage()
+        ya_client = YandexClient()
+        tg_client = TGClient()
+
+        storage.put(SysSKeys.retries, storage.get(SysSKeys.retries, 0) + 1)
+
+        await ignore_exc(storage.write_shadow)()
+        await ignore_exc(storage._write_storage(force=True))()
+
+        while not storage.messages_queue.empty():
+            message = await storage.messages_queue.get()
+            await ignore_exc(tg_client.write_tg(message))()
+            storage.messages_queue.task_done()
+
+        while not ya_client.messages_queue.empty():
+            message = await ya_client.messages_queue.get()
+            await ignore_exc(tg_client.write_tg(message))()
+            ya_client.messages_queue.task_done()
+
+        await ignore_exc(tg_client.write_tg("its end"))()
+        await ignore_exc(tg_client.write_tg_document("./main.log"))()
+        if storage.get(SysSKeys.retries, 0) >= 5:
+            ignore_exc(await tg_client.write_tg("going to sleep for an hour"))
+            await asyncio.sleep(3600)
+
+        await ya_client.client.close()
+
+        logger.info("exited")
+
+    def exit_gracefully(self, signum, frame):
+        signame = signal.Signals(signum).name
+        logger.error(f"Signal handler called with signal {signame} ({signum})")
+
+        loop = asyncio.get_running_loop()
+        loop.run_until_complete(self.async_exit_gracefully())
+
     def add_tasks(self, tasks: list[Coroutine]):
         self.tasks.extend(tasks)
 
@@ -120,7 +180,18 @@ class App:
         RunQueuesSet().init()
 
     async def run(self):
-        logger.info("started")
-        await Storage().messages_queue.put({"message": "started"})
+        storage = Storage()
+        storage.put(SysSKeys.startup, time.time())
 
-        return await asyncio.gather(*self.tasks)
+        tg_client = TGClient()
+
+        logger.info("started")
+        await storage.messages_queue.put({"message": "started"})
+
+        try:
+            return await asyncio.gather(*self.tasks)
+        except BaseException as exc:
+            logger.exception(exc)
+            await ignore_exc(tg_client.write_tg(str(exc)))()
+        finally:
+            await self.async_exit_gracefully()

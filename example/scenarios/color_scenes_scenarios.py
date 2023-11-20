@@ -24,6 +24,7 @@ from example.scenarios.utils import (
 )
 from smarthouse.action_decorators import looper, scheduler
 from smarthouse.storage import Storage
+from smarthouse.storage_keys import SysSKeys
 from smarthouse.utils import MIN, get_time, get_timedelta_now, hsv_to_rgb
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import HSVLamp, RGBLamp, TemperatureLamp, run_async
@@ -105,7 +106,7 @@ async def button_scenario():
     ds = DeviceSet()
 
     last_click = storage.get(SKeys.last_click)
-    startup = storage.get(SKeys.startup)
+    startup = storage.get(SysSKeys.startup)
     state_button, button_time = await ds.button.button(None)
 
     storage_commands = sorted(
@@ -192,7 +193,7 @@ async def button_scenario():
         storage.put(SKeys.clicks, clicks)
         storage.put(SKeys.skip, skip)
 
-    after_last_click = time.time() - max(storage.get(SKeys.last_click), storage.get(SKeys.startup))
+    after_last_click = time.time() - max(storage.get(SKeys.last_click), storage.get(SysSKeys.startup))
     clicks = storage.get(SKeys.clicks)
     if (
         not storage.get(SKeys.button_checked)
@@ -223,7 +224,7 @@ async def button_sleep_actions_scenario():
     storage = Storage()
     ds = DeviceSet()
 
-    last_click_b_2 = max(storage.get(SKeys.last_click_b_2), storage.get(SKeys.startup))
+    last_click_b_2 = max(storage.get(SKeys.last_click_b_2), storage.get(SysSKeys.startup))
     state_button, button_time = await ds.button_2.button(None)
 
     if button_time - last_click_b_2 > 0.01:
