@@ -199,7 +199,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             excl = {}
 
         filtered_ids = await self.ask_permissions(
-            [(action.device_id, self.device_from_action(action).dict()) for action in actions_list],
+            [(action.device_id, self.device_from_action(action).model_dump()) for action in actions_list],
             lock_level,
             lock,
             actions_list,

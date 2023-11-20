@@ -273,7 +273,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             use_china_client |= self._use_china_client.get(_device.id, False)
         try:
             response = await self.request(
-                "POST", "/devices/actions", data=data.dict(), use_china_client=use_china_client, hash_seconds=None
+                "POST", "/devices/actions", data=data.model_dump(), use_china_client=use_china_client, hash_seconds=None
             )
         except ProgrammingError as exc:
             exc.device_ids = [device.id for device in data.devices]
@@ -290,7 +290,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 f"Something is unexpected with devices ({cleaned_devices}) {exc}",
                 self.prod,
                 device_ids=[device.id for device in data.devices],
-                debug_str=f"/devices/actions {cleaned_devices}, request: {data.dict()}",
+                debug_str=f"/devices/actions {cleaned_devices}, request: {data.model_dump()}",
                 dont_log=False,
             ) from exc
         try:
@@ -311,7 +311,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         if broken_devices:
             cleaned_broken_devices = {self.names.get(k, k): v for k, v in broken_devices.items()}
             raise DeviceOffline(
-                f"Something is going wrong with devices ({cleaned_broken_devices}): {data.dict()}",
+                f"Something is going wrong with devices ({cleaned_broken_devices}): {data.model_dump()}",
                 self.prod,
                 device_ids=list(broken_devices.keys()),
             )
