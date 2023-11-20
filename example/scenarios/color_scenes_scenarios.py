@@ -180,11 +180,11 @@ async def button_scenario():
                 storage.write_shadow()
                 reg_on_prev(clicks)
                 if clicks == modes_order[0]:
-                    clicks = modes_order[1]
                     skip = -1
+                    clicks = modes_order[1]
                 else:
-                    clicks = modes_order[0]
                     skip = clicks
+                    clicks = modes_order[0]
 
         await turn_on_act(clicks, skip, check=False, feature_checkable=True, shadow=True)
         storage.put(SKeys.button_checked, False)
