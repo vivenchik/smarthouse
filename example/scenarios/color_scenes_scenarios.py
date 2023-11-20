@@ -103,15 +103,18 @@ async def button_scenario():
     storage = Storage()
     ds = DeviceSet()
 
-    last_click = max(storage.get(SKeys.last_click), storage.get(SKeys.startup))
+    last_click = storage.get(SKeys.last_click)
+    startup = storage.get(SKeys.startup)
     state_button, button_time = await ds.button.button(None)
 
     storage_commands = sorted(
         [(key[len("__click_") :], value) for key, value in storage.items() if key.startswith("__click")],
         key=lambda x: x[1],
     )
-    button_clicked = button_time - last_click > 0.01
-    storage_button_clicked = storage_commands and storage_commands[0][1] - last_click > 0.01
+    button_clicked = button_time - last_click > 0.01 and button_time > startup
+    storage_button_clicked = (
+        storage_commands and storage_commands[0][1] - last_click > 0.01 and storage_commands[0][1] > startup
+    )
 
     if button_clicked or storage_button_clicked:
         storage.put(SKeys.last_click, max(button_time, time.time()))
