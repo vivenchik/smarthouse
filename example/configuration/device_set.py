@@ -4,7 +4,7 @@ import time
 
 from example.configuration.config import get_config
 from example.scenarios.light_utils import calc_sunset, calc_sunset_datetime
-from smarthouse.utils import Singleton, get_timedelta_now, hsv_to_rgb
+from smarthouse.utils import HOUR, Singleton, get_timedelta_now, hsv_to_rgb
 from smarthouse.yandex_client.device import (
     AirCleaner,
     AirSensor,
@@ -56,7 +56,11 @@ class DeviceSet(metaclass=Singleton):
         self.hub_power = Switch(config.hub_power_id, "Хаб", ping=False)
 
         self.wc_term = AirSensor(config.term_id, "Датчик воздуха туалет")
-        self.air_cleaner = AirCleaner(config.air_cleaner_id, "Очиститель воздуха")
+        self.air_cleaner = AirCleaner(
+            config.air_cleaner_id,
+            "Очиститель воздуха",
+            human_time_func=lambda timestamp=None: (timestamp or time.time()) + 3 * HOUR,
+        )
 
         self.lamp_e_1 = HSVLamp(config.lamp_e_1_id, "Лампа выход 1")
         self.lamp_e_2 = HSVLamp(config.lamp_e_2_id, "Лампа выход 2")

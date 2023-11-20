@@ -128,10 +128,9 @@ async def bad_humidity_checker_scenario():
             storage.put(SKeys.humidifier_offed, time.time())
 
 
-@looper(10 * MIN)
+@looper(15 * MIN)
 async def air_cleaner_checker_scenario():
     ds = DeviceSet()
 
     if not await ds.air_cleaner.is_on():
-        await asyncio.sleep(3 * HOUR)
         await ds.air_cleaner.on().run_async()
