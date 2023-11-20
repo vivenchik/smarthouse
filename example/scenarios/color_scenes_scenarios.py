@@ -134,12 +134,14 @@ async def button_scenario():
                 storage.put(SKeys.random_colors_mode, (storage.get(SKeys.random_colors_mode) + 1) % 2)
             storage.put(SKeys.random_colors, True)
             storage.put(SKeys.random_colors_passive, True)
+            storage.put(SKeys.last_off, time.time())
             return
 
         if state_button == "long_press":
             if datetime.timedelta(hours=10) < get_timedelta_now() < calc_sunset():
                 storage.put(SKeys.adaptive_locked, True)
             await turn_off_all()
+            storage.put(SKeys.last_off, time.time())
             return
 
         random_colors = storage.get(SKeys.random_colors)
@@ -162,7 +164,11 @@ async def button_scenario():
             skip = -1
         else:
             modes_order = get_modes_order()
-            if button_time - last_click < MIN:
+            if (
+                button_time - last_click < MIN
+                and time.time() - storage.get(SKeys.last_off) > MIN
+                and time.time() - storage.get(SKeys.startup) > MIN
+            ):
                 current_pos = find_current_pos_modes_order(modes_order, clicks)
                 next_pos = (current_pos + 1) % len(ds.modes)
                 clicks = modes_order[next_pos]
@@ -171,6 +177,7 @@ async def button_scenario():
                     clicks = modes_order[next_pos]
                     skip = -1
             else:
+                storage.write_shadow()
                 skip = clicks
                 if clicks == modes_order[0]:
                     clicks = modes_order[1]
@@ -191,8 +198,11 @@ async def button_scenario():
         and not storage.get(SKeys.random_colors_passive)
         and await light_ons()
     ):
-        await check_and_fix_act(clicks, clicks)
+        await check_and_fix_act(clicks, clicks, shadow=True)
         storage.put(SKeys.button_checked, True)
+    if not storage.get(SKeys.button_shadowed) and after_last_click > MIN:
+        storage.write_shadow()
+        storage.put(SKeys.button_shadowed, True)
 
     if after_last_click < 15:
         return 0.1
