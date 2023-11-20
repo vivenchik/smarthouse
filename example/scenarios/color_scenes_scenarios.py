@@ -19,7 +19,7 @@ from example.scenarios.utils import (
     light_ons,
     sleep,
     turn_off_all,
-    turn_on_act,
+    turn_on_act, reg_on_prev,
 )
 from smarthouse.action_decorators import looper, scheduler
 from smarthouse.storage import Storage
@@ -177,6 +177,7 @@ async def button_scenario():
                     skip = -1
             else:
                 storage.write_shadow()
+                reg_on_prev(clicks)
                 if clicks == modes_order[0]:
                     clicks = modes_order[1]
                     skip = -1
