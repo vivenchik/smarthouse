@@ -139,7 +139,7 @@ async def lights_off_scenario():
                 and ds.wc_sensor.in_quarantine()
                 and time.time() - ds.wc_sensor.quarantine().timestamp > 7 * MIN
             )
-        ):
+        ) and (await ds.lamp_e_1.is_on() or await ds.lamp_e_2.is_on() or await ds.lamp_e_3.is_on()):
             await run_async([ds.lamp_e_1.off(), ds.lamp_e_2.off(), ds.lamp_e_3.off()])
 
     wc_term_humidity = await ds.wc_term.humidity()
