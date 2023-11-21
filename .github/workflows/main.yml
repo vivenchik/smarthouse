@@ -80,14 +80,12 @@ jobs:
 
       - name: Deploy
         run: |
-          if [[ -v GITHUB_HEAD_REF ]]
-          then
-            ref=${GITHUB_HEAD_REF}
-          else
-            ref=${GITHUB_REF##*/}
-          fi
-          echo $ref
+          REF="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          
+          echo $GITHUB_HEAD_REF
+          echo $GITHUB_REF
+          echo $REF
 
-          ssh "ivan@$SSH_HOST" "cd /home/ivan/smarthouse && git fetch --all && git checkout "${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
+          ssh "ivan@$SSH_HOST" "cd /home/ivan/smarthouse && git fetch --all && git checkout "${REF}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
         env:
           SSH_HOST: ${{secrets.SSH_HOST}}
