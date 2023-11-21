@@ -57,7 +57,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements/requirements-dev.txt coveralls
+          pip install -r requirements/requirements-dev.txt
+          pip install coveralls
           cp "./tests/.env" "./.env"
 
       - name: Test with pytest
