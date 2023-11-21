@@ -3,8 +3,8 @@ import logging
 import time
 
 from smarthouse.action_decorators import looper
-from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
+from smarthouse.storage_keys import SysSKeys
 from smarthouse.telegram_client import TGClient
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient

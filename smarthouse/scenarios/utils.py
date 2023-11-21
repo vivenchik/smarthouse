@@ -2,8 +2,8 @@ import logging
 import time
 
 from smarthouse.base_client.exceptions import InfraCheckError
-from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
+from smarthouse.storage_keys import SysSKeys
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.models import StateItem
 

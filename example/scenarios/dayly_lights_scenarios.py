@@ -32,9 +32,9 @@ async def night_reset_scenario():
         return None
 
     if (
-        await ds.room_sensor.motion_time() > 60 * MIN
-        and await ds.exit_sensor.motion_time() > 60 * MIN
-        and await ds.wc_sensor.motion_time() > 60 * MIN
+        await ds.room_sensor.motion_time(0.5) > 60 * MIN
+        and await ds.exit_sensor.motion_time(0.5) > 60 * MIN
+        and await ds.wc_sensor.motion_time(0.5) > 60 * MIN
     ):
         await ya_client.run_scenario(config.silence_scenario_id)
         await asyncio.sleep(5)
@@ -76,11 +76,10 @@ async def scheduled_lights_scenario():
 
     storage.put(SKeys.adaptive_locked, False)
     if not storage.get(SKeys.lights_locked) and not storage.get(SKeys.sleep) and not storage.get(SKeys.evening):
-        logger.info("turning on lights (schedule)")
         await turn_on_act(storage.get(SKeys.clicks), storage.get(SKeys.clicks))
 
 
-@looper(3, (datetime.timedelta(hours=10), calc_sunset))
+@looper(1, (datetime.timedelta(hours=10), calc_sunset))
 async def adaptive_lights_scenario():
     config = get_config()
     if config.pause:
@@ -98,7 +97,7 @@ async def adaptive_lights_scenario():
 
     (previous_b, previous_t, timestamp) = storage.get(SKeys.previous_b_t, (0, 0, 0))
 
-    needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor)
+    needed_b, needed_t = await get_needed_b_t(ds.lux_sensor, ds.room_sensor, force_interval=3, hash_seconds=0.5)
     needed_b = min(needed_b * 100, 70)
 
     if timestamp + 2 * MIN > time.time() and [previous_b, previous_t] == [needed_b, needed_t]:

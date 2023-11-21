@@ -10,6 +10,7 @@ from example.configuration.config import get_config
 from example.configuration.device_set import get_device_name
 from example.configuration.storage_keys import SKeys
 from smarthouse.storage import Storage
+from smarthouse.storage_keys import SysSKeys
 from smarthouse.telegram_client import TGClient
 from smarthouse.utils import get_time, get_timedelta_now
 from smarthouse.yandex_client.client import YandexClient
@@ -20,7 +21,7 @@ logger = logging.getLogger("root")
 async def restart_handler(tg_client: TGClient, update: Update):
     if update.message is None:
         return
-    logger.info("exited by user")
+    logger.info("finished by user")
     await tg_client.write_tg("exited by user", replay_message_id=update.message.id)
     await Storage()._write_storage(force=True)
     sys.exit(0)
@@ -30,7 +31,7 @@ async def pause_handler(tg_client: TGClient, update: Update):
     if update.message is None:
         return
     config = get_config()
-    logger.info("paused")
+    logger.info("paused by user")
     config.pause = True
     await tg_client.write_tg("done", replay_message_id=update.message.id)
 
@@ -39,7 +40,7 @@ async def start_handler(tg_client: TGClient, update: Update):
     if update.message is None:
         return
     config = get_config()
-    logger.info("started")
+    logger.info("started by user")
     config.pause = False
     await tg_client.write_tg("done", replay_message_id=update.message.id)
 
@@ -158,7 +159,7 @@ async def water_done_handler(tg_client: TGClient, update: Update):
 
 
 async def log_file_handler(tg_client: TGClient, update: Update):
-    await tg_client.write_tg_document("./main.log")
+    await tg_client.write_tg_document("./storage/main.log")
 
 
 async def storage_file_handler(tg_client: TGClient, update: Update):
@@ -214,7 +215,7 @@ async def log_lines_handler(tg_client: TGClient, update: Update):
         count = int(message.lstrip("/").rstrip("d"))
     except ValueError:
         return
-    async with aiofiles.open("./main.log", mode="r") as f:
+    async with aiofiles.open("./storage/main.log", mode="r") as f:
         content = await f.readlines()
     lines = [
         line.replace("INFO", "I").replace("ERROR", "E").replace("WARNING", "W").replace("DEBUG", "D")
@@ -321,16 +322,31 @@ async def paint_handler(tg_client: TGClient, update: Update):
     )
 
 
+async def clear_log_handler(tg_client: TGClient, update: Update):
+    if update.message is None:
+        return
+    storage = Storage()
+    await tg_client.write_tg_document("./storage/main.log")
+    storage.put(SysSKeys.clear_log, True)
+    await tg_client.write_tg(
+        "done",
+        replay_message_id=update.message.id,
+        to_delete=True,
+        to_delete_timestamp=time.time() + 2,
+    )
+    sys.exit(0)
+
+
 def get_commands():
     return [
         ("b1", "Button one click"),
         ("b3", "Button long press"),
         ("quarantine", "Get quarantine"),
         ("skip_alarm", "Skip alarm"),
-        ("stats", "Quarantine stats"),
         ("water_done", "Water in cleaner"),
-        ("minimize_lights", "Set max brightness"),
         ("restart", "Restart"),
+        ("stats", "Quarantine stats"),
+        ("minimize_lights", "Set max brightness"),
         ("20", "20 lines of logs"),
         ("b2", "Button double click"),
         ("pause", "Pause"),
@@ -339,6 +355,7 @@ def get_commands():
         ("50d", "50 lines of logs with debug"),
         ("log", "log file"),
         ("storage", "storage file"),
+        ("clear_log", "clear log file"),
         ("sleep", "sleep"),
         ("good_mo", "good_mo"),
         ("wc_off", "wc_off"),
@@ -373,5 +390,6 @@ def get_handlers():
         (r"^/exit_off$", exit_off_handler),
         (r"^/evening$", evening_handler),
         (r"^/paint$", paint_handler),
+        (r"^/clear_log$", clear_log_handler),
         (r"^\/?\d*d?$", log_lines_handler),
     ]
