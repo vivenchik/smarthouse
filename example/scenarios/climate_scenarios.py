@@ -127,14 +127,18 @@ async def bad_humidity_checker_scenario():
         from_humidifier_offed > 30 * MIN or sleep and from_humidifier_offed > 10 * MIN
     )
 
-    need_to_turn_on = max_humidity < 35 or max_humidity_home < 30
-    need_to_turn_off = max_humidity >= 55 or max_humidity_home >= 45 or long_off
+    if sleep:
+        need_to_turn_on = max_humidity_home < 35
+        need_to_turn_off = max_humidity_home >= 45
+    else:
+        need_to_turn_on = max_humidity < 40 or max_humidity_home < 35
+        need_to_turn_off = max_humidity >= 55 or max_humidity_home >= 45
 
     if not_often or long_on or long_off:
         if need_to_turn_on and (checked_is_off or not last_command_is_on or long_on):
             await ds.humidifier_new.on().run_async()
             storage.put(SKeys.humidifier_ond, time.time())
-        elif need_to_turn_off and not checked_is_off and (last_command_is_on or long_off):
+        elif (need_to_turn_off or long_off) and not checked_is_off and (last_command_is_on or long_off):
             await ds.humidifier_new.off().run_async(check=long_off, feature_checkable=True)
             storage.put(SKeys.humidifier_offed, time.time())
 
