@@ -76,7 +76,6 @@ async def scheduled_lights_scenario():
 
     storage.put(SKeys.adaptive_locked, False)
     if not storage.get(SKeys.lights_locked) and not storage.get(SKeys.sleep) and not storage.get(SKeys.evening):
-        logger.info("turning on lights (schedule)")
         await turn_on_act(storage.get(SKeys.clicks), storage.get(SKeys.clicks))
 
 

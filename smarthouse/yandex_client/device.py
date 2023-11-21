@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import functools
+import logging
 import time
 from typing import Any, Optional
 
@@ -13,10 +14,13 @@ from smarthouse.utils import Singleton
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.models import DeviceCapabilityAction
 
+logger = logging.getLogger("root")
+
 
 class Action:
-    def __init__(self, device_id, excl):
+    def __init__(self, device_id, device_name, excl):
         self.device_id = device_id
+        self.device_name = device_name
         self.excl = excl
         self.capabilities = []
 
@@ -55,7 +59,7 @@ async def run(
     feature_checkable=False,
 ):
     try:
-        return await YandexClient().change_devices_capabilities(
+        res = await YandexClient().change_devices_capabilities(
             actions_list=[action.action_dict() for action in actions],
             check=check,
             excl={action.device_id: action.excl for action in actions},
@@ -63,6 +67,19 @@ async def run(
             lock=lock,
             feature_checkable=feature_checkable,  # todo: check feature_checkable after specified timeout
         )
+        begin = ""
+        if len(actions) > 1:
+            logger.debug(f"{len(actions)} actions:")
+            begin = "    "
+        for action in actions:
+            logger.debug(
+                f"{begin}{action.device_name} :: "
+                + ", ".join(
+                    f"{capability_name}.{capability_instance}:{capability_value}"
+                    for capability_name, capability_instance, capability_value in action.action_dict().capabilities
+                )
+            )
+        return res
     except Exception as exc:
         raise exc
     finally:
@@ -175,7 +192,7 @@ class Device:
         return self.ya_client.quarantine_get(self.device_id)
 
     def action(self) -> Action:
-        return Action(self.device_id, self.excl)
+        return Action(self.device_id, self.name, self.excl)
 
 
 def make_response(func):

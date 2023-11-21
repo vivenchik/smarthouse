@@ -69,12 +69,11 @@ async def away_actions_scenario():
             storage.put(SKeys.cleanups, storage.get(SKeys.cleanups, 0) + 1)
 
         if 18 * MIN < door < after_last_notify:
-            logger.info("notifying")
+            logger.info("notifying second")
             await ya_client.run_scenario(config.alert_scenario_id)
             storage.put(SKeys.last_notify, time.time())
 
         if 20 * MIN < door < after_last_silence:
-            logger.info("turning off lights and music")
             storage.put(SKeys.lights_locked, True)
             await ya_client.run_scenario(config.silence_scenario_id)
             await asyncio.sleep(5)
@@ -95,7 +94,6 @@ async def away_actions_scenario():
             long_off = not last_command_is_on and from_humidifier_offed > 90 * MIN
 
             if not checked_is_off and water_level > 0 and (last_command_is_on or long_off):
-                logger.info("turning off humidifier")
                 await ds.humidifier_new.off().run_async(check=long_off, feature_checkable=True)
                 storage.put(SKeys.humidifier_offed, time.time())
 
@@ -112,12 +110,10 @@ async def away_actions_scenario():
     else:
         if door < 10 * MIN:
             if after_last_cleanup < 10 * MIN:
-                logger.info("turning off cleaner")
                 await ds.cleaner.off().run_async()
                 storage.put(SKeys.last_cleanup, time.time() - 10 * HOUR)
                 storage.put(SKeys.cleanups, max(storage.get(SKeys.cleanups, 0) - 1, 0))
             elif after_last_cleanup < 30 * MIN and after_last_quieting > after_last_cleanup:
-                logger.info("quieting cleaner")
                 await ds.cleaner.change_work_speed("quiet").run_async()
                 storage.put(SKeys.last_quieting, time.time())
 
@@ -127,14 +123,12 @@ async def away_actions_scenario():
 
                 after_sunset = get_timedelta_now() >= calc_sunset()
                 if after_sunset or get_time().hour < 6 or storage.get(SKeys.evening):
-                    logger.info("turning on lights (welcome)")
                     await turn_on_act(storage.get(SKeys.clicks), storage.get(SKeys.clicks))
                     if after_sunset:
                         await ya_client.run_scenario(config.music_scenario_id)
 
                 water_level = await ds.humidifier_new.water_level()
 
-                logger.info("turning on humidifier")
                 await ds.humidifier_new.on().run_async(check=water_level > 0)
                 storage.put(SKeys.humidifier_ond, time.time())
 

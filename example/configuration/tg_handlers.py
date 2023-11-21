@@ -21,7 +21,7 @@ logger = logging.getLogger("root")
 async def restart_handler(tg_client: TGClient, update: Update):
     if update.message is None:
         return
-    logger.info("exited by user")
+    logger.info("finished by user")
     await tg_client.write_tg("exited by user", replay_message_id=update.message.id)
     await Storage()._write_storage(force=True)
     sys.exit(0)
@@ -31,7 +31,7 @@ async def pause_handler(tg_client: TGClient, update: Update):
     if update.message is None:
         return
     config = get_config()
-    logger.info("paused")
+    logger.info("paused by user")
     config.pause = True
     await tg_client.write_tg("done", replay_message_id=update.message.id)
 
@@ -40,7 +40,7 @@ async def start_handler(tg_client: TGClient, update: Update):
     if update.message is None:
         return
     config = get_config()
-    logger.info("started")
+    logger.info("started by user")
     config.pause = False
     await tg_client.write_tg("done", replay_message_id=update.message.id)
 

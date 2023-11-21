@@ -76,7 +76,6 @@ async def bad_humidity_checker_scenario():
     humidifier_locked = storage.get(SKeys.humidifier_locked)
 
     if not humidifier_locked and water_level == 0:
-        logger.info("turning on humidifier")
         await ds.humidifier_new.on().run_async(check=False)
         storage.put(SKeys.humidifier_ond, time.time())
 
@@ -133,11 +132,9 @@ async def bad_humidity_checker_scenario():
 
     if not_often or long_on or long_off:
         if need_to_turn_on and (checked_is_off or not last_command_is_on or long_on):
-            logger.info("turning on humidifier")
             await ds.humidifier_new.on().run_async()
             storage.put(SKeys.humidifier_ond, time.time())
         elif need_to_turn_off and not checked_is_off and (last_command_is_on or long_off):
-            logger.info("turning off humidifier")
             await ds.humidifier_new.off().run_async(check=long_off, feature_checkable=True)
             storage.put(SKeys.humidifier_offed, time.time())
 
