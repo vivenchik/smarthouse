@@ -42,7 +42,7 @@ extras = {
 
 setup(
     name="smarthouse",
-    version="2.2.0",
+    version="2.3.0",
     description="Smart House Scenarios",
     long_description=long_description,
     long_description_content_type="text/markdown",
