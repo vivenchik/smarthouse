@@ -84,6 +84,7 @@ async def away_actions_scenario():
             await asyncio.sleep(5)
             await ya_client.run_scenario(config.bluetooth_off_scenario_id)
 
+            water_level = await ds.humidifier_new.water_level()
             humidifier_new_is_on = await ds.humidifier_new.is_on(MIN)
             checked_is_off = not humidifier_new_is_on
             humidifier_ond = storage.get(SKeys.humidifier_ond)
@@ -93,7 +94,7 @@ async def away_actions_scenario():
 
             long_off = not last_command_is_on and from_humidifier_offed > 90 * MIN
 
-            if not checked_is_off and (last_command_is_on or long_off):
+            if not checked_is_off and water_level > 0 and (last_command_is_on or long_off):
                 logger.info("turning off humidifier")
                 await ds.humidifier_new.off().run_async(check=long_off, feature_checkable=True)
                 storage.put(SKeys.humidifier_offed, time.time())
@@ -133,10 +134,9 @@ async def away_actions_scenario():
 
                 water_level = await ds.humidifier_new.water_level()
 
-                if water_level > 0:  # todo
-                    logger.info("turning on humidifier")
-                    await ds.humidifier_new.on().run_async()
-                    storage.put(SKeys.humidifier_ond, time.time())
+                logger.info("turning on humidifier")
+                await ds.humidifier_new.on().run_async(check=water_level > 0)
+                storage.put(SKeys.humidifier_ond, time.time())
 
                 if storage.get(SKeys.cleanups, 0) >= 6:
                     await storage.messages_queue.put({"message": "insert water in cleaner /water_done"})
