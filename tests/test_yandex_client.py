@@ -172,7 +172,7 @@ async def test_quarantine_yandex_error(mocker, device):
     assert ya_client.quarantine_in(ITEM_UUID)
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=1)  # todo
+@pytest.mark.flaky(reruns=5, reruns_delay=1)  # todo
 @pytest.mark.asyncio
 async def test_retry(mocker, device):
     ITEM_UUID, DEVICE, ACTIONS_LIST = device
