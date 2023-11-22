@@ -130,16 +130,16 @@ async def bad_humidity_checker_scenario():
     humidifier_new_humidity = await ds.humidifier_new.humidity()
 
     wc_term_trusted = not wc_term_humidity.quarantine
-    air_cleaner_trusted = not air_cleaner_humidity.quarantine and air_cleaner_is_on
+    air_cleaner_trusted = False  # not air_cleaner_humidity.quarantine and air_cleaner_is_on
     humidifier_new_trusted = not humidifier_new_humidity.quarantine
 
     max_humidity = max(
         wc_term_humidity.result if wc_term_trusted else 0,
-        # air_cleaner_humidity.result if air_cleaner_trusted else 0,
+        air_cleaner_humidity.result if air_cleaner_trusted else 0,
         humidifier_new_humidity.result if humidifier_new_trusted else 0,
     )
     max_humidity_home = max(
-        # air_cleaner_humidity.result if air_cleaner_trusted else 0,
+        air_cleaner_humidity.result if air_cleaner_trusted else 0,
         humidifier_new_humidity.result if humidifier_new_trusted else 0,
     )
 
