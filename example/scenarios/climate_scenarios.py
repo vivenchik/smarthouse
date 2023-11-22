@@ -105,7 +105,7 @@ async def bad_humidity_checker_scenario():
     if (
         not humidifier_locked_door
         and not balcony_door_closed
-        and balcony_door_open_time < 10 * MIN
+        and 1 * MIN < balcony_door_open_time < 10 * MIN
         and not checked_is_off
         and last_command_is_on
     ):
