@@ -148,7 +148,7 @@ async def bad_humidity_checker_scenario():
     from_humidifier_ond = time.time() - humidifier_ond
     from_humidifier_offed = time.time() - humidifier_offed
 
-    not_often = from_humidifier_ond > 30 * MIN and from_humidifier_offed > 30 * MIN
+    not_often = from_humidifier_ond > 10 * MIN and from_humidifier_offed > 10 * MIN
 
     long_on = last_command_is_on and from_humidifier_ond > HOUR
     long_off = not last_command_is_on and (
