@@ -3,7 +3,7 @@ import datetime
 import functools
 import logging
 import time
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -18,11 +18,12 @@ logger = logging.getLogger("root")
 
 
 class Action:
-    def __init__(self, device_id, device_name, excl):
+    def __init__(self, device_id, device_name, excl, debug_log: bool = False):
         self.device_id = device_id
         self.device_name = device_name
         self.excl = excl
-        self.capabilities = []
+        self.debug_log = debug_log
+        self.capabilities: List = []
 
     def add_capability(self, capability):
         self.capabilities.append(capability)
@@ -68,17 +69,18 @@ async def run(
             feature_checkable=feature_checkable,  # todo: check feature_checkable after specified timeout
         )
         begin = ""
-        if len(actions) > 1:
+        if len(actions) > 1 and any(action.debug_log for action in actions):
             logger.debug(f"{len(actions)} actions:")
             begin = "    "
         for action in actions:
-            logger.debug(
-                f"{begin}{action.device_name} :: "
-                + ", ".join(
-                    f"{capability_name}.{capability_instance}:{capability_value}"
-                    for capability_name, capability_instance, capability_value in action.action_dict().capabilities
+            if action.debug_log:
+                logger.debug(
+                    f"{begin}{action.device_name} :: "
+                    + ", ".join(
+                        f"{capability_name}.{capability_instance}:{capability_value}"
+                        for capability_name, capability_instance, capability_value in action.action_dict().capabilities
+                    )
                 )
-            )
         return res
     except Exception as exc:
         raise exc
@@ -160,12 +162,14 @@ class Device:
         ping=True,
         human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
         use_china_client=False,
+        debug_log=False,
     ):
         self.device_id = device_id
         self.name = name
         self.ya_client = YandexClient()
         self.excl: tuple[tuple[str, str], ...] = ()
         self.use_china_client = use_china_client
+        self.debug_log = debug_log
 
         self.ya_client.register_device(self.device_id, self.name, ping, human_time_func, use_china_client)
 
@@ -192,7 +196,7 @@ class Device:
         return self.ya_client.quarantine_get(self.device_id)
 
     def action(self) -> Action:
-        return Action(self.device_id, self.name, self.excl)
+        return Action(self.device_id, self.name, self.excl, self.debug_log)
 
 
 def make_response(func):
@@ -340,8 +344,16 @@ class RGBLamp(TemperatureLamp):
 
 
 class Cleaner(ControlDevice):
-    def __init__(self, device_id, name: str = ""):
-        super().__init__(device_id, name)
+    def __init__(
+        self,
+        device_id,
+        name: str = "",
+        ping=True,
+        human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
+        use_china_client=False,
+        debug_log=False,
+    ):
+        super().__init__(device_id, name, ping, human_time_func, use_china_client, debug_log)
 
         self.excl = (("on_off", "on"),)
 

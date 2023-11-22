@@ -88,7 +88,7 @@ async def get_lamp_response():
     global lamp_response
     if lamp_response is None:
         async with aiofiles.open(
-            os.path.join(os.path.dirname(__file__), "mock_data/lamp_response.json"), mode="r"
+            os.path.join(os.path.dirname(__file__), "mock_data/lamp_response.json"), mode="rt"
         ) as f:
             lamp_response = json.loads(await f.read())
     return copy.deepcopy(lamp_response)
@@ -98,7 +98,7 @@ async def get_action_response():
     global action_response
     if action_response is None:
         async with aiofiles.open(
-            os.path.join(os.path.dirname(__file__), "mock_data/action_response.json"), mode="r"
+            os.path.join(os.path.dirname(__file__), "mock_data/action_response.json"), mode="rt"
         ) as f:
             action_response = json.loads(await f.read())
     return copy.deepcopy(action_response)

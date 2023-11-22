@@ -215,7 +215,7 @@ async def log_lines_handler(tg_client: TGClient, update: Update):
         count = int(message.lstrip("/").rstrip("d"))
     except ValueError:
         return
-    async with aiofiles.open("./storage/main.log", mode="r") as f:
+    async with aiofiles.open("./storage/main.log", mode="rt") as f:
         content = await f.readlines()
     lines = [
         line.replace("INFO", "I").replace("ERROR", "E").replace("WARNING", "W").replace("DEBUG", "D")

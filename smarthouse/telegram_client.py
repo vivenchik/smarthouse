@@ -93,11 +93,12 @@ class TGClient(metaclass=Singleton):
                         response_message_id = response.message_id
                         await asyncio.sleep(0.5)
                         break
-                except (telegram.error.NetworkError, telegram.error.TimedOut):
-                    pass
+                except (telegram.error.NetworkError, telegram.error.TimedOut) as exc:
+                    _exc = exc
                 except httpx.ReadError as exc:
                     _exc = exc
                 except telegram.error.BadRequest as exc:
+                    _exc = exc
                     if exc.message == "Message is too long":
                         sep = len(message) // 2
                         new_lines = [m.end() for m in re.finditer("\n", message)]
@@ -129,7 +130,7 @@ class TGClient(metaclass=Singleton):
                         )
                         return
                     elif exc.message == "Message text is empty":
-                        pass
+                        return
                     else:
                         await asyncio.sleep(1)
                 except Exception as exc:
@@ -163,8 +164,8 @@ class TGClient(metaclass=Singleton):
                             read_timeout=10,
                         )
                         return
-                except (telegram.error.NetworkError, telegram.error.TimedOut):
-                    pass
+                except (telegram.error.NetworkError, telegram.error.TimedOut) as exc:
+                    _exc = exc
                 except (httpx.ReadError, telegram.error.BadRequest) as exc:
                     _exc = exc
                 except Exception as exc:
@@ -185,11 +186,12 @@ class TGClient(metaclass=Singleton):
                     async with self._bot:
                         await self._bot.delete_message(chat_id=self._chat_id, message_id=message_id, read_timeout=10)
                         return
-                except (telegram.error.NetworkError, telegram.error.TimedOut):
-                    pass
+                except (telegram.error.NetworkError, telegram.error.TimedOut) as exc:
+                    _exc = exc
                 except telegram.error.BadRequest as exc:
+                    _exc = exc
                     if exc.message == "Message to delete not found":
-                        pass
+                        return
                 except httpx.ReadError as exc:
                     _exc = exc
                 except Exception as exc:
