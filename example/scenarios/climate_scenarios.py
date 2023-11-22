@@ -90,7 +90,7 @@ async def bad_humidity_checker_scenario():
     balcony_door_open_time = await ds.balcony_door.open_time()
     balcony_door_closed = await ds.balcony_door.closed()
 
-    air_cleaner_is_on = await ds.air_cleaner.is_on()
+    # air_cleaner_is_on = await ds.air_cleaner.is_on()
     humidifier_new_is_on = await ds.humidifier_new.is_on()
 
     checked_is_off = not humidifier_new_is_on

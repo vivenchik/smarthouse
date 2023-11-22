@@ -84,7 +84,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         self._states: dict[str, StateItem] = {}
         self._last: dict[str, DeviceInfoResponse] = {}
 
-    @alru_cache(maxsize=1024)
+    @alru_cache(maxsize=1024)  # todo: remove lru
     async def _request(
         self, method: str, path: str, data: Optional[str] = None, use_china_client=False, ttl_hash=None
     ) -> dict:
