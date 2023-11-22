@@ -135,11 +135,11 @@ async def bad_humidity_checker_scenario():
 
     max_humidity = max(
         wc_term_humidity.result if wc_term_trusted else 0,
-        air_cleaner_humidity.result if air_cleaner_trusted else 0,
+        # air_cleaner_humidity.result if air_cleaner_trusted else 0,
         humidifier_new_humidity.result if humidifier_new_trusted else 0,
     )
     max_humidity_home = max(
-        air_cleaner_humidity.result if air_cleaner_trusted else 0,
+        # air_cleaner_humidity.result if air_cleaner_trusted else 0,
         humidifier_new_humidity.result if humidifier_new_trusted else 0,
     )
 
