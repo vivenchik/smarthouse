@@ -87,12 +87,47 @@ async def bad_humidity_checker_scenario():
     if humidifier_locked:
         return
 
-    wc_term_humidity = await ds.wc_term.humidity()
-    air_cleaner_humidity = await ds.air_cleaner.humidity()
-    humidifier_new_humidity = await ds.humidifier_new.humidity()
+    balcony_door_open_time = await ds.balcony_door.open_time()
+    balcony_door_closed = await ds.balcony_door.closed()
 
     air_cleaner_is_on = await ds.air_cleaner.is_on()
     humidifier_new_is_on = await ds.humidifier_new.is_on()
+
+    checked_is_off = not humidifier_new_is_on
+
+    humidifier_locked_door = storage.get(SKeys.humidifier_locked_door)
+
+    humidifier_ond = storage.get(SKeys.humidifier_ond)
+    humidifier_offed = storage.get(SKeys.humidifier_offed)
+
+    last_command_is_on = humidifier_ond > humidifier_offed
+
+    if (
+        not humidifier_locked_door
+        and not balcony_door_closed
+        and balcony_door_open_time < 10 * MIN
+        and not checked_is_off
+        and last_command_is_on
+    ):
+        await ds.humidifier_new.off().run_async(check=False, feature_checkable=True)
+        storage.put(SKeys.humidifier_offed, time.time())
+
+        storage.put(SKeys.humidifier_locked_door, True)
+
+    if humidifier_locked_door and (
+        not balcony_door_closed
+        and balcony_door_open_time > 10 * MIN
+        or balcony_door_closed
+        and balcony_door_open_time > 2 * MIN
+    ):
+        storage.put(SKeys.humidifier_locked_door, False)
+
+    if humidifier_locked_door:
+        return
+
+    wc_term_humidity = await ds.wc_term.humidity()
+    air_cleaner_humidity = await ds.air_cleaner.humidity()
+    humidifier_new_humidity = await ds.humidifier_new.humidity()
 
     wc_term_trusted = not wc_term_humidity.quarantine
     air_cleaner_trusted = not air_cleaner_humidity.quarantine and air_cleaner_is_on
@@ -109,13 +144,6 @@ async def bad_humidity_checker_scenario():
     )
 
     sleep = storage.get(SKeys.sleep)
-
-    checked_is_off = not humidifier_new_is_on
-
-    humidifier_ond = storage.get(SKeys.humidifier_ond)
-    humidifier_offed = storage.get(SKeys.humidifier_offed)
-
-    last_command_is_on = humidifier_ond > humidifier_offed
 
     from_humidifier_ond = time.time() - humidifier_ond
     from_humidifier_offed = time.time() - humidifier_offed
