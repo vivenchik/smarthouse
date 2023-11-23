@@ -183,7 +183,11 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         use_china_client: bool = False,
         hash_seconds: float | None = 1,
     ) -> dict:
-        return await self._request(method, path, json.dumps(data), use_china_client, self.get_ttl_hash(hash_seconds))
+        ttl_hash = self.get_ttl_hash(hash_seconds)
+        res = await self._request(method, path, json.dumps(data), use_china_client, ttl_hash)
+        if hash_seconds is None:
+            self._request.cache_invalidate(method, path, json.dumps(data), use_china_client, ttl_hash)
+        return res
 
     @retry
     async def info(self, hash_seconds: float | None = 1) -> dict:
