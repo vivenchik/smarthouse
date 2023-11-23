@@ -449,7 +449,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
 
     @retry
     async def run_scenario(self, scenario_id: str) -> dict:
-        return await self.request("POST", f"/scenarios/{scenario_id}/actions")
+        return await self.request("POST", f"/scenarios/{scenario_id}/actions", hash_seconds=None)
 
     @retry
     async def group_info(self, group_id: str, hash_seconds: float | None = 1) -> dict:
@@ -458,7 +458,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     @retry
     async def group_actions(self, group_id, actions) -> dict:
         data = {"actions": actions}
-        return await self.request("POST", f"/groups/{group_id}/actions", data=data)
+        return await self.request("POST", f"/groups/{group_id}/actions", data=data, hash_seconds=None)
 
     async def check_property(
         self, device_id: str, property_name: str, proceeded_last=False, hash_seconds: float | None = 1
