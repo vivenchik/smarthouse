@@ -198,6 +198,9 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
     ) -> DeviceInfoResponse:
         use_china_client = self._use_china_client.get(device_id, False)
+        if device_id not in self._calls_get:
+            self._calls_get[device_id] = 0
+        self._calls_get[device_id] += 1
         try:
             response = await self.request(
                 "GET", f"/devices/{device_id}", use_china_client=use_china_client, hash_seconds=hash_seconds
@@ -287,6 +290,9 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         use_china_client = False
         for _device in data.devices:
             use_china_client |= self._use_china_client.get(_device.id, False)
+            if _device.id not in self._calls_post:
+                self._calls_post[_device.id] = 0
+            self._calls_post[_device.id] += 1
         try:
             response = await self.request(
                 "POST", "/devices/actions", data=data.model_dump(), use_china_client=use_china_client, hash_seconds=None

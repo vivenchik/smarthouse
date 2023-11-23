@@ -29,6 +29,8 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
     _mutations: dict[str, Callable]
     _gss: dict[str, GapStat]
     _stats: dict[str, float]
+    _calls_get: dict[str, float]
+    _calls_post: dict[str, float]
 
     messages_queue: asyncio.Queue
     names: dict[str, str]
@@ -42,6 +44,8 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self._mutations: dict[str, Callable] = {}
         self._gss: dict[str, GapStat] = {}
         self._stats: dict[str, float] = {}
+        self._calls_get: dict[str, float] = {}
+        self._calls_post: dict[str, float] = {}
         self._states: dict[str, StateItem] = {}
         self._last: dict[str, tuple[DeviceInfoResponseType, float]] = {}
 
@@ -64,6 +68,8 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             self._ping.add(device_id)
         self._human_time_funcs[device_id] = self._human_time_funcs.get(device_id) or human_time_func
         self._use_china_client[device_id] = use_china_client
+        self._calls_get[device_id] = 0
+        self._calls_post[device_id] = 0
 
     def register_mutation(self, device_id, mutation):
         self._mutations[device_id] = mutation

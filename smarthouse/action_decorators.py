@@ -67,7 +67,7 @@ def looper(
                     if last_written + 24 * HOUR < time.time() + sleep:
                         last_written = time.time()
                         if calls_time > 10:
-                            logger.debug(f"{func.__name__} {calls_count} {int(calls_time)}")
+                            logger.debug(f"{func.__name__}: {calls_count} times, {int(calls_time)} secs")
                         calls_time = 0.0
                         calls_count = 0
 
