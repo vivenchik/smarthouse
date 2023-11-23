@@ -119,7 +119,7 @@ def base_client():
             self.call_count += 1
 
         async def _device_info(  # type: ignore[override]
-            self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
+            self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
         ) -> DeviceInfoResponse:
             return DeviceInfoResponse(**await get_lamp_response())
 
@@ -140,7 +140,7 @@ def ya_client():
             self.base_init()
 
         async def _device_info(
-            self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
+            self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
         ) -> DeviceInfoResponse:
             return DeviceInfoResponse(**await get_lamp_response())
 

@@ -47,7 +47,7 @@ class HAClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
 
     @retry
     async def _device_info(
-        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
+        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
     ) -> DeviceInfoResponse:
         try:
             state = await self._get_state(device_id)
@@ -82,7 +82,9 @@ class HAClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             )
         return device
 
-    async def check_property(self, device_id: str, property_name: str, proceeded_last=False, hash_seconds=1):
+    async def check_property(
+        self, device_id: str, property_name: str, proceeded_last=False, hash_seconds: float | None = 1
+    ):
         default = DEFAULTS["property"][property_name]
         device = await self.device_info(device_id, proceeded_last=proceeded_last, hash_seconds=hash_seconds)
         if device is None:

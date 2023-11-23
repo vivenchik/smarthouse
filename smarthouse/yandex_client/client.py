@@ -84,9 +84,14 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         self._states: dict[str, StateItem] = {}
         self._last: dict[str, DeviceInfoResponse] = {}
 
-    @alru_cache(maxsize=1024)  # todo: remove lru
+    @alru_cache(maxsize=1024, ttl=600)  # todo: remove lru
     async def _request(
-        self, method: str, path: str, data: Optional[str] = None, use_china_client=False, ttl_hash=None
+        self,
+        method: str,
+        path: str,
+        data: Optional[str] = None,
+        use_china_client=False,
+        ttl_hash: float | None = None,
     ) -> dict:
         if not self.prod and method == "POST":
             logger.debug(path)
@@ -167,21 +172,26 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         return response_data_json
 
     @staticmethod
-    def get_ttl_hash(seconds):
+    def get_ttl_hash(seconds: float | None):
         return int(time.time() / seconds) if seconds is not None else time.time()
 
     async def request(
-        self, method: str, path: str, data: Optional[dict] = None, use_china_client=False, hash_seconds=1
+        self,
+        method: str,
+        path: str,
+        data: Optional[dict] = None,
+        use_china_client: bool = False,
+        hash_seconds: float | None = 1,
     ) -> dict:
         return await self._request(method, path, json.dumps(data), use_china_client, self.get_ttl_hash(hash_seconds))
 
     @retry
-    async def info(self, hash_seconds=1) -> dict:
+    async def info(self, hash_seconds: float | None = 1) -> dict:
         return await self.request("GET", "/user/info", hash_seconds=hash_seconds)
 
     @retry
     async def _device_info(
-        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
+        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
     ) -> DeviceInfoResponse:
         use_china_client = self._use_china_client.get(device_id, False)
         try:
@@ -245,7 +255,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         return device
 
     async def device_info(
-        self, device_id: str, ignore_quarantine=False, proceeded_last=False, hash_seconds=1
+        self, device_id: str, ignore_quarantine=False, proceeded_last=False, hash_seconds: float | None = 1
     ) -> DeviceInfoResponse | None:
         result = await super().device_info(
             device_id=device_id,
@@ -257,7 +267,9 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             self.register_device(device_id, result.name)
         return result
 
-    async def get_current_capabilities(self, device_id: str, hash_seconds=1) -> list[tuple[str, str, Any]] | None:
+    async def get_current_capabilities(
+        self, device_id: str, hash_seconds: float | None = 1
+    ) -> list[tuple[str, str, Any]] | None:
         device_info = await self.device_info(device_id, hash_seconds=hash_seconds)
         return get_current_capabilities(device_info)
 
@@ -436,7 +448,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         return await self.request("POST", f"/scenarios/{scenario_id}/actions")
 
     @retry
-    async def group_info(self, group_id: str, hash_seconds=1) -> dict:
+    async def group_info(self, group_id: str, hash_seconds: float | None = 1) -> dict:
         return await self.request("GET", f"/groups/{group_id}", hash_seconds=hash_seconds)
 
     @retry
@@ -444,7 +456,9 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         data = {"actions": actions}
         return await self.request("POST", f"/groups/{group_id}/actions", data=data)
 
-    async def check_property(self, device_id: str, property_name: str, proceeded_last=False, hash_seconds=1):
+    async def check_property(
+        self, device_id: str, property_name: str, proceeded_last=False, hash_seconds: float | None = 1
+    ):
         default = DEFAULTS["property"][property_name]
         device = await self.device_info(device_id, proceeded_last=proceeded_last, hash_seconds=hash_seconds)
         if device is None:
@@ -453,7 +467,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             if response_property.parameters["instance"] == property_name:
                 return response_property.state["value"], response_property.last_updated
 
-    async def check_capability(self, device_id: str, capability_name: str, hash_seconds=1):
+    async def check_capability(self, device_id: str, capability_name: str, hash_seconds: float | None = 1):
         default = DEFAULTS["capability"][capability_name]
 
         if (device := await self.device_info(device_id, hash_seconds=hash_seconds)) is None:
@@ -462,7 +476,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             if capability.type == f"devices.capabilities.{capability_name}":
                 return capability.state["value"]
 
-    async def check_capability_instance(self, device_id: str, capability_name: str, hash_seconds=1):
+    async def check_capability_instance(self, device_id: str, capability_name: str, hash_seconds: float | None = 1):
         default = DEFAULTS["capability_instance"][capability_name]
 
         if (device := await self.device_info(device_id, hash_seconds=hash_seconds)) is None:

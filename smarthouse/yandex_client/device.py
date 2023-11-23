@@ -173,18 +173,18 @@ class Device:
 
         self.ya_client.register_device(self.device_id, self.name, ping, human_time_func, use_china_client)
 
-    async def info(self, hash_seconds=1):
+    async def info(self, hash_seconds: float | None = 1):
         return await self.ya_client.device_info(self.device_id, hash_seconds=hash_seconds)
 
-    async def check_capability(self, capability_name, hash_seconds=1):
+    async def check_capability(self, capability_name, hash_seconds: float | None = 1):
         return await self.ya_client.check_capability(self.device_id, capability_name, hash_seconds=hash_seconds)
 
-    async def check_capability_instance(self, capability_instance_name, hash_seconds=1):
+    async def check_capability_instance(self, capability_instance_name, hash_seconds: float | None = 1):
         return await self.ya_client.check_capability_instance(
             self.device_id, capability_instance_name, hash_seconds=hash_seconds
         )
 
-    async def check_property(self, property_name, proceeded_last=False, hash_seconds=1):
+    async def check_property(self, property_name, proceeded_last=False, hash_seconds: float | None = 1):
         return await self.ya_client.check_property(
             self.device_id, property_name, proceeded_last=proceeded_last, hash_seconds=hash_seconds
         )
@@ -208,7 +208,7 @@ def make_response(func):
 
 
 class ControlDevice(Device):
-    async def is_on(self, hash_seconds=1):
+    async def is_on(self, hash_seconds: float | None = 1):
         return await self.check_capability("on_off", hash_seconds=hash_seconds)
 
     def on(self) -> Action:
@@ -228,37 +228,37 @@ class SwitchLamp(ControlDevice):
 
 class LuxSensor(Device):
     @make_response
-    async def illumination(self, proceeded_last=False, hash_seconds=1):
+    async def illumination(self, proceeded_last=False, hash_seconds: float | None = 1):
         response = await self.check_property("illumination", proceeded_last=proceeded_last, hash_seconds=hash_seconds)
         return response[0]
 
 
 class MotionSensor(LuxSensor):
-    async def motion_time(self, hash_seconds=1):
+    async def motion_time(self, hash_seconds: float | None = 1):
         response = await self.check_property("motion", hash_seconds=hash_seconds)
         return time.time() - response[1]
 
 
 class Door(Device):
-    async def open_time(self, hash_seconds=1):
+    async def open_time(self, hash_seconds: float | None = 1):
         response = await self.check_property("open", hash_seconds=hash_seconds)
         return time.time() - response[1]
 
-    async def closed(self, hash_seconds=1):
+    async def closed(self, hash_seconds: float | None = 1):
         response = await self.check_property("open", hash_seconds=hash_seconds)
         return response[0] == "closed"
 
 
 class HumiditySensor(Device):
     @make_response
-    async def humidity(self, hash_seconds=1):
+    async def humidity(self, hash_seconds: float | None = 1):
         response = await self.check_property("humidity", hash_seconds=hash_seconds)
         return response[0]
 
 
 class AirSensor(HumiditySensor):
     @make_response
-    async def temperature(self, hash_seconds=1):
+    async def temperature(self, hash_seconds: float | None = 1):
         response = await self.check_property("temperature", hash_seconds=hash_seconds)
         return response[0]
 
@@ -268,7 +268,7 @@ class AirCleaner(ControlDevice, AirSensor):
 
 
 class TemperatureLamp(ControlDevice):
-    async def color_setting(self, hash_seconds=1):
+    async def color_setting(self, hash_seconds: float | None = 1):
         return await self.check_capability_instance("color_setting", hash_seconds=hash_seconds)
 
     def _fix_temperature_k(self, temperature_k):
@@ -357,7 +357,7 @@ class Cleaner(ControlDevice):
 
         self.excl = (("on_off", "on"),)
 
-    async def battery_level(self, hash_seconds=1):
+    async def battery_level(self, hash_seconds: float | None = 1):
         response = await self.check_property("battery_level", hash_seconds=hash_seconds)
         return response[0]
 
@@ -369,7 +369,7 @@ class Cleaner(ControlDevice):
 
 
 class Humidifier(ControlDevice, HumiditySensor):
-    async def water_level(self, hash_seconds=1):
+    async def water_level(self, hash_seconds: float | None = 1):
         response = await self.check_property("water_level", hash_seconds=hash_seconds)
         return response[0]
 
@@ -380,7 +380,7 @@ class HumidifierOld(Humidifier):
 
 
 class Button(ControlDevice):
-    async def button(self, hash_seconds=1):
+    async def button(self, hash_seconds: float | None = 1):
         response = await self.check_property("button", hash_seconds=hash_seconds)
         return response
 

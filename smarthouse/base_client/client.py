@@ -160,12 +160,12 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         return filtered_ids
 
     async def _device_info(
-        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
+        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
     ) -> DeviceInfoResponseType:
         raise Exception()
 
     async def device_info(
-        self, device_id: str, ignore_quarantine=False, proceeded_last=False, hash_seconds=1
+        self, device_id: str, ignore_quarantine=False, proceeded_last=False, hash_seconds: float | None = 1
     ) -> DeviceInfoResponseType | None:
         if proceeded_last:
             return self.last_get(device_id)[0] if self.last_in(device_id) else None
