@@ -64,6 +64,8 @@ class Config(BaseSettings):
     balcony_sensor_id: str = "fc7b8a0c-83f6-4047-a486-309c780f4a29"
     balcony_sensor_2_id: str = "2b5f973c-6243-44d4-bf15-e86378aeaa25"
     balcony_door_id: str = "18461558-ca30-4287-a171-b1f3dda8a4e1"
+    bed_air_sensor_id: str = "ad58c89c-0c52-43c3-b734-c218e7a184f7"
+
     clocks_on_scenario_id: str = "18bb2bcd-4e97-4164-a343-5db256549fcc"
     clocks_off_scenario_id: str = "2d4e12e8-e191-4125-a4e3-102c7353e208"
     music_scenario_id: str = "aa198797-c04e-4ea6-a4a5-b829ed7a7ad2"

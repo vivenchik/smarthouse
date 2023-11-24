@@ -56,6 +56,7 @@ class DeviceSet(metaclass=Singleton):
         self.hub_power = Switch(config.hub_power_id, "Хаб", ping=False, debug_log=True)
 
         self.wc_term = AirSensor(config.term_id, "Датчик воздуха туалет")
+        self.bed_air_sensor = AirSensor(config.bed_air_sensor_id, "Датчик воздуха спальня")
         self.air_cleaner = AirCleaner(
             config.air_cleaner_id,
             "Очиститель воздуха",
