@@ -185,6 +185,7 @@ class Device:
         )
 
     async def check_property(self, property_name, proceeded_last=False, hash_seconds: float | None = 1):
+        # todo: processed_last, defaults
         return await self.ya_client.check_property(
             self.device_id, property_name, proceeded_last=proceeded_last, hash_seconds=hash_seconds
         )
@@ -369,8 +370,8 @@ class Cleaner(ControlDevice):
 
 
 class Humidifier(ControlDevice, HumiditySensor):
-    async def water_level(self, hash_seconds: float | None = 1):
-        response = await self.check_property("water_level", hash_seconds=hash_seconds)
+    async def water_level(self, proceeded_last=False, hash_seconds: float | None = 1):
+        response = await self.check_property("water_level", proceeded_last=proceeded_last, hash_seconds=hash_seconds)
         return response[0]
 
 

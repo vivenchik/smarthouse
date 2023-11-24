@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import time
@@ -14,52 +15,52 @@ def request(path):
             httprequest = Request(f"{url}/{path}", headers={"AuthorizationI": password}, method="POST")
             with urlopen(httprequest) as response:
                 if response.status == 200:
-                    return 0
+                    json_response = json.loads(response.read().decode("utf-8"))
+                    return json_response.get("response")
                 logger.error(response.status)
             time.sleep(2)
         except Exception as exc:
             logger.exception(exc)
             time.sleep(2)
-    return 1
+    return "ошибка"
 
 
 def handler(event, context):
-    result = None
-    resp = "готово"
+    api_response = None
+    default_resp = "готово"
     if (
         "request" in event
         and "original_utterance" in event["request"]
         and len(event["request"]["original_utterance"]) > 0
     ):
         if event["request"]["original_utterance"] == "спать":
-            resp = "спокойной"
-            result = request("sleep")
+            default_resp = "спокойной"
+            api_response = request("sleep")
         if event["request"]["original_utterance"] == "доброе утро":
-            resp = "доброе!"
-            result = request("good_mo")
+            default_resp = "Доброе!"
+            api_response = request("good_mo")
         if event["request"]["original_utterance"] == "убавь свет":
-            result = request("minimize_lights")
+            api_response = request("minimize_lights")
         if event["request"]["original_utterance"] == "туалет":
-            result = request("wc_off")
+            api_response = request("wc_off")
         if event["request"]["original_utterance"] == "балкон":
-            result = request("balcony_off")
+            api_response = request("balcony_off")
         if event["request"]["original_utterance"] == "коридор":
-            result = request("exit_off")
+            api_response = request("exit_off")
         if event["request"]["original_utterance"] == "вечер":
-            resp = "сейчас"
-            result = request("evening")
+            default_resp = "сейчас"
+            api_response = request("evening")
         if event["request"]["original_utterance"] == "рисование":
-            resp = "жги"
-            result = request("paint")
+            default_resp = "жги"
+            api_response = request("paint")
 
-    if result != 0:
+    if api_response == "ошибка":
         logger.error(event["request"]["original_utterance"])
-        resp = "ошибка"
 
     response = {
         "version": event["version"],
         "session": event["session"],
-        "response": {"text": resp, "end_session": "true"},
+        "response": {"text": api_response or default_resp, "end_session": "true"},
     }
 
     return response

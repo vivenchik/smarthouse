@@ -197,6 +197,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     async def _device_info(
         self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
     ) -> DeviceInfoResponse:
+        # todo: move _calls_get to cached
         use_china_client = self._use_china_client.get(device_id, False)
         if device_id not in self._calls_get:
             self._calls_get[device_id] = 0
