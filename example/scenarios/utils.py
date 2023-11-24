@@ -115,24 +115,24 @@ async def get_needed_b_t(
         else False
     )
 
-    state_lux = await sensor.illumination(proceeded_last=force, hash_seconds=hash_seconds)
+    state_lux = await sensor.illumination(process_last=force, hash_seconds=hash_seconds)
     if not state_lux.quarantine:
         result_state_lux = state_lux
     else:
         if second_sensor is None:
             if sensor.quarantine().timestamp + 5 * MIN > time.time():
-                result_state_lux = await sensor.illumination(proceeded_last=True, hash_seconds=hash_seconds)
+                result_state_lux = await sensor.illumination(process_last=True, hash_seconds=hash_seconds)
             else:
                 result_state_lux = state_lux
         else:
-            second_state_lux = await second_sensor.illumination(proceeded_last=second_force, hash_seconds=hash_seconds)
+            second_state_lux = await second_sensor.illumination(process_last=second_force, hash_seconds=hash_seconds)
             if not second_state_lux.quarantine:
                 result_state_lux = second_state_lux
             else:
                 if sensor.quarantine().timestamp + 5 * MIN > time.time():
-                    result_state_lux = await sensor.illumination(proceeded_last=True, hash_seconds=hash_seconds)
+                    result_state_lux = await sensor.illumination(process_last=True, hash_seconds=hash_seconds)
                 elif second_sensor.quarantine().timestamp + 5 * MIN > time.time():
-                    result_state_lux = await second_sensor.illumination(proceeded_last=True, hash_seconds=hash_seconds)
+                    result_state_lux = await second_sensor.illumination(process_last=True, hash_seconds=hash_seconds)
                 else:
                     result_state_lux = state_lux
 

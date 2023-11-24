@@ -91,7 +91,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         path: str,
         data: Optional[str] = None,
         use_china_client=False,
-        calls: tuple[tuple[str, str]] = (),
+        calls: tuple[tuple[str, str], ...] = (),
         ttl_hash: float | None = None,
     ) -> dict:
         for device_id, call in calls:
@@ -192,11 +192,11 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         path: str,
         data: Optional[dict] = None,
         use_china_client: bool = False,
-        calls: dict = None,
+        calls: Optional[dict] = None,
         hash_seconds: float | None = 1,
     ) -> dict:
         ttl_hash = self.get_ttl_hash(hash_seconds)
-        calls_list = tuple(sorted(calls.items()))
+        calls_list = tuple(sorted((calls or {}).items()))
         res = await self._request(method, path, json.dumps(data), use_china_client, calls_list, ttl_hash)
         if hash_seconds is None:
             self._request.cache_invalidate(method, path, json.dumps(data), use_china_client, calls_list, ttl_hash)
@@ -214,7 +214,11 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         calls = {device_id: "get"}
         try:
             response = await self.request(
-                "GET", f"/devices/{device_id}", use_china_client=use_china_client, calls=calls, hash_seconds=hash_seconds
+                "GET",
+                f"/devices/{device_id}",
+                use_china_client=use_china_client,
+                calls=calls,
+                hash_seconds=hash_seconds,
             )
         except ProgrammingError as exc:
             exc.dont_log = False
@@ -273,12 +277,12 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         return device
 
     async def device_info(
-        self, device_id: str, ignore_quarantine=False, proceeded_last=False, hash_seconds: float | None = 1
+        self, device_id: str, ignore_quarantine=False, process_last=False, hash_seconds: float | None = 1
     ) -> DeviceInfoResponse | None:
         result = await super().device_info(
             device_id=device_id,
             ignore_quarantine=ignore_quarantine,
-            proceeded_last=proceeded_last,
+            process_last=process_last,
             hash_seconds=hash_seconds,
         )
         if (device_id not in self.names or self.names[device_id] == "") and result is not None:
@@ -305,7 +309,12 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             calls[_device.id] = "post"
         try:
             response = await self.request(
-                "POST", "/devices/actions", data=data.model_dump(), use_china_client=use_china_client, calls=calls, hash_seconds=None
+                "POST",
+                "/devices/actions",
+                data=data.model_dump(),
+                use_china_client=use_china_client,
+                calls=calls,
+                hash_seconds=None,
             )
         except ProgrammingError as exc:
             exc.device_ids = [device.id for device in data.devices]
@@ -477,10 +486,10 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         return await self.request("POST", f"/groups/{group_id}/actions", data=data, hash_seconds=None)
 
     async def check_property(
-        self, device_id: str, property_name: str, proceeded_last=False, hash_seconds: float | None = 1
+        self, device_id: str, property_name: str, process_last=False, hash_seconds: float | None = 1
     ):
         default = DEFAULTS["property"][property_name]
-        device = await self.device_info(device_id, proceeded_last=proceeded_last, hash_seconds=hash_seconds)
+        device = await self.device_info(device_id, process_last=process_last, hash_seconds=hash_seconds)
         if device is None:
             return default[0], default[1]()
         for response_property in device.properties:

@@ -184,10 +184,10 @@ class Device:
             self.device_id, capability_instance_name, hash_seconds=hash_seconds
         )
 
-    async def check_property(self, property_name, proceeded_last=False, hash_seconds: float | None = 1):
-        # todo: processed_last, defaults
+    async def check_property(self, property_name, process_last=False, hash_seconds: float | None = 1):
+        # todo: process_last, defaults, quarantine here
         return await self.ya_client.check_property(
-            self.device_id, property_name, proceeded_last=proceeded_last, hash_seconds=hash_seconds
+            self.device_id, property_name, process_last=process_last, hash_seconds=hash_seconds
         )
 
     def in_quarantine(self):
@@ -229,8 +229,8 @@ class SwitchLamp(ControlDevice):
 
 class LuxSensor(Device):
     @make_response
-    async def illumination(self, proceeded_last=False, hash_seconds: float | None = 1):
-        response = await self.check_property("illumination", proceeded_last=proceeded_last, hash_seconds=hash_seconds)
+    async def illumination(self, process_last=False, hash_seconds: float | None = 1):
+        response = await self.check_property("illumination", process_last=process_last, hash_seconds=hash_seconds)
         return response[0]
 
 
@@ -370,8 +370,8 @@ class Cleaner(ControlDevice):
 
 
 class Humidifier(ControlDevice, HumiditySensor):
-    async def water_level(self, proceeded_last=False, hash_seconds: float | None = 1):
-        response = await self.check_property("water_level", proceeded_last=proceeded_last, hash_seconds=hash_seconds)
+    async def water_level(self, process_last=False, hash_seconds: float | None = 1):
+        response = await self.check_property("water_level", process_last=process_last, hash_seconds=hash_seconds)
         return response[0]
 
 

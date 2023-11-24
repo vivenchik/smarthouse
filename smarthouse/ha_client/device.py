@@ -12,10 +12,10 @@ class Device:
     async def info(self, hash_seconds: float | None = 1):
         return await self.ha_client.device_info(self.entity_id, hash_seconds=hash_seconds)
 
-    async def check_property(self, entity_id, property_name, proceeded_last=False, hash_seconds: float | None = 1):
+    async def check_property(self, entity_id, property_name, process_last=False, hash_seconds: float | None = 1):
         return (
             await self.ha_client.check_property(
-                entity_id or self.entity_id, property_name, proceeded_last=proceeded_last, hash_seconds=hash_seconds
+                entity_id or self.entity_id, property_name, process_last=process_last, hash_seconds=hash_seconds
             )
         )[0]
 

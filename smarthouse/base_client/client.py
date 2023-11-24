@@ -171,9 +171,9 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         raise Exception()
 
     async def device_info(
-        self, device_id: str, ignore_quarantine=False, proceeded_last=False, hash_seconds: float | None = 1
+        self, device_id: str, ignore_quarantine=False, process_last=False, hash_seconds: float | None = 1
     ) -> DeviceInfoResponseType | None:
-        if proceeded_last:
+        if process_last:
             return self.last_get(device_id)[0] if self.last_in(device_id) else None
         try:
             if not ignore_quarantine and self.quarantine_in(device_id):

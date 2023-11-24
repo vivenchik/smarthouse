@@ -36,7 +36,7 @@ async def sleep(request: web.Request):
 
     await storage.tasks.put("sleep")
 
-    water_level = await ds.humidifier_new.water_level(proceeded_last=True)
+    water_level = await ds.humidifier_new.water_level(process_last=True)
     low_water_level = water_level < 30
 
     return web.json_response({"response": "Мало воды в увлажнителе!" if low_water_level else None})
