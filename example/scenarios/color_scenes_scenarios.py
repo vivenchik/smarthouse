@@ -145,6 +145,7 @@ async def button_scenario():
         if state_button == "long_press":
             if datetime.timedelta(hours=10) < get_timedelta_now() < calc_sunset():
                 storage.put(SKeys.adaptive_locked, True)
+                storage.put(SKeys.previous_b_t, (0, 0, 0))
             await turn_off_all()
             storage.put(SKeys.last_off, time.time())
             return

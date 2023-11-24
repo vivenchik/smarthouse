@@ -11,7 +11,7 @@ routes = web.RouteTableDef()
 
 @routes.get("/health")
 async def health(request: web.Request):
-    return web.Response(body={})
+    return web.json_response({})
 
 
 @routes.get("/logs")
@@ -22,7 +22,7 @@ async def logs(request: web.Request):
 
     async with aiofiles.open("./storage/main.log", mode="rt") as f:
         content = await f.read()
-    return web.Response(body=content)
+    return web.json_response(content)
 
 
 @routes.post("/sleep")
@@ -39,7 +39,7 @@ async def sleep(request: web.Request):
     water_level = await ds.humidifier_new.water_level(proceeded_last=True)
     low_water_level = water_level < 30
 
-    return web.Response(body={"response": "Мало воды в увлажнителе!" if low_water_level else None})
+    return web.json_response({"response": "Мало воды в увлажнителе!" if low_water_level else None})
 
 
 @routes.post("/good_mo")
@@ -51,7 +51,7 @@ async def good_mo(request: web.Request):
     storage = Storage()
     await storage.tasks.put("good_mo")
 
-    return web.Response(body={})
+    return web.json_response({})
 
 
 @routes.post("/wc_off")
@@ -63,7 +63,7 @@ async def wc_off(request: web.Request):
     storage = Storage()
     await storage.tasks.put("wc_off")
 
-    return web.Response(body={})
+    return web.json_response({})
 
 
 @routes.post("/balcony_off")
@@ -75,7 +75,7 @@ async def balcony_off(request: web.Request):
     storage = Storage()
     await storage.tasks.put("balcony_off")
 
-    return web.Response(body={})
+    return web.json_response({})
 
 
 @routes.post("/exit_off")
@@ -87,7 +87,7 @@ async def exit_off(request: web.Request):
     storage = Storage()
     await storage.tasks.put("exit_off")
 
-    return web.Response(body={})
+    return web.json_response({})
 
 
 @routes.post("/minimize_lights")
@@ -99,7 +99,7 @@ async def minimize_lights(request: web.Request):
     storage = Storage()
     storage.put(SKeys.max_brightness, 0.4)
 
-    return web.Response(body={})
+    return web.json_response({})
 
 
 @routes.post("/evening")
@@ -112,7 +112,7 @@ async def evening(request: web.Request):
     storage.put(SKeys.evening, not storage.get(SKeys.evening, True))
     await storage.tasks.put("evening")
 
-    return web.Response(body={})
+    return web.json_response({})
 
 
 @routes.post("/paint")
@@ -124,4 +124,4 @@ async def paint(request: web.Request):
     storage = Storage()
     await storage.tasks.put("paint")
 
-    return web.Response(body={})
+    return web.json_response({})
