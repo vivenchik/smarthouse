@@ -47,7 +47,7 @@ async def worker_for_web_scenario():
         await run_async(get_mode_with_off(ds.paint))
 
     if task == "air_cleaner_off":
-        await ds.air_cleaner.off().run_async(lock_level=1, lock=datetime.timedelta(hours=3))
+        await ds.air_cleaner.off().run_async(lock_level=10, lock=datetime.timedelta(hours=3))
 
     storage.tasks.task_done()
 
