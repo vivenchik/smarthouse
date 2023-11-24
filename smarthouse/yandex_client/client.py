@@ -91,8 +91,19 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         path: str,
         data: Optional[str] = None,
         use_china_client=False,
+        calls: tuple[tuple[str, str]] = (),
         ttl_hash: float | None = None,
     ) -> dict:
+        for device_id, call in calls:
+            if device_id not in self._calls_get:
+                self._calls_get[device_id] = 0
+            if device_id not in self._calls_post:
+                self._calls_post[device_id] = 0
+            if call == "get":
+                self._calls_get[device_id] += 1
+            if call == "post":
+                self._calls_post[device_id] += 1
+
         if not self.prod and method == "POST":
             logger.debug(path)
 
@@ -181,12 +192,14 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
         path: str,
         data: Optional[dict] = None,
         use_china_client: bool = False,
+        calls: dict = None,
         hash_seconds: float | None = 1,
     ) -> dict:
         ttl_hash = self.get_ttl_hash(hash_seconds)
-        res = await self._request(method, path, json.dumps(data), use_china_client, ttl_hash)
+        calls_list = tuple(sorted(calls.items()))
+        res = await self._request(method, path, json.dumps(data), use_china_client, calls_list, ttl_hash)
         if hash_seconds is None:
-            self._request.cache_invalidate(method, path, json.dumps(data), use_china_client, ttl_hash)
+            self._request.cache_invalidate(method, path, json.dumps(data), use_china_client, calls_list, ttl_hash)
         return res
 
     @retry
@@ -197,14 +210,11 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
     async def _device_info(
         self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
     ) -> DeviceInfoResponse:
-        # todo: move _calls_get to cached
         use_china_client = self._use_china_client.get(device_id, False)
-        if device_id not in self._calls_get:
-            self._calls_get[device_id] = 0
-        self._calls_get[device_id] += 1
+        calls = {device_id: "get"}
         try:
             response = await self.request(
-                "GET", f"/devices/{device_id}", use_china_client=use_china_client, hash_seconds=hash_seconds
+                "GET", f"/devices/{device_id}", use_china_client=use_china_client, calls=calls, hash_seconds=hash_seconds
             )
         except ProgrammingError as exc:
             exc.dont_log = False
@@ -289,14 +299,13 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             ]
         )
         use_china_client = False
+        calls = {}
         for _device in data.devices:
             use_china_client |= self._use_china_client.get(_device.id, False)
-            if _device.id not in self._calls_post:
-                self._calls_post[_device.id] = 0
-            self._calls_post[_device.id] += 1
+            calls[_device.id] = "post"
         try:
             response = await self.request(
-                "POST", "/devices/actions", data=data.model_dump(), use_china_client=use_china_client, hash_seconds=None
+                "POST", "/devices/actions", data=data.model_dump(), use_china_client=use_china_client, calls=calls, hash_seconds=None
             )
         except ProgrammingError as exc:
             exc.device_ids = [device.id for device in data.devices]
