@@ -125,3 +125,15 @@ async def paint(request: web.Request):
     await storage.tasks.put("paint")
 
     return web.json_response({})
+
+
+@routes.post("/air_cleaner_off")
+async def air_cleaner_off(request: web.Request):
+    config = get_config()
+    if config.auth != request.headers.get("AuthorizationI"):
+        raise web.HTTPForbidden()
+
+    storage = Storage()
+    await storage.tasks.put("air_cleaner_off")
+
+    return web.json_response({})

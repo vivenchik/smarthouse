@@ -53,6 +53,8 @@ def handler(event, context):
         if event["request"]["original_utterance"] == "рисование":
             default_resp = "жги"
             api_response = request("paint")
+        if event["request"]["original_utterance"] == "свечка":
+            api_response = request("air_cleaner_off")
 
     if api_response == "ошибка":
         logger.error(event["request"]["original_utterance"])
