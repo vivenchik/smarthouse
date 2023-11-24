@@ -119,13 +119,13 @@ async def button_scenario():
     )
 
     if button_clicked or storage_button_clicked:
-        storage.put(SKeys.last_click, max(button_time, time.time()))
-        storage.put(SKeys.lights_locked, False)
-        storage.put(SKeys.paint, False)
-
         if not button_clicked and storage_button_clicked:
             state_button = storage_commands[0][0]
             button_time = storage_commands[0][1]
+
+        storage.put(SKeys.last_click, max(button_time, time.time()))
+        storage.put(SKeys.lights_locked, False)
+        storage.put(SKeys.paint, False)
 
         storage.put(SKeys.last_click, max(button_time, time.time()))
 
