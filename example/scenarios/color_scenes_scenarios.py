@@ -111,7 +111,7 @@ async def button_scenario():
 
     storage_commands = sorted(
         [(key[len("__click_") :], value) for key, value in storage.items() if key.startswith("__click")],
-        key=lambda x: x[1],
+        key=lambda x: -x[1],
     )
     button_clicked = button_time - last_click > 0.01 and button_time > startup
     storage_button_clicked = (
