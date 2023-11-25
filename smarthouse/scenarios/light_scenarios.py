@@ -67,11 +67,13 @@ async def tg_actions():
     await tg_client.update_tg()
 
 
-@looper(0.1)
+@looper(3)
 async def clear_tg():
     tg_client = TGClient()
 
     to_delete_timestamp, message_id = await tg_client.to_delete_messages.get()
+    if time.time() - to_delete_timestamp < 5:
+        return 0.1
     if to_delete_timestamp <= time.time():
         await tg_client.delete_message(int(message_id))
     else:
@@ -136,8 +138,19 @@ async def stats():
         clean_path = path
         if path.startswith("/devices/"):
             clean_path = "/devices/" + ya_client.names.get(path[len("/devices/") :], path[len("/devices/") :])
-        logger.debug(f"{clean_path}: {total_time}")
+        if total_time > 10:
+            logger.debug(f"{clean_path}: {int(total_time)} secs")
     ya_client._stats = {}
+
+    for device_id, calls_get in sorted(ya_client._calls_get.items(), key=lambda item: -item[1]):
+        if calls_get > 5:
+            logger.debug(f"GET {ya_client.names.get(device_id)}: {calls_get} times")
+    ya_client._calls_get = {}
+
+    for device_id, calls_post in sorted(ya_client._calls_post.items(), key=lambda item: -item[1]):
+        if calls_post > 5:
+            logger.debug(f"POST {ya_client.names.get(device_id)}: {calls_post} times")
+    ya_client._calls_post = {}
 
     logger.debug(f"max_run_queue_size: {storage.get(SysSKeys.max_run_queue_size)}")
     logger.debug(f"max_check_and_run_queue_size: {storage.get(SysSKeys.max_check_and_run_queue_size)}")

@@ -52,14 +52,16 @@ class DeviceSet(metaclass=Singleton):
         self.exit_door = Door(config.exit_door_id, "Выходная дверь")
         self.balcony_door = Door(config.balcony_door_id, "Балконная дверь")
 
-        self.air = Switch(config.air_id, "Вытяжка ванная")
-        self.hub_power = Switch(config.hub_power_id, "Хаб", ping=False)
+        self.air = Switch(config.air_id, "Вытяжка ванная", debug_log=True)
+        self.hub_power = Switch(config.hub_power_id, "Хаб", ping=False, debug_log=True)
 
         self.wc_term = AirSensor(config.term_id, "Датчик воздуха туалет")
+        self.bed_air_sensor = AirSensor(config.bed_air_sensor_id, "Датчик воздуха спальня")
         self.air_cleaner = AirCleaner(
             config.air_cleaner_id,
             "Очиститель воздуха",
             human_time_func=lambda timestamp=None: (timestamp or time.time()) + 3 * HOUR,
+            debug_log=True,
         )
 
         self.lamp_e_1 = HSVLamp(config.lamp_e_1_id, "Лампа выход 1")
@@ -81,14 +83,20 @@ class DeviceSet(metaclass=Singleton):
         self.piano_lamp = RGBLamp(config.piano_lamp_id, "Лампа у пианино")
         self.bed_lamp = RGBLamp(config.bed_lamp_id, "Прикроватная лампа")
 
-        self.cleaner = Cleaner(config.cleaner_id, "Пылесос")
+        self.cleaner = Cleaner(config.cleaner_id, "Пылесос", debug_log=True)
 
-        self.humidifier_new = Humidifier(config.humidifier_new_id, "Увлажнитель", use_china_client=True)
+        self.humidifier_new = Humidifier(
+            config.humidifier_new_id,
+            "Увлажнитель",
+            human_time_func=lambda timestamp=None: (timestamp or time.time()) + HOUR,
+            use_china_client=True,
+            debug_log=True,
+        )
 
         self.button = Button(config.button_id, "Кнопка")
         self.button_2 = Button(config.button_2_id, "Кнопка спальня")
 
-        self.curtain = Curtain(config.curtain_id, "Шторы")
+        self.curtain = Curtain(config.curtain_id, "Шторы", debug_log=True)
 
     @property
     def all_devices(self):
@@ -111,7 +119,7 @@ class DeviceSet(metaclass=Singleton):
             self.bed_lamp,
             self.piano_lamp,
             self.lux_sensor,
-            # self.air_cleaner,
+            self.air_cleaner,
             self.humidifier_new,
             self.button,
             self.air,

@@ -70,7 +70,7 @@ async def check_and_fix_act(clicks, prev, shadow: bool = False):
     reg_on_prev(prev, shadow=shadow)
 
 
-async def light_ons(hash_seconds=1):
+async def light_ons(hash_seconds: float | None = 1):
     ds = DeviceSet()
     return (
         await ds.table_lamp.is_on(hash_seconds=hash_seconds)
@@ -84,7 +84,7 @@ async def light_ons(hash_seconds=1):
     )
 
 
-async def light_colored(hash_seconds=1):
+async def light_colored(hash_seconds: float | None = 1):
     ds = DeviceSet()
     return (
         await ds.lamp_k_1.color_setting(hash_seconds=hash_seconds) == "hsv"
@@ -94,7 +94,10 @@ async def light_colored(hash_seconds=1):
 
 
 async def get_needed_b_t(
-    sensor: LuxSensor, second_sensor: Optional[LuxSensor] = None, force_interval: float = 0, hash_seconds=1
+    sensor: LuxSensor,
+    second_sensor: Optional[LuxSensor] = None,
+    force_interval: float = 0,
+    hash_seconds: float | None = 1,
 ):
     config = get_config()
     storage = Storage()
@@ -112,24 +115,24 @@ async def get_needed_b_t(
         else False
     )
 
-    state_lux = await sensor.illumination(proceeded_last=force, hash_seconds=hash_seconds)
+    state_lux = await sensor.illumination(process_last=force, hash_seconds=hash_seconds)
     if not state_lux.quarantine:
         result_state_lux = state_lux
     else:
         if second_sensor is None:
             if sensor.quarantine().timestamp + 5 * MIN > time.time():
-                result_state_lux = await sensor.illumination(proceeded_last=True, hash_seconds=hash_seconds)
+                result_state_lux = await sensor.illumination(process_last=True, hash_seconds=hash_seconds)
             else:
                 result_state_lux = state_lux
         else:
-            second_state_lux = await second_sensor.illumination(proceeded_last=second_force, hash_seconds=hash_seconds)
+            second_state_lux = await second_sensor.illumination(process_last=second_force, hash_seconds=hash_seconds)
             if not second_state_lux.quarantine:
                 result_state_lux = second_state_lux
             else:
                 if sensor.quarantine().timestamp + 5 * MIN > time.time():
-                    result_state_lux = await sensor.illumination(proceeded_last=True, hash_seconds=hash_seconds)
+                    result_state_lux = await sensor.illumination(process_last=True, hash_seconds=hash_seconds)
                 elif second_sensor.quarantine().timestamp + 5 * MIN > time.time():
-                    result_state_lux = await second_sensor.illumination(proceeded_last=True, hash_seconds=hash_seconds)
+                    result_state_lux = await second_sensor.illumination(process_last=True, hash_seconds=hash_seconds)
                 else:
                     result_state_lux = state_lux
 

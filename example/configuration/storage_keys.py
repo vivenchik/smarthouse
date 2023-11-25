@@ -43,4 +43,5 @@ class SKeys(Enum):
     humidifier_offed = "humidifier_offed"
     humidifier_ond = "humidifier_ond"
     humidifier_locked = "humidifier_locked"
+    humidifier_locked_door = "humidifier_locked_door"
     last_off = "last_off"

@@ -123,7 +123,7 @@ class App:
         storage.put(SysSKeys.retries, retries + 1)
         need_to_sleep = retries >= 5
 
-        if need_to_sleep or os.path.getsize("./storage/main.log") > 500 * 1 << 20:
+        if need_to_sleep or os.path.getsize("./storage/main.log") > 100 * 1 << 20:
             storage.put(SysSKeys.clear_log, True)
 
         await ignore_exc(storage.write_shadow)()
@@ -187,7 +187,7 @@ class App:
 
         storage = Storage()
         if storage.get(SysSKeys.clear_log):
-            async with aiofiles.open("./storage/main.log", mode="w") as f:
+            async with aiofiles.open("./storage/main.log", mode="wt") as f:
                 await f.write("")
             storage.put(SysSKeys.clear_log, False)
 

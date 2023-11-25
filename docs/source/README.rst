@@ -71,7 +71,7 @@ Usage example:
 
        state_lux = await lux_sensor.illumination()
        if lux_sensor.in_quarantine() and lux_sensor.quarantine().timestamp + 5 * 60 > time.time():
-           state_lux = await lux_sensor.illumination(proceeded_last=True)
+           state_lux = await lux_sensor.illumination(process_last=True)
 
        needed_b = 1 - min(state_lux.result, 200) / 200
 

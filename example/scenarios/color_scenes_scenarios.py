@@ -111,7 +111,7 @@ async def button_scenario():
 
     storage_commands = sorted(
         [(key[len("__click_") :], value) for key, value in storage.items() if key.startswith("__click")],
-        key=lambda x: x[1],
+        key=lambda x: -x[1],
     )
     button_clicked = button_time - last_click > 0.01 and button_time > startup
     storage_button_clicked = (
@@ -119,13 +119,13 @@ async def button_scenario():
     )
 
     if button_clicked or storage_button_clicked:
-        storage.put(SKeys.last_click, max(button_time, time.time()))
-        storage.put(SKeys.lights_locked, False)
-        storage.put(SKeys.paint, False)
-
         if not button_clicked and storage_button_clicked:
             state_button = storage_commands[0][0]
             button_time = storage_commands[0][1]
+
+        storage.put(SKeys.last_click, max(button_time, time.time()))
+        storage.put(SKeys.lights_locked, False)
+        storage.put(SKeys.paint, False)
 
         storage.put(SKeys.last_click, max(button_time, time.time()))
 
@@ -145,6 +145,7 @@ async def button_scenario():
         if state_button == "long_press":
             if datetime.timedelta(hours=10) < get_timedelta_now() < calc_sunset():
                 storage.put(SKeys.adaptive_locked, True)
+                storage.put(SKeys.previous_b_t, [0, 0, 0])
             await turn_off_all()
             storage.put(SKeys.last_off, time.time())
             return

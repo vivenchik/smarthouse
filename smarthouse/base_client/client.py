@@ -29,6 +29,8 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
     _mutations: dict[str, Callable]
     _gss: dict[str, GapStat]
     _stats: dict[str, float]
+    _calls_get: dict[str, float]
+    _calls_post: dict[str, float]
 
     messages_queue: asyncio.Queue
     names: dict[str, str]
@@ -42,6 +44,8 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self._mutations: dict[str, Callable] = {}
         self._gss: dict[str, GapStat] = {}
         self._stats: dict[str, float] = {}
+        self._calls_get: dict[str, float] = {}
+        self._calls_post: dict[str, float] = {}
         self._states: dict[str, StateItem] = {}
         self._last: dict[str, tuple[DeviceInfoResponseType, float]] = {}
 
@@ -64,6 +68,8 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             self._ping.add(device_id)
         self._human_time_funcs[device_id] = self._human_time_funcs.get(device_id) or human_time_func
         self._use_china_client[device_id] = use_china_client
+        self._calls_get[device_id] = 0
+        self._calls_post[device_id] = 0
 
     def register_mutation(self, device_id, mutation):
         self._mutations[device_id] = mutation
@@ -160,14 +166,14 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         return filtered_ids
 
     async def _device_info(
-        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
+        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
     ) -> DeviceInfoResponseType:
         raise Exception()
 
     async def device_info(
-        self, device_id: str, ignore_quarantine=False, proceeded_last=False, hash_seconds=1
+        self, device_id: str, ignore_quarantine=False, process_last=False, hash_seconds: float | None = 1
     ) -> DeviceInfoResponseType | None:
-        if proceeded_last:
+        if process_last:
             return self.last_get(device_id)[0] if self.last_in(device_id) else None
         try:
             if not ignore_quarantine and self.quarantine_in(device_id):

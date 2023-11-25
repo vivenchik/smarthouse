@@ -133,7 +133,7 @@ async def test_device_info(base_client):
     result = await base_client.device_info(device_id=device_id)
     assert result is not None
 
-    result = await base_client.device_info(device_id=device_id, proceeded_last=True)
+    result = await base_client.device_info(device_id=device_id, process_last=True)
     assert result is not None
 
 

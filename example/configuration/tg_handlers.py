@@ -12,7 +12,7 @@ from example.configuration.storage_keys import SKeys
 from smarthouse.storage import Storage
 from smarthouse.storage_keys import SysSKeys
 from smarthouse.telegram_client import TGClient
-from smarthouse.utils import get_time, get_timedelta_now
+from smarthouse.utils import HOUR, MIN, get_time, get_timedelta_now
 from smarthouse.yandex_client.client import YandexClient
 
 logger = logging.getLogger("root")
@@ -52,14 +52,14 @@ async def get_quarantine_handler(tg_client: TGClient, update: Update):
     await tg_client.write_tg(
         "\n".join(
             [
-                f"{await get_device_name(k)}: {round((time.time() - v.timestamp) / 60)} mins"
+                f"{await get_device_name(k)}: {round((time.time() - v.timestamp) / MIN)} mins"
                 for k, v in ya_client._quarantine.items()
             ]
         )
         or "nothing",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=5).total_seconds(),
+        to_delete_timestamp=time.time() + 5 * MIN,
     )
 
 
@@ -76,7 +76,7 @@ async def get_stats_handler(tg_client: TGClient, update: Update):
         "\n".join([f"{await get_device_name(k)}: {round(v * 100, 2)}%" for k, v in filtered.items()]) or "nothing",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=5).total_seconds(),
+        to_delete_timestamp=time.time() + 5 * MIN,
     )
 
 
@@ -89,7 +89,7 @@ async def minimize_lights_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=1).total_seconds(),
+        to_delete_timestamp=time.time() + MIN,
     )
 
 
@@ -102,7 +102,7 @@ async def b1_lights_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=1).total_seconds(),
+        to_delete_timestamp=time.time() + MIN,
     )
 
 
@@ -115,7 +115,7 @@ async def b2_lights_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=1).total_seconds(),
+        to_delete_timestamp=time.time() + MIN,
     )
 
 
@@ -128,7 +128,7 @@ async def b3_lights_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=1).total_seconds(),
+        to_delete_timestamp=time.time() + MIN,
     )
 
 
@@ -141,7 +141,7 @@ async def remove_alarm_lights_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=60).total_seconds(),
+        to_delete_timestamp=time.time() + HOUR,
     )
 
 
@@ -154,7 +154,7 @@ async def water_done_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=1).total_seconds(),
+        to_delete_timestamp=time.time() + MIN,
     )
 
 
@@ -183,7 +183,7 @@ async def alarm_handler(tg_client: TGClient, update: Update):
         f"{needed_alarm_datetime.isoformat()}"[: -len(":00+03:00")],
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=10).total_seconds(),
+        to_delete_timestamp=time.time() + 10 * MIN,
     )
 
 
@@ -202,7 +202,7 @@ async def skip_alarm_handler(tg_client: TGClient, update: Update):
         f"{new_alarm_datetime.isoformat()}"[: -len(":00+03:00")],
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=10).total_seconds(),
+        to_delete_timestamp=time.time() + 10 * MIN,
     )
 
 
@@ -215,7 +215,7 @@ async def log_lines_handler(tg_client: TGClient, update: Update):
         count = int(message.lstrip("/").rstrip("d"))
     except ValueError:
         return
-    async with aiofiles.open("./storage/main.log", mode="r") as f:
+    async with aiofiles.open("./storage/main.log", mode="rt") as f:
         content = await f.readlines()
     lines = [
         line.replace("INFO", "I").replace("ERROR", "E").replace("WARNING", "W").replace("DEBUG", "D")
@@ -227,7 +227,7 @@ async def log_lines_handler(tg_client: TGClient, update: Update):
         "".join(lines[-count:]),
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=15).total_seconds(),
+        to_delete_timestamp=time.time() + 15 * MIN,
     )
 
 
@@ -240,7 +240,7 @@ async def sleep_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+        to_delete_timestamp=time.time() + 2 * MIN,
     )
 
 
@@ -253,7 +253,7 @@ async def good_mo_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+        to_delete_timestamp=time.time() + 2 * MIN,
     )
 
 
@@ -266,7 +266,7 @@ async def wc_off_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+        to_delete_timestamp=time.time() + 2 * MIN,
     )
 
 
@@ -279,7 +279,7 @@ async def balcony_off_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+        to_delete_timestamp=time.time() + 2 * MIN,
     )
 
 
@@ -292,7 +292,7 @@ async def exit_off_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+        to_delete_timestamp=time.time() + 2 * MIN,
     )
 
 
@@ -305,7 +305,7 @@ async def evening_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+        to_delete_timestamp=time.time() + 2 * MIN,
     )
 
 
@@ -318,7 +318,7 @@ async def paint_handler(tg_client: TGClient, update: Update):
         "done",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(minutes=2).total_seconds(),
+        to_delete_timestamp=time.time() + 2 * MIN,
     )
 
 
@@ -328,12 +328,6 @@ async def clear_log_handler(tg_client: TGClient, update: Update):
     storage = Storage()
     await tg_client.write_tg_document("./storage/main.log")
     storage.put(SysSKeys.clear_log, True)
-    await tg_client.write_tg(
-        "done",
-        replay_message_id=update.message.id,
-        to_delete=True,
-        to_delete_timestamp=time.time() + 2,
-    )
     sys.exit(0)
 
 
