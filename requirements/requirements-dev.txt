@@ -152,7 +152,7 @@ pydantic==2.5.1
     # via
     #   pydantic-settings
     #   smarthouse (setup.py)
-pydantic-core==2.14.3
+pydantic-core==2.14.5
     # via pydantic
 pydantic-settings==2.1.0
     # via smarthouse (setup.py)
