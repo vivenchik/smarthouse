@@ -148,7 +148,7 @@ pycodestyle==2.11.1
     # via flake8
 pycparser==2.21
     # via cffi
-pydantic==2.5.1
+pydantic==2.5.2
     # via
     #   pydantic-settings
     #   smarthouse (setup.py)
