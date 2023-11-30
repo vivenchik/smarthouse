@@ -264,11 +264,13 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
                 dont_log=dont_log,
                 err_retry=err_retry,
             )
-        if device.properties:
+        if device.properties or device.capabilities:
             last_updated = time.time() - max(
-                [response_property.last_updated for response_property in device.properties]
+                [response_property.last_updated for response_property in device.properties + device.capabilities]
             )
-            any_zero = any([response_property.last_updated == 0.0 for response_property in device.properties])
+            any_zero = any(
+                [response_property.last_updated == 0.0 for response_property in device.properties + device.capabilities]
+            )
             if last_updated > 70 * 60 or any_zero:
                 raise DeviceOffline(
                     f"Device {self.names.get(device_id, device_id)} is may be offline",

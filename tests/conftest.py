@@ -2,6 +2,7 @@ import asyncio
 import copy
 import json
 import os
+import time
 import uuid
 from collections.abc import Callable
 from unittest.mock import AsyncMock
@@ -91,6 +92,10 @@ async def get_lamp_response():
             os.path.join(os.path.dirname(__file__), "mock_data/lamp_response.json"), mode="rt"
         ) as f:
             lamp_response = json.loads(await f.read())
+            for capability in lamp_response["capabilities"]:
+                capability["last_updated"] = time.time()
+            for property in lamp_response["properties"]:
+                property["last_updated"] = time.time()
     return copy.deepcopy(lamp_response)
 
 
