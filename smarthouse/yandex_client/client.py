@@ -271,7 +271,7 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             any_zero = any(
                 [response_property.last_updated == 0.0 for response_property in device.properties + device.capabilities]
             )
-            if last_updated > 70 * 60 or any_zero:
+            if not self._outdated.get(device_id, False) and last_updated > 70 * 60 or any_zero:
                 raise DeviceOffline(
                     f"Device {self.names.get(device_id, device_id)} is may be offline",
                     self.prod,
@@ -291,8 +291,8 @@ class YandexClient(BaseClient[DeviceInfoResponse, ActionRequestModel]):
             process_last=process_last,
             hash_seconds=hash_seconds,
         )
-        if (device_id not in self.names or self.names[device_id] == "") and result is not None:
-            self.register_device(device_id, result.name)
+        # if (device_id not in self.names or self.names[device_id] == "") and result is not None:
+        #     self.register_device(device_id, result.name)
         return result
 
     async def get_current_capabilities(

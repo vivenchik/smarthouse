@@ -29,6 +29,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
     _mutations: dict[str, Callable]
     _gss: dict[str, GapStat]
     _stats: dict[str, float]
+    _outdated: dict[str, bool]
     _calls_get: dict[str, float]
     _calls_post: dict[str, float]
 
@@ -44,6 +45,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self._mutations: dict[str, Callable] = {}
         self._gss: dict[str, GapStat] = {}
         self._stats: dict[str, float] = {}
+        self._outdated: dict[str, bool] = {}
         self._calls_get: dict[str, float] = {}
         self._calls_post: dict[str, float] = {}
         self._states: dict[str, StateItem] = {}
@@ -61,6 +63,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         name,
         ping=True,
         human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
+        outdated: bool = False,
         use_china_client=False,
     ):
         self.names[device_id] = name
@@ -68,6 +71,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             self._ping.add(device_id)
         self._human_time_funcs[device_id] = self._human_time_funcs.get(device_id) or human_time_func
         self._use_china_client[device_id] = use_china_client
+        self._outdated[device_id] = outdated
         self._calls_get[device_id] = 0
         self._calls_post[device_id] = 0
 
