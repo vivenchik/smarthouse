@@ -1,5 +1,4 @@
 import asyncio
-import datetime
 import logging
 import re
 import time
@@ -8,6 +7,7 @@ from typing import Any, Optional
 import httpx
 import telegram
 from telegram import Update
+from telegram.request import HTTPXRequest
 
 from example.configuration.storage_keys import SKeys
 from smarthouse.storage import Storage
@@ -27,7 +27,7 @@ async def unknown_handler(tg_client: "TGClient", update: Update):
         "Sorry, I didn't understand that command",
         replay_message_id=update.message.id,
         to_delete=True,
-        to_delete_timestamp=time.time() + datetime.timedelta(seconds=5).total_seconds(),
+        to_delete_timestamp=time.time() + 5,
     )
 
 
@@ -53,7 +53,15 @@ class TGClient(metaclass=Singleton):
         self.telegram_token = telegram_token
         if telegram_token is None:
             return
-        self._bot: telegram.Bot = telegram.Bot(telegram_token)
+        self._bot: telegram.Bot = telegram.Bot(
+            telegram_token,
+            get_updates_request=HTTPXRequest(
+                connection_pool_size=10, read_timeout=5, write_timeout=1, connect_timeout=1, pool_timeout=1
+            ),
+            request=HTTPXRequest(
+                connection_pool_size=10, read_timeout=5, write_timeout=5, connect_timeout=1, pool_timeout=1
+            ),
+        )
 
     def register_handler(self, pattern, func):
         self.handlers[re.compile(pattern)] = func
@@ -76,9 +84,9 @@ class TGClient(metaclass=Singleton):
             return
         message = message.rstrip("\n").strip()
         _exc: Optional[Exception] = None
+        response_message_id = None
         done = False
-        for _ in range(20):
-            response_message_id = None
+        for _ in range(40):
             async with self._w_lock:
                 try:
                     async with self._bot:
@@ -87,14 +95,12 @@ class TGClient(metaclass=Singleton):
                             chat_id=self._chat_id,
                             disable_notification=True,
                             reply_to_message_id=replay_message_id,
-                            read_timeout=10,
                         )
-                        done = True
                         response_message_id = response.message_id
-                        await asyncio.sleep(0.5)
+                        done = True
                         break
-                except (telegram.error.NetworkError, telegram.error.TimedOut):
-                    pass
+                except (telegram.error.NetworkError, telegram.error.TimedOut) as exc:
+                    _exc = exc
                 except httpx.ReadError as exc:
                     _exc = exc
                 except telegram.error.BadRequest as exc:
@@ -127,25 +133,28 @@ class TGClient(metaclass=Singleton):
                             to_delete=to_delete,
                             to_delete_timestamp=to_delete_timestamp,
                         )
-                        return
+                        done = True
+                        break
                     elif exc.message == "Message text is empty":
-                        pass
+                        _exc = exc
+                        break
                     else:
-                        await asyncio.sleep(1)
+                        _exc = exc
                 except Exception as exc:
                     _exc = exc
+
+            await asyncio.sleep(0.1)
 
         if _exc is not None:
             raise _exc
         if not done:
-            raise TGException("try again")
+            raise TGException("unknown")
 
         if to_delete:
             if replay_message_id is not None:
                 await self.to_delete_messages.put((to_delete_timestamp, replay_message_id))
             if response_message_id is not None:
                 await self.to_delete_messages.put((to_delete_timestamp, response_message_id))
-            return
 
     async def write_tg_document(self, document):
         if not self._prod or self.telegram_token is None:
@@ -160,19 +169,21 @@ class TGClient(metaclass=Singleton):
                             chat_id=self._chat_id,
                             document=document,
                             disable_notification=True,
-                            read_timeout=10,
+                            write_timeout=40,
                         )
                         return
-                except (telegram.error.NetworkError, telegram.error.TimedOut):
-                    pass
+                except (telegram.error.NetworkError, telegram.error.TimedOut) as exc:
+                    _exc = exc
                 except (httpx.ReadError, telegram.error.BadRequest) as exc:
                     _exc = exc
                 except Exception as exc:
                     _exc = exc
 
+            await asyncio.sleep(0.2)
+
         if _exc is not None:
             raise _exc
-        raise TGException("try again")
+        raise TGException("unknown")
 
     async def delete_message(self, message_id=None):
         if not self._prod or self.telegram_token is None:
@@ -183,21 +194,25 @@ class TGClient(metaclass=Singleton):
             async with self._w_lock:
                 try:
                     async with self._bot:
-                        await self._bot.delete_message(chat_id=self._chat_id, message_id=message_id, read_timeout=10)
+                        await self._bot.delete_message(chat_id=self._chat_id, message_id=message_id)
                         return
-                except (telegram.error.NetworkError, telegram.error.TimedOut):
-                    pass
+                except (telegram.error.NetworkError, telegram.error.TimedOut) as exc:
+                    _exc = exc
                 except telegram.error.BadRequest as exc:
                     if exc.message == "Message to delete not found":
-                        pass
+                        return
+                    else:
+                        _exc = exc
                 except httpx.ReadError as exc:
                     _exc = exc
                 except Exception as exc:
                     _exc = exc
 
+            await asyncio.sleep(0.2)
+
         if _exc is not None:
             raise _exc
-        raise TGException("try again")
+        raise TGException("unknown")
 
     async def update_tg(self):
         if not self._prod or self.telegram_token is None:

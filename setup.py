@@ -24,8 +24,10 @@ extras = {
         "pytest-aiohttp",
         "pytest-xdist",
         "pytest-cov",
+        "pytest-rerunfailures",
         "no_implicit_optional",
         "python-dotenv",
+        "twine",
     ],
     "ha": [
         "homeassistant_api>=4",
@@ -40,7 +42,7 @@ extras = {
 
 setup(
     name="smarthouse",
-    version="2.2.0",
+    version="2.4.0",
     description="Smart House Scenarios",
     long_description=long_description,
     long_description_content_type="text/markdown",

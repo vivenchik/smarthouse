@@ -14,6 +14,7 @@ class StorageError(Exception):
 
 class Storage(metaclass=Singleton):
     _storage: dict
+    _storage_shadow: dict
     _storage_name: str | None
 
     messages_queue: asyncio.Queue
@@ -22,6 +23,7 @@ class Storage(metaclass=Singleton):
 
     async def init(self, storage_name: str | None, s3_mode=False):
         self._storage = {}
+        self._storage_shadow = {}
         self._storage_name = storage_name
         self._s3_mode = s3_mode
         if s3_mode:
@@ -48,7 +50,7 @@ class Storage(metaclass=Singleton):
             return {}
         for _ in range(10):
             if not self._s3_mode:
-                async with aiofiles.open(f"./storage/{self._storage_name}", mode="r") as f:
+                async with aiofiles.open(f"./storage/{self._storage_name}", mode="rt") as f:
                     content = await f.read()
             else:
                 content = await self.cloud_client.get_bucket("home-bucket", self._storage_name)
@@ -73,17 +75,24 @@ class Storage(metaclass=Singleton):
         async with self._lock:
             if self.need_to_write or force:
                 if not self._s3_mode:
-                    async with aiofiles.open(f"./storage/{self._storage_name}", mode="w") as f:
+                    async with aiofiles.open(f"./storage/{self._storage_name}", mode="wt") as f:
                         await f.write(yaml.dump(self._storage))
                 else:
                     await self.cloud_client.put_bucket("home-bucket", "storage.yaml", yaml.dump(self._storage))
                 self.need_to_write = False
 
-    def put(self, key: Union[Enum, str], value):
+    def put(self, key: Union[Enum, str], value, shadow: bool = False):
         _key: str = key.value if isinstance(key, Enum) else key
-        if self._storage.get(_key) != value:
-            self._storage[_key] = value
-            self.need_to_write = True
+        if not shadow:
+            if self._storage.get(_key) != value:
+                self._storage[_key] = value
+                self.need_to_write = True
+        else:
+            self._storage_shadow[_key] = value
+
+    def write_shadow(self):
+        for _key, value in self._storage_shadow.items():
+            self.put(_key, value)
 
     def delete(self, key: Union[Enum, str]):
         _key: str = key.value if isinstance(key, Enum) else key

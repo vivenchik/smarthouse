@@ -24,11 +24,13 @@ async def lights_corridor_on_scenario():
     if not storage.get(SKeys.exit_lock):
         if (
             not storage.get(SKeys.lights_locked)
-            and await ds.exit_sensor.motion_time(None) < 60
+            and await ds.exit_sensor.motion_time(0.5) < 60
             or storage.get(SKeys.lights_locked)
             and await ds.exit_door.open_time() < 60
         ):
-            needed_b, needed_t = await get_needed_b_t(ds.exit_sensor, ds.lux_sensor)
+            needed_b, needed_t = await get_needed_b_t(
+                ds.exit_sensor, ds.lux_sensor, force_interval=5 * MIN, hash_seconds=0.5
+            )
             max_b = 70 if datetime.timedelta(hours=8) < get_timedelta_now() < calc_sunset() else 40
             needed_b = min(needed_b * 100, max_b)
 
@@ -49,7 +51,7 @@ async def lights_wc_on_scenario():
         not storage.get(SKeys.lights_locked)
         and not storage.get(SKeys.wc_lock)
         and not storage.get(SKeys.night)
-        and (await ds.exit_sensor.motion_time(None) < 60 or await ds.wc_sensor.motion_time(None) < 60)
+        and (await ds.exit_sensor.motion_time(0.5) < 60 or await ds.wc_sensor.motion_time(0.5) < 60)
     ):
         if datetime.timedelta(hours=8) < get_timedelta_now() < calc_sunset() and not storage.get(SKeys.evening):
             # await ds.wc_1.on().run()
@@ -109,7 +111,7 @@ async def lights_balcony_on_scenario():
             return 5 * MIN
 
 
-@looper(MIN)
+@looper(30)
 async def lights_off_scenario():
     config = get_config()
     if config.pause:
@@ -121,23 +123,23 @@ async def lights_off_scenario():
         if (
             not storage.get(SKeys.night)
             and (
-                await ds.exit_sensor.motion_time() > 3 * MIN
+                await ds.exit_sensor.motion_time(0.5) > 3 * MIN
                 and not ds.exit_sensor.in_quarantine()
                 or ds.exit_sensor.in_quarantine()
                 and time.time() - ds.exit_sensor.quarantine().timestamp > 7 * MIN
             )
             or storage.get(SKeys.night)
             and (
-                await ds.wc_sensor.motion_time() > 7 * MIN
+                await ds.wc_sensor.motion_time(0.5) > 7 * MIN
                 and not ds.wc_sensor.in_quarantine()
-                and await ds.exit_sensor.motion_time() > 7 * MIN
+                and await ds.exit_sensor.motion_time(0.5) > 7 * MIN
                 and not ds.exit_sensor.in_quarantine()
                 or ds.exit_sensor.in_quarantine()
                 and time.time() - ds.exit_sensor.quarantine().timestamp > 7 * MIN
                 and ds.wc_sensor.in_quarantine()
                 and time.time() - ds.wc_sensor.quarantine().timestamp > 7 * MIN
             )
-        ):
+        ) and (await ds.lamp_e_1.is_on() or await ds.lamp_e_2.is_on() or await ds.lamp_e_3.is_on()):
             await run_async([ds.lamp_e_1.off(), ds.lamp_e_2.off(), ds.lamp_e_3.off()])
 
     wc_term_humidity = await ds.wc_term.humidity()
@@ -148,21 +150,21 @@ async def lights_off_scenario():
         and not storage.get(SKeys.wc_lock)
         and 24 * HOUR > time.time() - storage.get(SKeys.wc_lights) > 2 * MIN
         and (await ds.wc_1.is_on() or await ds.wc_2.is_on())
-        and await ds.exit_sensor.motion_time() > 3 * MIN
+        and await ds.exit_sensor.motion_time(0.5) > 3 * MIN
         and (
             ds.wc_sensor.in_quarantine()
-            and await ds.exit_sensor.motion_time() > 10 * MIN
+            and await ds.exit_sensor.motion_time(0.5) > 10 * MIN
             or not ds.wc_sensor.in_quarantine()
-            and await ds.wc_sensor.motion_time() > 7 * MIN
+            and await ds.wc_sensor.motion_time(0.5) > 7 * MIN
         )
         and not await ds.air.is_on()
         and (
             wc_term_humidity.quarantine
             and (
                 not ds.exit_sensor.in_quarantine()
-                and await ds.exit_sensor.motion_time() > 30 * MIN
+                and await ds.exit_sensor.motion_time(0.5) > 30 * MIN
                 or not ds.wc_sensor.in_quarantine()
-                and await ds.wc_sensor.motion_time() > 30 * MIN
+                and await ds.wc_sensor.motion_time(0.5) > 30 * MIN
             )
             or not wc_term_humidity.quarantine
             and wc_term_humidity.result < 65

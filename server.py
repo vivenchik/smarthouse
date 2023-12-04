@@ -1,11 +1,9 @@
 import asyncio
+import logging
 
 from example.main import main
 
+logger = logging.getLogger("root")
+
 if __name__ == "__main__":
-    try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(main())
-        loop.close()
-    except KeyboardInterrupt:
-        pass
+    asyncio.run(main())

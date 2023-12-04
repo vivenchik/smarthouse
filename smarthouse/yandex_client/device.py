@@ -1,24 +1,29 @@
 import asyncio
 import datetime
 import functools
+import logging
 import time
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from pydantic import BaseModel, Field
 
 from smarthouse.base_client.exceptions import InfraCheckError
-from smarthouse.scenarios.storage_keys import SysSKeys
 from smarthouse.storage import Storage
+from smarthouse.storage_keys import SysSKeys
 from smarthouse.utils import Singleton
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.models import DeviceCapabilityAction
 
+logger = logging.getLogger("root")
+
 
 class Action:
-    def __init__(self, device_id, excl):
+    def __init__(self, device_id, device_name, excl, debug_log: bool = False):
         self.device_id = device_id
+        self.device_name = device_name
         self.excl = excl
-        self.capabilities = []
+        self.debug_log = debug_log
+        self.capabilities: List = []
 
     def add_capability(self, capability):
         self.capabilities.append(capability)
@@ -55,18 +60,32 @@ async def run(
     feature_checkable=False,
 ):
     try:
-        return await YandexClient().change_devices_capabilities(
+        res = await YandexClient().change_devices_capabilities(
             actions_list=[action.action_dict() for action in actions],
             check=check,
             excl={action.device_id: action.excl for action in actions},
             lock_level=lock_level,
             lock=lock,
-            feature_checkable=feature_checkable,  # todo: review
+            feature_checkable=feature_checkable,  # todo: check feature_checkable after specified timeout
         )
+        begin = ""
+        if len(actions) > 1 and any(action.debug_log for action in actions):
+            logger.debug(f"{len(actions)} actions:")
+            begin = "    "
+        for action in actions:
+            if action.debug_log:
+                logger.debug(
+                    f"{begin}{action.device_name} :: "
+                    + ", ".join(
+                        f"{capability_name}.{capability_instance}:{capability_value}"
+                        for capability_name, capability_instance, capability_value in action.action_dict().capabilities
+                    )
+                )
+        return res
     except Exception as exc:
         raise exc
     finally:
-        pass  # todo: clear succeeded
+        pass
 
 
 class RunQueuesSet(metaclass=Singleton):
@@ -143,29 +162,32 @@ class Device:
         ping=True,
         human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
         use_china_client=False,
+        outdated: bool = False,
+        debug_log=False,
     ):
         self.device_id = device_id
         self.name = name
         self.ya_client = YandexClient()
         self.excl: tuple[tuple[str, str], ...] = ()
-        self.use_china_client = use_china_client
+        self.debug_log = debug_log
 
-        self.ya_client.register_device(self.device_id, self.name, ping, human_time_func, use_china_client)
+        self.ya_client.register_device(self.device_id, self.name, ping, human_time_func, outdated, use_china_client)
 
-    async def info(self, hash_seconds=1):
+    async def info(self, hash_seconds: float | None = 1):
         return await self.ya_client.device_info(self.device_id, hash_seconds=hash_seconds)
 
-    async def check_capability(self, capability_name, hash_seconds=1):
+    async def check_capability(self, capability_name, hash_seconds: float | None = 1):
         return await self.ya_client.check_capability(self.device_id, capability_name, hash_seconds=hash_seconds)
 
-    async def check_capability_instance(self, capability_instance_name, hash_seconds=1):
+    async def check_capability_instance(self, capability_instance_name, hash_seconds: float | None = 1):
         return await self.ya_client.check_capability_instance(
             self.device_id, capability_instance_name, hash_seconds=hash_seconds
         )
 
-    async def check_property(self, property_name, proceeded_last=False, hash_seconds=1):
+    async def check_property(self, property_name, process_last=False, hash_seconds: float | None = 1):
+        # todo: process_last, defaults, quarantine here
         return await self.ya_client.check_property(
-            self.device_id, property_name, proceeded_last=proceeded_last, hash_seconds=hash_seconds
+            self.device_id, property_name, process_last=process_last, hash_seconds=hash_seconds
         )
 
     def in_quarantine(self):
@@ -175,7 +197,7 @@ class Device:
         return self.ya_client.quarantine_get(self.device_id)
 
     def action(self) -> Action:
-        return Action(self.device_id, self.excl)
+        return Action(self.device_id, self.name, self.excl, self.debug_log)
 
 
 def make_response(func):
@@ -187,7 +209,7 @@ def make_response(func):
 
 
 class ControlDevice(Device):
-    async def is_on(self, hash_seconds=1):
+    async def is_on(self, hash_seconds: float | None = 1):
         return await self.check_capability("on_off", hash_seconds=hash_seconds)
 
     def on(self) -> Action:
@@ -207,37 +229,37 @@ class SwitchLamp(ControlDevice):
 
 class LuxSensor(Device):
     @make_response
-    async def illumination(self, proceeded_last=False, hash_seconds=1):
-        response = await self.check_property("illumination", proceeded_last=proceeded_last, hash_seconds=hash_seconds)
+    async def illumination(self, process_last=False, hash_seconds: float | None = 1):
+        response = await self.check_property("illumination", process_last=process_last, hash_seconds=hash_seconds)
         return response[0]
 
 
 class MotionSensor(LuxSensor):
-    async def motion_time(self, hash_seconds=1):
+    async def motion_time(self, hash_seconds: float | None = 1):
         response = await self.check_property("motion", hash_seconds=hash_seconds)
         return time.time() - response[1]
 
 
 class Door(Device):
-    async def open_time(self, hash_seconds=1):
+    async def open_time(self, hash_seconds: float | None = 1):
         response = await self.check_property("open", hash_seconds=hash_seconds)
         return time.time() - response[1]
 
-    async def closed(self, hash_seconds=1):
+    async def closed(self, hash_seconds: float | None = 1):
         response = await self.check_property("open", hash_seconds=hash_seconds)
         return response[0] == "closed"
 
 
 class HumiditySensor(Device):
     @make_response
-    async def humidity(self, hash_seconds=1):
+    async def humidity(self, hash_seconds: float | None = 1):
         response = await self.check_property("humidity", hash_seconds=hash_seconds)
         return response[0]
 
 
 class AirSensor(HumiditySensor):
     @make_response
-    async def temperature(self, hash_seconds=1):
+    async def temperature(self, hash_seconds: float | None = 1):
         response = await self.check_property("temperature", hash_seconds=hash_seconds)
         return response[0]
 
@@ -247,7 +269,7 @@ class AirCleaner(ControlDevice, AirSensor):
 
 
 class TemperatureLamp(ControlDevice):
-    async def color_setting(self, hash_seconds=1):
+    async def color_setting(self, hash_seconds: float | None = 1):
         return await self.check_capability_instance("color_setting", hash_seconds=hash_seconds)
 
     def _fix_temperature_k(self, temperature_k):
@@ -323,12 +345,20 @@ class RGBLamp(TemperatureLamp):
 
 
 class Cleaner(ControlDevice):
-    def __init__(self, device_id, name: str = ""):
-        super().__init__(device_id, name)
+    def __init__(
+        self,
+        device_id,
+        name: str = "",
+        ping=True,
+        human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
+        use_china_client=False,
+        debug_log=False,
+    ):
+        super().__init__(device_id, name, ping, human_time_func, use_china_client, debug_log)
 
         self.excl = (("on_off", "on"),)
 
-    async def battery_level(self, hash_seconds=1):
+    async def battery_level(self, hash_seconds: float | None = 1):
         response = await self.check_property("battery_level", hash_seconds=hash_seconds)
         return response[0]
 
@@ -340,8 +370,8 @@ class Cleaner(ControlDevice):
 
 
 class Humidifier(ControlDevice, HumiditySensor):
-    async def water_level(self, hash_seconds=1):
-        response = await self.check_property("water_level", hash_seconds=hash_seconds)
+    async def water_level(self, process_last=False, hash_seconds: float | None = 1):
+        response = await self.check_property("water_level", process_last=process_last, hash_seconds=hash_seconds)
         return response[0]
 
 
@@ -351,7 +381,7 @@ class HumidifierOld(Humidifier):
 
 
 class Button(ControlDevice):
-    async def button(self, hash_seconds=1):
+    async def button(self, hash_seconds: float | None = 1):
         response = await self.check_property("button", hash_seconds=hash_seconds)
         return response
 

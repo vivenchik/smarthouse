@@ -2,6 +2,7 @@ import asyncio
 import copy
 import json
 import os
+import time
 import uuid
 from collections.abc import Callable
 from unittest.mock import AsyncMock
@@ -88,9 +89,13 @@ async def get_lamp_response():
     global lamp_response
     if lamp_response is None:
         async with aiofiles.open(
-            os.path.join(os.path.dirname(__file__), "mock_data/lamp_response.json"), mode="r"
+            os.path.join(os.path.dirname(__file__), "mock_data/lamp_response.json"), mode="rt"
         ) as f:
             lamp_response = json.loads(await f.read())
+            for capability in lamp_response["capabilities"]:
+                capability["last_updated"] = time.time()
+            for property in lamp_response["properties"]:
+                property["last_updated"] = time.time()
     return copy.deepcopy(lamp_response)
 
 
@@ -98,7 +103,7 @@ async def get_action_response():
     global action_response
     if action_response is None:
         async with aiofiles.open(
-            os.path.join(os.path.dirname(__file__), "mock_data/action_response.json"), mode="r"
+            os.path.join(os.path.dirname(__file__), "mock_data/action_response.json"), mode="rt"
         ) as f:
             action_response = json.loads(await f.read())
     return copy.deepcopy(action_response)
@@ -119,7 +124,7 @@ def base_client():
             self.call_count += 1
 
         async def _device_info(  # type: ignore[override]
-            self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
+            self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
         ) -> DeviceInfoResponse:
             return DeviceInfoResponse(**await get_lamp_response())
 
@@ -140,7 +145,7 @@ def ya_client():
             self.base_init()
 
         async def _device_info(
-            self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
+            self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
         ) -> DeviceInfoResponse:
             return DeviceInfoResponse(**await get_lamp_response())
 

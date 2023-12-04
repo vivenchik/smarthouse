@@ -23,12 +23,15 @@ ActionRequestModelType = TypeVar("ActionRequestModelType", bound=BaseModel)
 
 class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metaclass=Singleton):
     _states: dict[str, StateItem]
-    _last: dict[str, DeviceInfoResponseType]
+    _last: dict[str, tuple[DeviceInfoResponseType, float]]
     _quarantine: dict[str, QuarantineItem]
     _locks: dict[str, LockItem]
     _mutations: dict[str, Callable]
     _gss: dict[str, GapStat]
     _stats: dict[str, float]
+    _outdated: dict[str, bool]
+    _calls_get: dict[str, float]
+    _calls_post: dict[str, float]
 
     messages_queue: asyncio.Queue
     names: dict[str, str]
@@ -42,8 +45,11 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         self._mutations: dict[str, Callable] = {}
         self._gss: dict[str, GapStat] = {}
         self._stats: dict[str, float] = {}
+        self._outdated: dict[str, bool] = {}
+        self._calls_get: dict[str, float] = {}
+        self._calls_post: dict[str, float] = {}
         self._states: dict[str, StateItem] = {}
-        self._last: dict[str, DeviceInfoResponseType] = {}
+        self._last: dict[str, tuple[DeviceInfoResponseType, float]] = {}
 
         self.messages_queue: asyncio.Queue = asyncio.Queue()
         self.names: dict[str, str] = {}
@@ -57,6 +63,7 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         name,
         ping=True,
         human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
+        outdated: bool = False,
         use_china_client=False,
     ):
         self.names[device_id] = name
@@ -64,6 +71,9 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             self._ping.add(device_id)
         self._human_time_funcs[device_id] = self._human_time_funcs.get(device_id) or human_time_func
         self._use_china_client[device_id] = use_china_client
+        self._outdated[device_id] = outdated
+        self._calls_get[device_id] = 0
+        self._calls_post[device_id] = 0
 
     def register_mutation(self, device_id, mutation):
         self._mutations[device_id] = mutation
@@ -122,14 +132,14 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
     def states_in(self, device_id: str) -> bool:
         return device_id in self._states
 
-    def last_get(self, device_id: str) -> DeviceInfoResponseType:
+    def last_get(self, device_id: str) -> tuple[DeviceInfoResponseType, float]:
         return self._last[device_id]
 
     def last_in(self, device_id: str) -> bool:
         return device_id in self._last
 
     def last_set(self, device_id: str, response: DeviceInfoResponseType) -> None:
-        self._last[device_id] = response
+        self._last[device_id] = (response, time.time())
 
     async def ask_permissions(
         self,
@@ -160,15 +170,15 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
         return filtered_ids
 
     async def _device_info(
-        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds=1
+        self, device_id: str, dont_log: bool = False, err_retry: bool = True, hash_seconds: float | None = 1
     ) -> DeviceInfoResponseType:
         raise Exception()
 
     async def device_info(
-        self, device_id: str, ignore_quarantine=False, proceeded_last=False, hash_seconds=1
+        self, device_id: str, ignore_quarantine=False, process_last=False, hash_seconds: float | None = 1
     ) -> DeviceInfoResponseType | None:
-        if proceeded_last:
-            return self.last_get(device_id) if self.last_in(device_id) else None
+        if process_last:
+            return self.last_get(device_id)[0] if self.last_in(device_id) else None
         try:
             if not ignore_quarantine and self.quarantine_in(device_id):
                 return None
@@ -199,20 +209,22 @@ class BaseClient(Generic[DeviceInfoResponseType, ActionRequestModelType], metacl
             excl = {}
 
         filtered_ids = await self.ask_permissions(
-            [(action.device_id, self.device_from_action(action).dict()) for action in actions_list],
+            [(action.device_id, self.device_from_action(action).model_dump()) for action in actions_list],
             lock_level,
             lock,
             actions_list,
         )
         filtered_actions = [action for action in actions_list if action.device_id in filtered_ids]
 
-        actions_list_dict = {action.device_id: action for action in actions_list} if actions_list else {}
-        if checkable and actions_list:
-            for action in filtered_actions:
+        actions_list_dict = {action.device_id: action for action in actions_list}
+        for action in filtered_actions:
+            if checkable:
                 self.states_set(
                     action.device_id,
                     StateItem(actions_list=[actions_list_dict[action.device_id]], excl=excl.get(action.device_id, ())),
                 )
+            else:
+                self.states_remove(action.device_id)
 
         try:
             return await self._devices_action(filtered_actions)

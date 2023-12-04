@@ -17,24 +17,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v3
         with:
           python-version: "3.11"
           cache: 'pip'
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements/requirements-dev.txt
+
       - name: Lint with black
         run: |
           black --check .
+
       - name: Lint with isort
         run: |
           isort --check .
+
       - name: Lint with mypy
         run: |
           mypy smarthouse example server.py lambda/lambda.py
+
       - name: Lint with flake8
         run: |
           flake8 smarthouse example server.py lambda/lambda.py
@@ -43,17 +48,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python 3.11
         uses: actions/setup-python@v3
         with:
           python-version: "3.11"
           cache: 'pip'
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install -r requirements/requirements-dev.txt
           pip install coveralls
           cp "./tests/.env" "./.env"
+
       - name: Test with pytest
         run: |
           pytest -n 4 --cov smarthouse tests
@@ -80,14 +87,8 @@ jobs:
 
       - name: Deploy
         run: |
-          if [[ -v GITHUB_HEAD_REF ]]
-          then
-            ref=${GITHUB_HEAD_REF}
-          else
-            ref=${GITHUB_REF##*/}
-          fi
-          echo $ref
+          REF="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
 
-          ssh "ivan@$SSH_HOST" "cd /home/ivan/smarthouse && git fetch --all && git checkout "${ref}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
+          ssh "ivan@$SSH_HOST" "cd /home/ivan/smarthouse && git fetch --all && git checkout "${REF}" && git pull --force && sudo docker compose -f docker-compose.yml up --build -d  && exit"
         env:
           SSH_HOST: ${{secrets.SSH_HOST}}

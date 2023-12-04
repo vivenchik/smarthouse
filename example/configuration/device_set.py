@@ -4,7 +4,7 @@ import time
 
 from example.configuration.config import get_config
 from example.scenarios.light_utils import calc_sunset, calc_sunset_datetime
-from smarthouse.utils import Singleton, get_timedelta_now, hsv_to_rgb
+from smarthouse.utils import HOUR, Singleton, get_timedelta_now, hsv_to_rgb
 from smarthouse.yandex_client.device import (
     AirCleaner,
     AirSensor,
@@ -36,7 +36,7 @@ class DeviceSet(metaclass=Singleton):
         config = get_config()
         self.balcony_lamp = SwitchLamp(config.balcony_lamp_id, "Освещение балкон")
         self.wc_1 = SwitchLamp(config.lights_wc_1_id, "Освещение в ванной")
-        self.wc_2 = SwitchLamp(config.lights_wc_2_id, "Освещение в ванной у зеркала")
+        self.wc_2 = SwitchLamp(config.lights_wc_2_id, "Освещение в ванной у зеркала", outdated=True)
         self.bed_lights = SwitchLamp(config.bed_lights_id, "Освещение спальня")
         self.sofa_lamp = SwitchLamp(config.sofa_lamp_id, "Освещение у дивана")
         self.main_lamp = SwitchLamp(config.main_lamp_id, "Люстра")
@@ -52,11 +52,17 @@ class DeviceSet(metaclass=Singleton):
         self.exit_door = Door(config.exit_door_id, "Выходная дверь")
         self.balcony_door = Door(config.balcony_door_id, "Балконная дверь")
 
-        self.air = Switch(config.air_id, "Вытяжка ванная")
-        self.hub_power = Switch(config.hub_power_id, "Хаб", ping=False)
+        self.air = Switch(config.air_id, "Вытяжка ванная", outdated=True, debug_log=True)
+        self.hub_power = Switch(config.hub_power_id, "Хаб", ping=False, debug_log=True)
 
         self.wc_term = AirSensor(config.term_id, "Датчик воздуха туалет")
-        self.air_cleaner = AirCleaner(config.air_cleaner_id, "Очиститель воздуха")
+        self.bed_air_sensor = AirSensor(config.bed_air_sensor_id, "Датчик воздуха спальня")
+        self.air_cleaner = AirCleaner(
+            config.air_cleaner_id,
+            "Очиститель воздуха",
+            human_time_func=lambda timestamp=None: (timestamp or time.time()) + 3 * HOUR,
+            debug_log=True,
+        )
 
         self.lamp_e_1 = HSVLamp(config.lamp_e_1_id, "Лампа выход 1")
         self.lamp_e_2 = HSVLamp(config.lamp_e_2_id, "Лампа выход 2")
@@ -77,14 +83,20 @@ class DeviceSet(metaclass=Singleton):
         self.piano_lamp = RGBLamp(config.piano_lamp_id, "Лампа у пианино")
         self.bed_lamp = RGBLamp(config.bed_lamp_id, "Прикроватная лампа")
 
-        self.cleaner = Cleaner(config.cleaner_id, "Пылесос")
+        self.cleaner = Cleaner(config.cleaner_id, "Пылесос", debug_log=True)
 
-        self.humidifier_new = Humidifier(config.humidifier_new_id, "Увлажнитель", use_china_client=True)
+        self.humidifier_new = Humidifier(
+            config.humidifier_new_id,
+            "Увлажнитель",
+            human_time_func=lambda timestamp=None: (timestamp or time.time()) + HOUR,
+            use_china_client=True,
+            debug_log=True,
+        )
 
         self.button = Button(config.button_id, "Кнопка")
         self.button_2 = Button(config.button_2_id, "Кнопка спальня")
 
-        self.curtain = Curtain(config.curtain_id, "Шторы")
+        self.curtain = Curtain(config.curtain_id, "Шторы", debug_log=True)
 
     @property
     def all_devices(self):
@@ -107,7 +119,7 @@ class DeviceSet(metaclass=Singleton):
             self.bed_lamp,
             self.piano_lamp,
             self.lux_sensor,
-            # self.air_cleaner,
+            self.air_cleaner,
             self.humidifier_new,
             self.button,
             self.air,
@@ -259,7 +271,7 @@ async def get_device_name(device_id: str):
         return ds_result.name.lower()
 
     config = get_config()
-    config_dict = config.dict()
+    config_dict = config.model_dump()
     inverted_config_dict = {v: k for k, v in config_dict.items()}
     result = inverted_config_dict.get(device_id, "")
     if (result := result[: -len("_id")] if result.endswith("_id") else result) is not None:

@@ -36,7 +36,7 @@ def get_act(clicks):
     return current_mode
 
 
-def reg_on_prev(clicks_prev, on=True):
+def reg_on_prev(clicks_prev, on=True, shadow: bool = False):
     storage = Storage()
     ds = DeviceSet()
 
@@ -45,7 +45,7 @@ def reg_on_prev(clicks_prev, on=True):
         if len(ds.modes) > len(modes_stats):
             modes_stats += [0] * (len(ds.modes) - len(modes_stats))
         modes_stats[clicks_prev % len(ds.modes)] += time.time() - storage.get(SKeys.last_mode_on)
-        storage.put(SKeys.modes_stats, modes_stats)
+        storage.put(SKeys.modes_stats, modes_stats, shadow=shadow)
 
     storage.put(SKeys.last_mode_on, time.time() if on else None)
 
@@ -58,19 +58,19 @@ def get_mode_with_off(current_mode: list):
     return current_mode + current_mode_off
 
 
-async def turn_on_act(clicks, prev, check: bool = True, feature_checkable: bool = False):
+async def turn_on_act(clicks, prev, check: bool = True, feature_checkable: bool = False, shadow: bool = False):
     current_mode = get_act(clicks)
     await run_async(get_mode_with_off(current_mode), check=check, feature_checkable=feature_checkable)
-    reg_on_prev(prev)
+    reg_on_prev(prev, shadow=shadow)
 
 
-async def check_and_fix_act(clicks, prev):
+async def check_and_fix_act(clicks, prev, shadow: bool = False):
     current_mode = get_act(clicks)
     await check_and_run_async(get_mode_with_off(current_mode))
-    reg_on_prev(prev)
+    reg_on_prev(prev, shadow=shadow)
 
 
-async def light_ons(hash_seconds=1):
+async def light_ons(hash_seconds: float | None = 1):
     ds = DeviceSet()
     return (
         await ds.table_lamp.is_on(hash_seconds=hash_seconds)
@@ -84,7 +84,7 @@ async def light_ons(hash_seconds=1):
     )
 
 
-async def light_colored(hash_seconds=1):
+async def light_colored(hash_seconds: float | None = 1):
     ds = DeviceSet()
     return (
         await ds.lamp_k_1.color_setting(hash_seconds=hash_seconds) == "hsv"
@@ -93,29 +93,46 @@ async def light_colored(hash_seconds=1):
     )
 
 
-async def get_needed_b_t(sensor: LuxSensor, second_sensor: Optional[LuxSensor] = None):
+async def get_needed_b_t(
+    sensor: LuxSensor,
+    second_sensor: Optional[LuxSensor] = None,
+    force_interval: float = 0,
+    hash_seconds: float | None = 1,
+):
     config = get_config()
     storage = Storage()
+    ya_client = YandexClient()
     adaptive_temps = config.adaptive_temps
 
-    state_lux = await sensor.illumination()
+    force = (
+        time.time() - ya_client.last_get(sensor.device_id)[1] < force_interval  # type: ignore[union-attr]
+        if ya_client.last_in(sensor.device_id)
+        else False
+    )
+    second_force = (
+        time.time() - ya_client.last_get(second_sensor.device_id)[1] < force_interval  # type: ignore[union-attr]
+        if second_sensor is not None and ya_client.last_in(second_sensor.device_id)
+        else False
+    )
+
+    state_lux = await sensor.illumination(process_last=force, hash_seconds=hash_seconds)
     if not state_lux.quarantine:
         result_state_lux = state_lux
     else:
         if second_sensor is None:
             if sensor.quarantine().timestamp + 5 * MIN > time.time():
-                result_state_lux = await sensor.illumination(proceeded_last=True)
+                result_state_lux = await sensor.illumination(process_last=True, hash_seconds=hash_seconds)
             else:
                 result_state_lux = state_lux
         else:
-            second_state_lux = await second_sensor.illumination()
+            second_state_lux = await second_sensor.illumination(process_last=second_force, hash_seconds=hash_seconds)
             if not second_state_lux.quarantine:
                 result_state_lux = second_state_lux
             else:
                 if sensor.quarantine().timestamp + 5 * MIN > time.time():
-                    result_state_lux = await sensor.illumination(proceeded_last=True)
+                    result_state_lux = await sensor.illumination(process_last=True, hash_seconds=hash_seconds)
                 elif second_sensor.quarantine().timestamp + 5 * MIN > time.time():
-                    result_state_lux = await second_sensor.illumination(proceeded_last=True)
+                    result_state_lux = await second_sensor.illumination(process_last=True, hash_seconds=hash_seconds)
                 else:
                     result_state_lux = state_lux
 
@@ -202,13 +219,13 @@ def get_zone():
         return zones[minute15 // 4]
 
 
-async def turn_off_all():
+async def turn_off_all(shadow: bool = False):
     storage = Storage()
     ds = DeviceSet()
     storage.put(SKeys.random_colors_passive, False)
     storage.put(SKeys.random_colors, False)
     await run_async([lamp.off() for lamp in ds.all_lamps], lock_level=11, lock=datetime.timedelta(seconds=0))
-    reg_on_prev(storage.get(SKeys.clicks), on=False)
+    reg_on_prev(storage.get(SKeys.clicks), on=False, shadow=shadow)
 
 
 async def sleep():

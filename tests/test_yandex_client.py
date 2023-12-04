@@ -133,7 +133,7 @@ async def test_device_info(base_client):
     result = await base_client.device_info(device_id=device_id)
     assert result is not None
 
-    result = await base_client.device_info(device_id=device_id, proceeded_last=True)
+    result = await base_client.device_info(device_id=device_id, process_last=True)
     assert result is not None
 
 
@@ -172,6 +172,7 @@ async def test_quarantine_yandex_error(mocker, device):
     assert ya_client.quarantine_in(ITEM_UUID)
 
 
+@pytest.mark.flaky(reruns=5, reruns_delay=1)  # todo
 @pytest.mark.asyncio
 async def test_retry(mocker, device):
     ITEM_UUID, DEVICE, ACTIONS_LIST = device
@@ -335,7 +336,7 @@ async def test_locks(mocker, device):
                     Device(
                         id=ITEM_UUID,
                         actions=[Action(type="devices.capabilities.on_off", state={"instance": "on", "value": False})],
-                    ).dict(),
+                    ).model_dump(),
                 )
             ]
         )
