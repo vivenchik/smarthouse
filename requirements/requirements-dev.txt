@@ -8,7 +8,7 @@ aiodns==3.1.1
     # via aiohttp
 aiofiles==23.2.1
     # via smarthouse (setup.py)
-aiohttp[speedups]==3.9.0
+aiohttp[speedups]==3.9.1
     # via
     #   pytest-aiohttp
     #   smarthouse (setup.py)
