@@ -45,7 +45,7 @@ class DeviceSet(metaclass=Singleton):
         self.room_sensor = MotionSensor(config.room_sensor_id, "Датчик движения комната")
         self.wc_sensor = MotionSensor(config.wc_sensor_id, "Датчик движения туалет")
         self.balcony_sensor = MotionSensor(config.balcony_sensor_id, "Датчик движения балкон")
-        self.balcony_sensor_2 = MotionSensor(config.balcony_sensor_2_id, "Датчик движения балкон 2")
+        self.balcony_sensor_2 = MotionSensor(config.balcony_sensor_2_id, "Датчик движения балкон 2", outdated=True)
 
         self.lux_sensor = LuxSensor(config.lux_sensor_id, "Датчик освещенности")
 
