@@ -36,7 +36,7 @@ class DeviceSet(metaclass=Singleton):
         config = get_config()
         self.balcony_lamp = SwitchLamp(config.balcony_lamp_id, "Освещение балкон")
         self.wc_1 = SwitchLamp(config.lights_wc_1_id, "Освещение в ванной")
-        self.wc_2 = SwitchLamp(config.lights_wc_2_id, "Освещение в ванной у зеркала")
+        self.wc_2 = SwitchLamp(config.lights_wc_2_id, "Освещение в ванной у зеркала", outdated=True)
         self.bed_lights = SwitchLamp(config.bed_lights_id, "Освещение спальня")
         self.sofa_lamp = SwitchLamp(config.sofa_lamp_id, "Освещение у дивана")
         self.main_lamp = SwitchLamp(config.main_lamp_id, "Люстра")
@@ -52,7 +52,7 @@ class DeviceSet(metaclass=Singleton):
         self.exit_door = Door(config.exit_door_id, "Выходная дверь")
         self.balcony_door = Door(config.balcony_door_id, "Балконная дверь")
 
-        self.air = Switch(config.air_id, "Вытяжка ванная", debug_log=True)
+        self.air = Switch(config.air_id, "Вытяжка ванная", outdated=True, debug_log=True)
         self.hub_power = Switch(config.hub_power_id, "Хаб", ping=False, debug_log=True)
 
         self.wc_term = AirSensor(config.term_id, "Датчик воздуха туалет")

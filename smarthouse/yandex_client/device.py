@@ -162,16 +162,16 @@ class Device:
         ping=True,
         human_time_func=lambda timestamp=None: (timestamp or time.time()) + 15 * 60,
         use_china_client=False,
+        outdated: bool = False,
         debug_log=False,
     ):
         self.device_id = device_id
         self.name = name
         self.ya_client = YandexClient()
         self.excl: tuple[tuple[str, str], ...] = ()
-        self.use_china_client = use_china_client
         self.debug_log = debug_log
 
-        self.ya_client.register_device(self.device_id, self.name, ping, human_time_func, use_china_client)
+        self.ya_client.register_device(self.device_id, self.name, ping, human_time_func, outdated, use_china_client)
 
     async def info(self, hash_seconds: float | None = 1):
         return await self.ya_client.device_info(self.device_id, hash_seconds=hash_seconds)
