@@ -105,5 +105,5 @@ typing-extensions==4.8.0
     #   pydantic-core
 tzlocal==5.2
     # via apscheduler
-yarl==1.9.2
+yarl==1.9.3
     # via aiohttp
