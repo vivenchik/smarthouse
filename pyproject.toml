@@ -8,7 +8,7 @@ line_length = 120
 profile = "black"
 
 [tool.mypy]
-python_version = 3.11
+python_version = 3.12
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
@@ -27,7 +27,7 @@ ignore = ["E203", "W503"]
 asyncio_mode = "auto"
 
 [tool.pylint]
-py-version = "3.11"
+py-version = "3.12"
 jobs = 0
 max-line-length = 120
 persistent = "yes"
