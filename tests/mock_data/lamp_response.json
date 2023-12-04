@@ -104,47 +104,47 @@
   ],
   "properties": [
     {
-          "type": "devices.properties.event",
-          "reportable": true,
-          "retrievable": false,
-          "parameters": {
-            "instance": "motion",
-            "events": [
-              {
-                "value": "detected"
-              },
-              {
-                "value": "not_detected"
-              }
-            ]
-          },
-          "state": {
-            "instance": "motion",
+      "type": "devices.properties.event",
+      "reportable": true,
+      "retrievable": false,
+      "parameters": {
+        "instance": "motion",
+        "events": [
+          {
             "value": "detected"
           },
-          "last_updated": 1680521686.146
-        },
-        {
-          "type": "devices.properties.event",
-          "reportable": true,
-          "retrievable": false,
-          "parameters": {
-            "instance": "open",
-            "events": [
-              {
-                "value": "opened"
-              },
-              {
-                "value": "closed"
-              }
-            ]
+          {
+            "value": "not_detected"
+          }
+        ]
+      },
+      "state": {
+        "instance": "motion",
+        "value": "detected"
+      },
+      "last_updated": 1680521686.146
+    },
+    {
+      "type": "devices.properties.event",
+      "reportable": true,
+      "retrievable": false,
+      "parameters": {
+        "instance": "open",
+        "events": [
+          {
+            "value": "opened"
           },
-          "state": {
-            "instance": "open",
+          {
             "value": "closed"
-          },
-          "state_changed_at": 1680522686.146,
-          "last_updated": 1680522686.146
-        }
+          }
+        ]
+      },
+      "state": {
+        "instance": "open",
+        "value": "closed"
+      },
+      "state_changed_at": 1680522686.146,
+      "last_updated": 1680522686.146
+    }
   ]
 }
