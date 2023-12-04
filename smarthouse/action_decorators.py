@@ -80,6 +80,7 @@ def looper(
 
                     exceptions_count = 0
                 except Exception as exc:
+                    exc.message = f"({func.__name__}) {exc.message}"
                     logger.exception(exc)
 
                     exceptions_count += 1

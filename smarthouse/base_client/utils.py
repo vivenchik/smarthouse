@@ -96,8 +96,10 @@ def retry(func):
             await asyncio.sleep(time_to_sleep)
 
         if isinstance(_exc, InfraError) and not _exc.dont_log and _exc.debug_str != "":
+            _exc.debug_str = f"({func.__name__}) {_exc.debug_str}"
             logger.debug(_exc.debug_str)
         if not isinstance(_exc, InfraError) or not _exc.dont_log:
+            _exc.message = f"({func.__name__}) {_exc.message}"
             logger.exception(_exc)
         raise _exc
 
