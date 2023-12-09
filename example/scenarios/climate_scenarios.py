@@ -1,3 +1,4 @@
+import datetime
 import logging
 import time
 
@@ -97,7 +98,7 @@ async def bad_humidity_checker_scenario():
 
     if not humidifier_locked and water_level == 0:
         await ds.humidifier_new.on().run_async(
-            check=False, feature_checkable=False, lock=time.time() + 15 * 60, lock_level=3
+            check=False, feature_checkable=False, lock=datetime.timedelta(minutes=15), lock_level=3
         )
         storage.put(SKeys.humidifier_ond, time.time())
 
