@@ -77,7 +77,8 @@ async def clear_tg():
     else:
         await tg_client.to_delete_messages.put((to_delete_timestamp, message_id))
     tg_client.to_delete_messages.task_done()
-    if 0 < to_delete_timestamp - time.time() < 5:
+
+    if to_delete_timestamp - time.time() < 5:
         return 0.1
 
 

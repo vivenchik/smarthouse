@@ -7,6 +7,7 @@ from example.configuration.storage_keys import SKeys
 from smarthouse.action_decorators import looper
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN
+from smarthouse.yandex_client.client import YandexClient
 
 logger = logging.getLogger("root")
 
@@ -51,6 +52,7 @@ async def wc_hydro_scenario():
 @looper(10 * MIN)
 async def water_level_checker_scenario():
     storage = Storage()
+    ya_client = YandexClient()
     ds = DeviceSet()
 
     water_level = await ds.humidifier_new.water_level()
@@ -60,7 +62,19 @@ async def water_level_checker_scenario():
         storage.put(SKeys.water_notified, True)
 
     if water_level > 80 and storage.get(SKeys.water_notified):
+        ya_client.locks_remove(ds.humidifier_new)
+        ya_client.states_remove(ds.humidifier_new)
         storage.put(SKeys.water_notified, False)
+
+    if water_level == 0:
+        ya_client.locks_set(ds.humidifier_new, time.time() + 15 * 60, 3)
+        cur_state = ya_client.states_get(ds.humidifier_new)
+        cur_state.checked = False
+        ya_client.states_set(ds.humidifier_new, cur_state)
+        return
+
+    if water_level <= 10:
+        return MIN
 
 
 @looper(MIN)
@@ -79,7 +93,9 @@ async def bad_humidity_checker_scenario():
     humidifier_locked = storage.get(SKeys.humidifier_locked)
 
     if not humidifier_locked and water_level == 0:
-        await ds.humidifier_new.on().run_async(check=False)
+        await ds.humidifier_new.on().run_async(
+            check=False, feature_checkable=False, lock=time.time() + 15 * 60, lock_level=3
+        )
         storage.put(SKeys.humidifier_ond, time.time())
 
         storage.put(SKeys.humidifier_locked, True)
