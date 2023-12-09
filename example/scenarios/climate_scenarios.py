@@ -63,15 +63,15 @@ async def water_level_checker_scenario():
         storage.put(SKeys.water_notified, True)
 
     if water_level >= 50 and storage.get(SKeys.water_notified):
-        ya_client.locks_remove(ds.humidifier_new)
-        ya_client.states_remove(ds.humidifier_new)
+        ya_client.locks_remove(ds.humidifier_new.device_id)
+        ya_client.states_remove(ds.humidifier_new.device_id)
         storage.put(SKeys.water_notified, False)
 
     if water_level == 0:
-        ya_client.locks_set(ds.humidifier_new, time.time() + 15 * 60, 3)
-        cur_state = ya_client.states_get(ds.humidifier_new)
+        ya_client.locks_set(ds.humidifier_new.device_id, time.time() + 15 * 60, 3)
+        cur_state = ya_client.states_get(ds.humidifier_new.device_id)
         cur_state.checked = False
-        ya_client.states_set(ds.humidifier_new, cur_state)
+        ya_client.states_set(ds.humidifier_new.device_id, cur_state)
         return
 
     if water_level <= 10:
