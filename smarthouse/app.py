@@ -43,7 +43,8 @@ def ignore_exc(func):
             else:
                 return func()
         except Exception as exc:
-            exc.message = f"({func.__name__}) {exc.message}"
+            if hasattr(exc, "message"):
+                exc.message = f"({func.__name__}) {exc.message}"
             logger.exception(exc)
 
     return wrapper

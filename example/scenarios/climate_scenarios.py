@@ -77,6 +77,9 @@ async def water_level_checker_scenario():
         return MIN
 
 
+# todo: загрязнение дольше 2 часов
+
+
 @looper(MIN)
 async def bad_humidity_checker_scenario():
     config = get_config()
