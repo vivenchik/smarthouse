@@ -61,7 +61,7 @@ async def water_level_checker_scenario():
         await storage.messages_queue.put({"message": "please insert water"})
         storage.put(SKeys.water_notified, True)
 
-    if water_level > 80 and storage.get(SKeys.water_notified):
+    if water_level >= 50 and storage.get(SKeys.water_notified):
         ya_client.locks_remove(ds.humidifier_new)
         ya_client.states_remove(ds.humidifier_new)
         storage.put(SKeys.water_notified, False)
