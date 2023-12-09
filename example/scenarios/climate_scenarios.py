@@ -9,6 +9,7 @@ from smarthouse.action_decorators import looper
 from smarthouse.storage import Storage
 from smarthouse.utils import HOUR, MIN
 from smarthouse.yandex_client.client import YandexClient
+from smarthouse.yandex_client.models import StateItem
 
 logger = logging.getLogger("root")
 
@@ -69,7 +70,10 @@ async def water_level_checker_scenario():
 
     if water_level == 0:
         ya_client.locks_set(ds.humidifier_new.device_id, time.time() + 15 * 60, 3)
-        cur_state = ya_client.states_get(ds.humidifier_new.device_id)
+        if ya_client.states_in(ds.humidifier_new.device_id):
+            cur_state = ya_client.states_get(ds.humidifier_new.device_id)
+        else:
+            cur_state = StateItem(actions_list=[])
         cur_state.checked = False
         ya_client.states_set(ds.humidifier_new.device_id, cur_state)
         return
