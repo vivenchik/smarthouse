@@ -175,7 +175,7 @@ pytest==7.4.3
     #   smarthouse (setup.py)
 pytest-aiohttp==1.0.5
     # via smarthouse (setup.py)
-pytest-asyncio==0.21.1
+pytest-asyncio==0.23.3
     # via
     #   pytest-aiohttp
     #   smarthouse (setup.py)
