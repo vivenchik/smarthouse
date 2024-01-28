@@ -32,7 +32,7 @@ class Config(BaseSettings):
     room_sensor_id: str = "4bdd2b24-e0a4-425c-8da6-9c0bfea4bafb"
     wc_sensor_id: str = "f8357f4b-5fe0-44dc-a59a-4daf322be44e"
     cleaner_id: str = "d6ceac5b-b79a-4f18-a578-e953dfb26494"
-    term_id: str = "369cdfa9-6fab-418f-9090-ccbc3ef0a273"
+    term_id: str = "c544b35a-92a2-4a3f-886a-8cc068d63f5f"
     lights_wc_1_id: str = "67465ff6-c82c-43a3-bf19-eedc18cad845"
     lights_wc_2_id: str = "96fb0ecb-d28e-4242-9419-6f6aa5b9397e"
     silence_scenario_id: str = "ba73f2d8-dd01-48ab-af1b-acdb9b87f8b5"

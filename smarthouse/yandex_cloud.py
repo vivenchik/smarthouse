@@ -22,6 +22,8 @@ def retry(func):
             try:
                 return await func(*args, **kwargs)
             except Exception as exc:
+                if hasattr(exc, "message"):
+                    exc.message = f"({func.__name__}) {exc.message}"
                 logger.exception(exc)
                 _exc = exc
 
