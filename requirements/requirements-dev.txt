@@ -164,7 +164,7 @@ pygments==2.17.2
     #   rich
 pyproject-hooks==1.0.0
     # via build
-pytest==7.4.3
+pytest==8.0.0
     # via
     #   pytest-aiohttp
     #   pytest-asyncio
