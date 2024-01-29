@@ -122,7 +122,7 @@ mypy-extensions==1.0.0
     #   black
     #   mypy
     #   typing-inspect
-nh3==0.2.14
+nh3==0.2.15
     # via readme-renderer
 no-implicit-optional==1.4
     # via smarthouse (setup.py)
