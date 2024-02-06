@@ -38,7 +38,7 @@ cffi==1.16.0
     # via
     #   cryptography
     #   pycares
-cryptography==41.0.6
+cryptography==42.0.0
     # via python-telegram-bot
 frozenlist==1.4.0
     # via
