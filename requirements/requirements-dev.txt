@@ -191,7 +191,7 @@ python-dotenv==1.0.0
     # via
     #   pydantic-settings
     #   smarthouse (setup.py)
-python-telegram-bot[all,ext]==20.6
+python-telegram-bot[all,ext]==20.8
     # via smarthouse (setup.py)
 pytz==2023.3.post1
     # via
