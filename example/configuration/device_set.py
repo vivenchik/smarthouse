@@ -199,10 +199,10 @@ class DeviceSet(metaclass=Singleton):
             [
                 self.table_lamp.on_temp(2700),
                 self.piano_lamp.on_temp(2700),
-                # self.sofa_lamp.on(),
+                self.sofa_lamp.on(),
             ],
             [
-                # self.main_lamp.on(),
+                self.main_lamp.on(),
                 self.left_lamp.on_temp(4500),
                 self.right_lamp.on_temp(4500),
             ],
@@ -216,7 +216,7 @@ class DeviceSet(metaclass=Singleton):
                 self.table_lamp.on_temp(3400),
                 self.piano_lamp.on_temp(3400),
                 self.bed_lamp.on_temp(3400),
-                # self.main_lamp.on(),
+                self.main_lamp.on(),
             ],
         )
 
