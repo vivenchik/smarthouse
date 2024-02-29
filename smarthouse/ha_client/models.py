@@ -5,5 +5,4 @@ class DeviceInfoResponse(BaseModel):
     state: str
 
 
-class ActionRequestModel(BaseModel):
-    ...
+class ActionRequestModel(BaseModel): ...

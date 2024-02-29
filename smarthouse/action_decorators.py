@@ -12,11 +12,13 @@ logger = logging.getLogger("root")
 
 
 def calc_sleep(
-    interval: tuple[
-        Union[datetime.timedelta, Callable[[], datetime.timedelta]],
-        Union[datetime.timedelta, Callable[[], datetime.timedelta]],
-    ]
-    | None = None
+    interval: (
+        tuple[
+            Union[datetime.timedelta, Callable[[], datetime.timedelta]],
+            Union[datetime.timedelta, Callable[[], datetime.timedelta]],
+        ]
+        | None
+    ) = None
 ):
     if interval is None:
         return 0
@@ -48,11 +50,13 @@ def calc_sleep(
 
 def looper(
     timeout: int | float,
-    interval: tuple[
-        Union[datetime.timedelta, Callable[[], datetime.timedelta]],
-        Union[datetime.timedelta, Callable[[], datetime.timedelta]],
-    ]
-    | None = None,
+    interval: (
+        tuple[
+            Union[datetime.timedelta, Callable[[], datetime.timedelta]],
+            Union[datetime.timedelta, Callable[[], datetime.timedelta]],
+        ]
+        | None
+    ) = None,
 ):
     def decorator(func):
         @functools.wraps(func)
