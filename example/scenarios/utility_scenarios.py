@@ -9,7 +9,7 @@ from example.configuration.storage_keys import SKeys
 from example.scenarios.utils import get_mode_with_off, good_mo, sleep, turn_on_act
 from smarthouse.action_decorators import looper
 from smarthouse.storage import Storage
-from smarthouse.utils import MIN
+from smarthouse.utils import MIN, get_timedelta_now
 from smarthouse.yandex_client.client import YandexClient
 from smarthouse.yandex_client.device import run_async
 
@@ -47,7 +47,7 @@ async def worker_for_web_scenario():
         await run_async(get_mode_with_off(ds.paint))
 
     if task == "air_cleaner_off":
-        await ds.air_cleaner.off().run_async(lock_level=10, lock=datetime.timedelta(hours=3))
+        await ds.air_cleaner.off().run_async(lock_level=10, lock=datetime.timedelta(hours=30) - get_timedelta_now())
 
     storage.tasks.task_done()
 
