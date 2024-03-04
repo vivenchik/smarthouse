@@ -132,7 +132,7 @@ pathspec==0.12.1
     # via black
 pip-tools==7.4.0
     # via smarthouse (setup.py)
-pkginfo==1.9.6
+pkginfo==1.10.0
     # via twine
 platformdirs==4.2.0
     # via black
