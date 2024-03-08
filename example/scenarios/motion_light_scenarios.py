@@ -123,7 +123,7 @@ async def lights_night_on_scenario():
     voice_min = storage._events.get("voice_min", 0)
 
     if max(voice_max, voice_min) < MIN and storage.get(SKeys.night) and not storage.get(SKeys.lights_locked):
-        await ds.lamp_k_1.on()
+        await ds.lamp_k_1.on_temp(temperature_k=100, brightness=5).run_async()
 
         return 10 * MIN
 
