@@ -66,7 +66,7 @@ def handler(event, context):
     response = {
         "version": event["version"],
         "session": event["session"],
-        "response": {"text": api_response or default_resp, "end_session": "true"},
+        "response": {"text": api_response if api_response is not None else default_resp, "end_session": "true"},
     }
 
     return response
