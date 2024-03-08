@@ -137,3 +137,27 @@ async def air_cleaner_off(request: web.Request):
     await storage.tasks.put("air_cleaner_off")
 
     return web.json_response({})
+
+
+@routes.post("/voice_max")
+async def voice_max(request: web.Request):
+    config = get_config()
+    if config.auth != request.headers.get("AuthorizationI"):
+        raise web.HTTPForbidden()
+
+    storage = Storage()
+    storage._events["voice_max"] = time.time()
+
+    return web.json_response({"response": ""})
+
+
+@routes.post("/voice_min")
+async def voice_max(request: web.Request):
+    config = get_config()
+    if config.auth != request.headers.get("AuthorizationI"):
+        raise web.HTTPForbidden()
+
+    storage = Storage()
+    storage._events["voice_min"] = time.time()
+
+    return web.json_response({"response": ""})

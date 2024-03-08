@@ -55,6 +55,10 @@ def handler(event, context):
             api_response = request("paint")
         if event["request"]["original_utterance"] == "свечка":
             api_response = request("air_cleaner_off")
+        if event["request"]["original_utterance"] == "голос макс":
+            api_response = request("voice_max")
+        if event["request"]["original_utterance"] == "голос мини":
+            api_response = request("voice_min")
 
     if api_response == "ошибка":
         logger.error(event["request"]["original_utterance"])

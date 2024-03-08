@@ -111,6 +111,23 @@ async def lights_balcony_on_scenario():
             return 5 * MIN
 
 
+@looper(0.5)
+async def lights_night_on_scenario():
+    config = get_config()
+    if config.pause:
+        return 1 * MIN
+    storage = Storage()
+    ds = DeviceSet()
+
+    voice_max = storage._events.get("voice_max", 0)
+    voice_min = storage._events.get("voice_min", 0)
+
+    if max(voice_max, voice_min) < MIN and storage.get(SKeys.night) and not storage.get(SKeys.lights_locked):
+        await ds.lamp_k_1.on()
+
+        return 10 * MIN
+
+
 @looper(30)
 async def lights_off_scenario():
     config = get_config()
@@ -212,3 +229,14 @@ async def lights_off_scenario():
             ):
                 if ds.balcony_lamp not in get_act(storage.get(SKeys.clicks)):
                     await ds.balcony_lamp.off().run_async()
+
+    voice_max = storage._events.get("voice_max", 0)
+    voice_min = storage._events.get("voice_min", 0)
+
+    if (
+        not storage.get(SKeys.lights_locked)
+        and storage.get(SKeys.night)
+        and max(voice_max, voice_min) > 15 * MIN
+        and await ds.lamp_k_1.is_on()
+    ):
+        await ds.lamp_k_1.off().run_async()

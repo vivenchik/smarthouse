@@ -29,6 +29,7 @@ from example.scenarios.dayly_lights_scenarios import (
 from example.scenarios.motion_light_scenarios import (
     lights_balcony_on_scenario,
     lights_corridor_on_scenario,
+    lights_night_on_scenario,
     lights_off_scenario,
     lights_wc_on_scenario,
 )
@@ -81,6 +82,7 @@ async def main():
         wc_hydro_scenario(),
         lights_corridor_on_scenario(),
         lights_wc_on_scenario(),
+        lights_night_on_scenario(),
         lights_off_scenario(),
         button_scenario(),
         adaptive_lights_scenario(),

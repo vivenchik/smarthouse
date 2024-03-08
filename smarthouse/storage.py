@@ -16,6 +16,7 @@ class Storage(metaclass=Singleton):
     _storage: dict
     _storage_shadow: dict
     _storage_name: str | None
+    _s3_mode: bool
 
     messages_queue: asyncio.Queue
     tasks: asyncio.Queue
@@ -26,6 +27,7 @@ class Storage(metaclass=Singleton):
         self._storage_shadow = {}
         self._storage_name = storage_name
         self._s3_mode = s3_mode
+        self._events = {}
         if s3_mode:
             from smarthouse.yandex_cloud import YandexCloudClient
 

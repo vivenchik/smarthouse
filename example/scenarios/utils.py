@@ -263,6 +263,7 @@ async def good_mo():
     storage.put(SKeys.night, False)
     ya_client.locks_reset()
     await ds.curtain.open().run_async(check=False, feature_checkable=True)
+    await ds.lamp_k_1.off().run_async()
     await ya_client.run_scenario(config.clocks_on_scenario_id)
     await asyncio.sleep(3)
     await ds.curtain.open().run_async()
