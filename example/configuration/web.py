@@ -1,3 +1,5 @@
+import time
+
 import aiofiles
 from aiohttp import web
 
@@ -152,7 +154,7 @@ async def voice_max(request: web.Request):
 
 
 @routes.post("/voice_min")
-async def voice_max(request: web.Request):
+async def voice_min(request: web.Request):
     config = get_config()
     if config.auth != request.headers.get("AuthorizationI"):
         raise web.HTTPForbidden()

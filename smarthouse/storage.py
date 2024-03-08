@@ -17,6 +17,7 @@ class Storage(metaclass=Singleton):
     _storage_shadow: dict
     _storage_name: str | None
     _s3_mode: bool
+    _events: dict
 
     messages_queue: asyncio.Queue
     tasks: asyncio.Queue
