@@ -225,7 +225,7 @@ tornado==6.4
     # via python-telegram-bot
 twine==5.0.0
     # via smarthouse (setup.py)
-types-aiofiles==23.2.0.20240106
+types-aiofiles==23.2.0.20240311
     # via smarthouse (setup.py)
 types-pyyaml==6.0.12.12
     # via smarthouse (setup.py)
