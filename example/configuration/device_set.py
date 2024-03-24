@@ -31,12 +31,28 @@ def adaptive_human_time_func(timestamp=None):
     return timestamp + 15 * 60
 
 
+def balcony_human_time_func(timestamp=None):
+    if timestamp is None:
+        timestamp = time.time()
+    return timestamp + 3 * 60 * 60
+
+
+def wc_human_time_func(timestamp=None):
+    if timestamp is None:
+        timestamp = time.time()
+    return timestamp + 1 * 60 * 60
+
+
 class DeviceSet(metaclass=Singleton):
     def init(self):
         config = get_config()
-        self.balcony_lamp = SwitchLamp(config.balcony_lamp_id, "Освещение балкон")
-        self.wc_1 = SwitchLamp(config.lights_wc_1_id, "Освещение в ванной")
-        self.wc_2 = SwitchLamp(config.lights_wc_2_id, "Освещение в ванной у зеркала", outdated=True)
+        self.balcony_lamp = SwitchLamp(
+            config.balcony_lamp_id, "Освещение балкон", human_time_func=balcony_human_time_func
+        )
+        self.wc_1 = SwitchLamp(config.lights_wc_1_id, "Освещение в ванной", human_time_func=wc_human_time_func)
+        self.wc_2 = SwitchLamp(
+            config.lights_wc_2_id, "Освещение в ванной у зеркала", outdated=True, human_time_func=wc_human_time_func
+        )
         self.bed_lights = SwitchLamp(config.bed_lights_id, "Освещение спальня")
         self.sofa_lamp = SwitchLamp(config.sofa_lamp_id, "Освещение у дивана")
         self.main_lamp = SwitchLamp(config.main_lamp_id, "Люстра")
