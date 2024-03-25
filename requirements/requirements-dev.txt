@@ -183,7 +183,7 @@ pytest-asyncio==0.23.6
     # via
     #   pytest-aiohttp
     #   smarthouse (setup.py)
-pytest-cov==4.1.0
+pytest-cov==5.0.0
     # via smarthouse (setup.py)
 pytest-mock==3.14.0
     # via smarthouse (setup.py)
